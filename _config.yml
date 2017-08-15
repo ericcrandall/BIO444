@@ -21,7 +21,7 @@ production_url : https://ericcrandall.github.io/BIO444
 
 # Tell Github to use the kramdown markdown interpreter
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)
-markdown: markdown_github
+
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
