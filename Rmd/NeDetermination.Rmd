@@ -1,0 +1,112 @@
+---
+title: <center>Effective Population Size</center>
+output:
+  html_document:
+    css: ~/Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+## More on Effective Population Size
+
+Let's start by reminding ourselves where we were.  We saw that, in finite populations, which otherwise fulfill Hardy Weinberg conditions, variance in allele frequencies among populations tends to increase, while heterozygosity decreases.  For convenience sake, we will redo some the last few plots from that exercise
+
+```{r}
+library(TeachingPopGen)
+set.seed(5678)
+n100 <-driftPlot(rep(100,100)) #run simulations, plot them, and return the results as a list
+```
+
+Now what we want to do is to focus on the decline in heterozygosity and look at this further, so let's plot it
+
+```{r}
+het100 <-2*n100*(1-n100) #calculate all heterozygosities
+Fhat <-apply(het100,1,mean) #determine per generation mean
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l",xlab="Generation",ylab="Mean 2pq")
+```
+
+
+### Analytical solution to decay of Heterozygosity.
+
+For a moment, let's get away from our simulations and look for an anlytical solution to the question.  Let's assume our population consists of individuals who carry two alleles that are identical by descent (ibd; homozygous) and ones who are not (heterozygotes), and the frequencies of the two are respectively F and 1-F.
+
+```{r}
+
+fexp <-function(Nm){
+  ngen <-c(1:100)
+Ht <-(1-(1/(2*Nm)))^ngen*.5
+Ht
+  }
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l",ylab="Heterozygosity")
+lines(fexp(100),col="red")
+```
+
+And we see that we get a pretty good match between our simulation and the theoretical expectation.  
+
+### Population bottlenecks
+
+Thus far, we have modeled a constant population size (N=100).  Suppose there had been a bottleneck in the past:
+
+Generation | size
+---|---
+1-40 | 100
+41-50| 10
+51-100 | 100
+
+It is fairly straightforward to run our simulation again, only now specifying these numbers for the population sizes over the 100 generations modeled:
+
+```{r}
+set.seed(3454)
+N <-c(rep(100,40),rep(10,10), rep(100,50))
+nbot <-driftPlot(N,10)
+```
+
+And as we did before, we can look at the decline in heterozygosity:
+
+```{r}
+Fhat <-apply(nbot,1,function(x) mean(2*x*(1-x)))
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l",ylab="Heterozygosity")
+```
+and we see a drop in heterozygosity concomitant with the bottleneck.  So what is the effective size of this population?  If we start with the current census count (100) and look at what we get
+
+```{r}
+Fhat <-apply(nbot,1,function(x) mean(2*x*(1-x)))
+f100 <-fexp(100)
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l")
+lines(f100,col="red")
+```
+
+The fit is not very good.  What if we knew the population history and used the mean?
+
+```{r}
+nmean <-mean(N)
+nmean
+fmean <-fexp(nmean)
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l")
+lines(fmean,col="darkgreen")
+```
+
+We still don't have a particularly good fit.  But suppose we use the harmonic mean, which is mathematically more sensitive to low values:
+
+Initially, we see that the fit is not great.  However, suppose we use the harmonic mean of N instead of the current census count
+
+```{r}
+nharm <-1/mean(1/N)
+nharm
+```
+
+And plot the expected trajectory of F
+
+```{r}
+fharm <-fexp(nharm)
+plot(Fhat, main="Mean Heterozygosity within Replicates",type="l")
+lines (fharm, col="blue")
+```
+
+And we see a much better fit to the data.  And there is a logical biological reason for this.  When a bottleneck occurs, genetic variation is lost, and in particular low frequency alleles may be eliminated.  Thus, absent new mutation (which we can ignore over the time period we are examining here), that loss of variation persists.  Thus, those time periods in which population numbers are low make have a disproportianely large impact on heterozygosity and thus Ne.  The same is true of the harmonic mean of a series of numbers - the reciprocal of a small number is large, and it is those reciprocals that are being averaged.
+
+### Summary
+
+At this point, the customary approach to understanding effective population size is to do similar theoretical calculations based on unequal sex ratio, population size variation, etc.  However, we are still not where we want to be, which is to be able to take a single population sample and use it to infer Ne.  Also, all of our analyses have been based on the assumption of a diploid population.  For a haploid system such as mitochondrial DNA, Ne is reduced by 1/2, and in the case of uniparental inheritance (as is the case for bothe mitochondria and chloroplasts) it is reduced by 1/2 again.
+
+
+So overall, then, we've been able to develop some theory about genetic drift, effective population size, and mutation.  What we now need to work towards are ways that we can use that theory to make inferences about real populations.

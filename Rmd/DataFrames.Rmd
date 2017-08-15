@@ -1,0 +1,178 @@
+---
+title: <center>"Introduction to Data Frames and Lists"</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output:
+  html_document:
+    css: ~/Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+</br>
+
+### Introduction
+
+We will now examine two critical ways that data are organized in R.  First, data frames are perhaps the most important data structure in R.  The best way to think of them is as the results of making multiple measurements on a set of samples. Further more, those measurements can be of various sorts - numerical (for instance height), discrete factors (like gender or genotype), or character (some particular description). As an example, we are going to look at some data from a simulated survey of individuals, in which their gender, age, height and weight were recorded.  We will see that.
+
+1.  We can access data directly from the web
+2.  We can look at the structure of the data in a couple of ways
+3.  We can compute summary statistics from the data
+4.  We can subset the data
+
+After we have looked at data frames, we will briefly consider lists - collections of objects that are grouped together as a single object.  
+
+### Data Frames
+
+#### Accessing the data
+
+We will start by creating a character variable consisting of the url for the data:
+
+```{r}
+url <- "https://dl.dropboxusercontent.com/u/9752688/QPopgen/Labs/SampleDF.csv"
+```
+We can then read the data as follows:
+
+```{r}
+dat.samp <-read.https(url,header=TRUE,row.names=1)
+```
+In this statement, we've told R to read the table found at the url.  We also indicated that
+
+1.  It contains a header row (names of the measure variables)
+3.  The first column contains the names of the rows (samples)
+
+So we can start by looking at the first few lines of data:
+
+```{r}
+head(dat.samp)
+```
+And we see that it is a sample of individuals, with their gender, age, weight and height (note that the data are fabricated, but based on real distributions in the United states)
+
+Another way we can look at this is to look at its structure:
+
+```{r}
+str(dat.samp)
+```
+And this reveals another aspect of R data - that is that in addition to being numerical or character data, it can be entered as factors.  This becomes valuable in subsetting the data, as we will see later.
+
+And then we can summarize what's in the entire table:
+
+```{r}
+summary(dat.samp)
+```
+#### A few things we can do.
+
+Below we will perform just a few of the many manipulations one can do with data like this.  Before doing so, note a couple of semantic features:
+
+*  When you wish to apply a function, the format is function(object) - see the above two examples.
+*  If one wishes to refer to a particular part of a data set (vector, dataframe, matrix) one uses brackets.  So, for exmaple to look at the 3rd element of the fourth row of our data frame, we could use
+```{r}
+dat.samp[3,4]
+```
+Note at this point that there is another way we could do this.  Remembering that the columns have names (Gender, Age, etc.) we might want to ask, how much does the third subject weigh?  That logic is deflected by the following notation
+```{r}
+dat.samp$Weight[3]
+```
+As we can see, in both cases we were referring to the same element, only in the second case, the syntax follows more logically the question we are asking
+
+* We can use similar notation to subset our data.  In the following we will do so by row, but it can also be done by column.  Let's first say that we want to look at the first 10 subjects.  We could do so by the following:
+```{r}
+dat.samp[1:10,]
+```
+Note that the comma after the 1:10 is critical - since the array (data frame) is two dimensional, we always have to refer to both of them.  The comma followed by nothing tells R to return the entire row.
+
+*  What if we wanted a random sample of rows?  We can get it with the following code:
+
+```{r}
+ind <-sample (1:1000,10,replace=FALSE) #Sample 10 random numbers from the range of 1-1000 (the number of subjects in our data)
+dat.samp[ind,] #return those rows of the data
+```
+Note that in the above, by specifying replace=FALSE, we indicated that we did not want to re-use numbers.  That is in fact the default for the sample function; at times we will wish to change that by saying replace=TRUE.  Remember - more information could be had about this (or any) function by entering ?sample in the console window.
+
+#### A little bit on factors
+
+Remember that we saw that in our data frame, gender was stored as a factor, meaning that each subject is classified into one of a finite number of discrete classes (in this case Male or Female).  There is a lot we can do with these; we'll just scratch the surface here, and in so doing lead into `lists`, our final data structure we will be making regular use of.
+
+* We could summarize the data by gender as follows:
+
+```{r}
+by(dat.samp[,2:4],dat.samp$Gender,summary)
+```
+In this statement, we are asking R to take some data (columns 2-4 of our data frame), separate it by some factor that assigns every row (subject) to a class, and then apply a function to the data (summary in this case).  
+
+* We can also subset the data as we did above, using a factor as a row criterion.  So, for example, if we wanted to look at the distribution of heights in the male subjects (using our colhist function), we could do the following
+```{r}
+colhist(dat.samp$Height[dat.samp$Gender=="Male"])
+```
+*  And finally, we might want to ask how many men in the sample are over 6 feet (72 inches) tall?
+```{r}
+length(which(dat.samp$Height[dat.samp$Gender=="Male"]>72))
+```
+As you can see, these expressions can get quite complicated.  However, if you spend a little time comparing the question posed with the code, you should be able to see how one translates into the other.
+
+
+### Lists
+
+The final category of objects we will be using are lists.  These can be thought of as collections of objects - vectors, dataframes, or whatever.  As a simple example, let's go a little further with our sample dataframe.  As we saw, we can take advantage of various subsetting approaches to compare males and females.  However, we can imagine we might want to divide the data into two data frames, one male and one female.  In fact, we can do so as follows:
+
+```{r}
+dat.split <-split(dat.samp,dat.samp$Gender)
+str(dat.split)
+```
+
+Look closely at the structure of what is returned  - "List of two".  Within the object dat.split, there are two separate data frames, one with female data and one with male.  Notice also that the $ symbol is used both to specify the element of the list and the columns within the two data frames.  We could thus perform some function like
+```{r}
+mean(dat.split$Female$Age)
+```
+An equivalent expression, using the bracket notation (preferred by coders but less intuitive to casual users) would be
+```{r}
+mean(dat.split[[1]][,2])
+```
+Here, the double brackets contain the number of the element of the list and the single brackets that follow the row and column of that element.
+
+* A quick statistical question - is there a significant difference in age between men and women?  We see that the means are `r mean(dat.split$Male$Age)` and `r mean(dat.split$Female$Age)`, but is that significant?  We can easily do a t-test on the data as follows:
+
+```{r}
+t.test(dat.split$Male$Age,dat.split$Female$Age)
+```
+And we see that in fact it is not.
+
+One note on coding style:  As the above example shows, the designation of the data to be analyzed gets quite complicated quickly.  To avoid the inevitable typos (**remember - R is case sensitive**), if you are going to be using some data subsets repeatedly, you may want to create objects with simple names, e. g.
+
+```{r}
+weight.m <-dat.split$Male$Age
+weight.m <-dat.split$Female$Age
+```
+Now you can use these simpler designations in future calculations.
+
+### A few tips to keep you sane
+
+####  Keep everything in your project folder!  It is the working directory; you can determine its identity with 
+```{r,results='hide'}
+getwd()
+```
+#### Use meaningful file names **without spaces**.  
+
+R Studio will add appropriate suffixes - .Rmd for markdown files, .R for scripts, and .html for knitted documents.
+
+#### Help is available
+A ? followed by the name of a function typed into the console window will return a manual page for that function if one exists.  In addition, some packages include vignettes, which are longer narratives describing use of the package.  For example, if we want to know what's in the package pegas (loaded as part of TeachingPopGen), we could enter
+```{r}
+vignette(package="pegas")
+```
+That actually opens a window in the source pane (upper left) listing all the files.  If you execute this command, you will see that there is one called "Reading Files".  You can then open that vignette with
+
+```{r,eval=FALSE}
+vignette("ReadingFiles")
+```
+
+And it will appear either as either a pdf in Acrobat or as html in your browser.
+
+And finally, Google searches can be very valuable.  Often time, links will return from stackoverflow.com, a well-maintained Q & A system for professional programmers.
+
+#### Remember that R is case sensitive
+
+This cannot bear repeating often enough.  My own preference is to keep things in lower case as much as possible, but whether you do or not, you must be consistent.
+
+### Summary
+
+We've obviously only scratched the surface of what can be done.  However, what you have learned to this point should be sufficient for you to follow much of the code in subsequent sections, and to complete the exercises in Laboratory 1.  

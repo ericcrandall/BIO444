@@ -1,0 +1,287 @@
+---
+title: 
+- <h1> Equilibria II </br> Gametic Phase (Linkage) Disequilibrium</h1>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+##  What is it?
+
+Up to this point, we have by and large been treating different genes as independent entities, either by looking at them one at a time, or when looking at multiple genes, assuming that (as Mendel proposed in the "law" of independent assortment) they behave independently of one another.  But, of course, we know that genes occur on chromosomes, and that the closer two loci are to one another, the more likely they are to cosegregate in meiosis.  So the question then becomes how this impacts the distribution of allelic variation in populations.  In this unit we will look at this question theoretically; we will subsequently address how we can infer the effects of linkage from real data.
+
+### Allele and gamete frequencies - What is the relationship?
+
+
+To begin with, we will consider two biallelic loci, A and B.  The frequencies of all alleles (A1,A2; B1, B2) -  p, q, r and s - will be set to 0.5.  What we want to do is to ask what will happen as a result of random mating under two extreme scenarios:
+
+1.  The genes assort independently (meaning that they are either on separate chromosomes or on the same chromosome separated by more than 50 cM)
+2.  The genes are completely linked - that is, no recombination occurs between them.  
+
+Now, let's suppose we start with an artificial population in which all individuals are of the genotype <u>A1 B1</u>/<u>A2 B2</u>.  Put another way there are only two *haplotypes* present in the population, and all individuals are heterozygous for them.  We let them undergo random mating; what will we expect to see?
+
+1.  If they assort independently, then the expected frequencies of the four possible gametes will simply be the products of the  frequencies of the alleles that comprise that gamete.  Thus for example, the expected frequency of A1B1 gametes would be pr, or .5 * .5 = .25
+2.  If no recombination occurs, then we would expect the two original types of gametes - A1B1 and A2B2 - to occur in equal frequency, but the other two possibilities (A1B2 and A2B1) would be absent.
+
+We can summarize these expectations as follows:
+
+Gamete|Scenario 1 | Scenario 2
+---|---|---
+<u>A1 B1</u>|pr = .25|.5
+<u>A1 B2</u>|ps = .25|0
+<u>A2 B1</u>|qr = .25|0         
+<u>A2 B2</u>|qs = .25|.5
+
+#### D - a summary statistic
+
+Now, suppose, instead of having done the controlled cross, we actually were determining haplotype frequencies in a population.  Under the null hypothesis of independent assortment, we would expect results like case 1 above to occur - that is, the frequencies of gametes should be simply the products of the frequencies of the alleles making up that gamete.  So let's define a statistic D to be simply the difference between the observed and the expected number of gametes or 
+
+\(\large{D = f(A_iB_i)_{obs} - f(A_iB_i)_{exp}}\) 
+
+\(\large{= f(A_iB_i) - f(A_i)f(B_i)}\)
+
+
+  
+Here's a trivial little R function to do that calculation.  It takes as input the frequency of two alleles, one at each locus, and that of the gamete containing those alleles.
+
+```{r}
+Dtriv = function(p,r,obs){ #input two allele frequencies and the observed gamete frequency
+  obs-p*r
+}
+```
+
+Now let's use that function to calculate D for our two scenarios above, using the given allele frequencies and the alternative frequencies of the A1B1 gamete.  First, case 1:
+```{r}
+d1 <-Dtriv(.5,.5,.25)
+d1
+```
+And it is zero, as expected.  Now for the second case.
+
+```{r}
+d2 <-Dtriv(.5,.5,.5)
+d2
+```
+And we get a value of *linkage disequilibrium* of .25, indicating that the observed frequency of the gamete is this much greater than that expected based on independent assortment.
+
+We can do the same calculation for A1B2 under scenario 2 as follows:
+
+```{r}
+d2a <-Dtriv(.5,.5,0)
+d2a
+```
+And we get the same value with opposite sign, indicating that there are fewer gametes observed than expected. 
+
+#### An intermediate case
+
+Suppose we actually observe something between the two extremes of complete independence and complete linkage, for example
+
+Gamete | Frequency
+---|---
+<u>A1 B1</u>|.4
+<u>A2 B1</u>|.1
+<u>A1 B2</u>|.1
+<u>A2 B2</u>|.4
+
+Now we can repeat these two calculations, one for a coupling gamete and one for a repulsion one.  Note that the allele frequencies have not changed, only the gamete frequencies
+```{r}
+Dc <-Dtriv(.5,.5,.4)
+Dr <-Dtriv(.5,.5,.1)
+Dc; Dr
+```
+And we see that the absolute value of D is now .15, intermediate to what we saw in the two extreme cases.
+
+Finally, given our constraint that all the allele frequencies=.5, we can plot D against all possible observed gamete frequencies 0 to .5:
+```{r}
+gf <-seq(0,.5,.01)
+Df <-sapply(gf, function(x) Dtriv(.5,.5,x))
+plot(gf,Df,type="l", xlab="Observed Gamete Frequency", ylab="D",main="D vs. observed gamete frequency, p=r=.5",col="red")
+abline(h=0)
+```
+
+And we see that, in this case, D is a linear function of gamete frequency, ranging from a minimum value of -.25 to a maximum value of .25
+
+#### When p ≠ r
+
+To this point, we have been assuming that we have equal allele frequencies (.5) at each of the two loci.  What if that constraint is relaxed?  What happens if we have different allele frequencies? eg, suppose we have the following gametic frequencies:
+
+```{r}
+gf <-c(.3,.5,.1,.1) # frequencies of 11, 12, 21, and 22 gametes
+```
+The first thing we need to do is to calculate the allele frequencies, which we can do by adding together gametes that contain a particular allele:
+
+```{r}
+p <- gf[1]+gf[2]
+q <-1-p
+r <-gf[1]+gf[3]
+s <-1-r
+p;q;r;s
+```
+Now, we can calculate D for the four gametes:
+
+```{r}
+D1 <-gf[1]-p*r
+D2 <-gf[2]-p*s
+D3 <-gf[3]-q*r
+D4 <-gf[4]-q*s
+D1; D2; D3; D4
+```
+And we see that the values we obtain are much lower.  But referring back to the figure above, how do these values relate to the maximum and minimum possible values of D?
+
+Nielsen and Slatkin (page 110-111) have a nice explanation of this.  Their argument is summarized briefly below.
+
+First, as we have seen above, the gametes can be described as follows:
+
+\(\large{f_{AB} = f_Af_B+D}\) 
+
+\(\large{f_{Ab}=f_Af_b-D}\)  
+
+\(\large{f_{aB}=f_af_B-D}\)  
+
+\(\large{f_{ab}=f_af_b+D}\)  
+
+Second, knowing that gametes cannot have a negative frequency, we can write the following inequalities.
+
+\(\large{0 \leq f_Af_B+D}\)
+
+\(\large{0 \leq f_Af_b-D}\)
+
+\(\large{0 \leq f_af_B-D}\)
+
+\(\large{0 \leq f_af_b+D}\)
+
+And from these, we can do a little rearrangement to come up with the following:
+
+\(\large{+D \leq \min{(f_Af_b,f_af_B)}}\)
+
+\(\large{-D \leq \min{(f_Af_B,f_aF_b)}}\)
+
+
+
+We can explore this relationship by writing another simple R function, which will take as inputs the four allele frequencies and return values of Dmx and Dmin
+
+```{r}
+Dmxmn <- function(p,q,r,s){
+  Dmax <-min(p*s,q*r)
+  Dmin <-min(p*r,q*s)
+  c(Dmax, 0-Dmin)
+  }
+```
+
+And we can use it for a couple of examples.  First, let's do the case of four equal allele frequencies
+```{r}
+Dmxmn(.5,.5,.5,.5)
+```
+And we get the values that we saw above - -.25 ≤ D≤ .25.
+
+But now let's use our example where p = .8 and r = .4
+```{r}
+Dm2 <- Dmxmn(p,q,r,s)
+Dm2
+```
+and now -.12 <D <.08
+
+This creates a problem.  Suppose we observe a value of D = .08.  Should we consider it significant?  In the second case, we almost certainly should - after all, it is Dmax.  But in the first case (p=r=.5) Dmax is .25, so our observed value is something like 1/3 of the maximum possible.
+
+
+So how do we address this problem?
+
+#### D'
+
+In the early 1970's, Lewontin proposed the following measure, based on what we have done so far.  
+
+D' = D/Dmax for D>0
+D' = D/Dmin for D<0
+
+What that does is to normalize D by Dmax and Dmin, so that 
+
+0 ≤ D' ≤ 1
+
+However, there is a problem with this.  Consider again our case of p=.8 r=.4.  We saw that Dmax and Dmin are 
+```{r}
+Dm2
+```
+Now, suppose we observe a value of D=.01.  What is D'?
+
+```{r}
+Dp1 <-.01/Dm2[1]
+Dp1
+```
+Alternatively, suppose the observed value of D is -.01.  Now
+```{r}
+Dp2 <- -.01/Dm2[2]
+Dp2
+```
+The difference between the two values of D that were observed is .02; the difference between the two values of D' is
+
+```{r}
+Dp1-Dp2
+```
+ Contrast now that with a similar difference in observed D, only where both values are positive
+
+```{r}
+Dp3 <-.01/Dm2[1]
+Dp4 <-.03/Dm2[1]
+Dp3; Dp4; Dp4-Dp3
+```
+So the same absolute magnitude of difference in observed values of D gives quite different differences in D'.  Thus, for statistical analysis, this measure is problematic.  However, again per @nielsen2013introduction: 
+
+1.  If one gamete is missing from the sample, then D'= 1
+2.  In the case of a polymorphic locus (A/a) and a monomorphic one (B/B), if a new mutation occurs, such that there is now one Ab or ab gamete, D' will also equal 1, since until recombination occurs, one gamete will be missing.
+
+#### r^2^
+
+As we saw with D', one of the problems we have to deal with is that, depending on which gametes (coupling or repulsion) are in excess, the sign of D can differ.  However, we consider both to be departures from expectation, so we would like both to be positive.  As we did with the chi square, we could square our observed values
+
+Consider the example we did, in which we observed that for p=.8 and r = .4, D= ± .01.  If we square either the positive or negative value, we get
+
+```{r}
+Dsq <-D1^2
+Dsq
+```
+Now, we need to normalize this to account for allele frequencies.  We can do by dividing by the product of the four allele frequencies
+
+
+```{r}
+prod <-p*q*r*s
+r1 <-Dsq/prod
+r1
+```
+
+The real benefit if this is that, in fact we've calculated something that is well know by statisticians - the correlation coefficient (see Neilsen and Slatkin, Box 6.3).  This can be converted to a chi squared value by multiplying it by sample size, so, for example, if we'g counted 100 individuals in our experiment, we would do the following
+```{r}
+N=100
+chi <-r1*N
+chi
+```
+With one degree of freedom, the critical value of chi-squared is
+```{r}
+qchisq(.95,1)
+```
+
+
+so we would conclude that the departure from linkage equilibrium is not significant.
+
+And one final note - While certainly r^2^ is more tractable than D' with respect to significance testing, it still suffers from the "compression problem" = that is, unless p = r = .01 the maximum value of r is less than one, and it differs depending on whether D is positive or negative.  To illustrate this, consider the Dmax and Dmin values we calculated earlier:
+```{r}
+Dm2[1]^2/prod
+Dm2[2]^2/prod
+```
+So we see that the sign problem remains
+
+###  Summary
+
+What we have done here is to look at how we would analyze gametic data from a real population in order to determine whether those frequencies are in fact those we would predict based on the hypothesis of the statistical independence of the two loci in question.  However, a number of questions remain:
+
+1.  Is linkage disequilibrium a real phenomenon?
+2.  If so, from whence does it arise?
+3.  If a Hardy-Weinberg population is in linkage disequilibrium, what happens to it with time?
+
+Finally, it is very important to note that all of the above assumes that we can count gametes in our experimental population.  This is not a trivial problem, since by simple genotyping, it is not possible to distinguish between double heterozygotes that are in coupling (AB/ab) or repulsion (Ab/aB).  
+
+We will address these questions soon.  But before doing so, we have to remember that recombination is an ongoing process and ask what that says, in theory, about the fate of linkage disequilibrium.
+
+

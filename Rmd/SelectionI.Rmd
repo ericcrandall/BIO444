@@ -1,0 +1,240 @@
+---
+title: <center>Selection I.  The Basics</center>
+author: <center>Bruce J Cochrane</center>
+date: <center>August 10, 2014</center>
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+
+
+```{r}
+library(TeachingPopGen)
+```
+
+
+### Background
+
+Natural Selection is, of course, the basis for the Darwinian theory of evolution, and perhaps surprisingly, it is something we have barely touched upon up to this point.  The reason for that is important - without first having a thorough understanding of the stochastic processes of drift, mutation and so forth, it is difficult if not impossible to infer the action of selection in any definitive way.  So having done that, we now want to look at the genetics of selection; in so doing, we will follow address the following three questions:
+
+1.  Taken by itself, how do we expect selection to affect allele and genotype frequency dynamics?
+2.  At a theoretical level, how should selection, mutation and drift interact?
+3.  Given that theoretical basis, how can we identify the effects of selection based on molecular sequence data?
+
+### Fitness
+
+Fitness is, broadly speaking, the contribution made by an individual to the subsequent generation, as measured by numbers of viable and fertile progeny.  For our purposes, of course, since we are interested in allele frequency dynamics in diploid population, what we really want to be considering is the contributions made by individuals of a given genotype.  In doing so, there are a couple of considerations we need to take into account
+
+#### Fitness components
+
+Numerous factors contribute to fitness, among them
+
+1.  **Fertility**.  In order to contribute to subsequent generations, an individual has to be capable of producing viable gametes.
+2.  **Mating success**.  Having produced those gametes, s/he needs to mate successfully.
+1.  **Viability of progeny**  Having mated, the resulting embryos must survive to reproductive age
+4.  **Fertility of progeny**  And finally, those reproductive age progeny have to themselves be fertile
+
+In fact, there are many more elements that can be examined; we are going to restrict most of our attention  to viability as a measure of fitness, briefly considering fertility as somewhat of a special case.
+
+#### Absolute vs. relative fitness
+
+In our simple formulation, fitness is measured by the average number of progeny produced by individuals of a particular genotype.  But, just as we did when we first developed Hardy-Weinberg theory, we need to be able to use those numbers to generate expectations about frequencies, both of genotypes and alleles.  
+
+Consider the following example.   We are looking at a mouse coat color polymorphism, with two alleles, C and R:
+
+```{r}
+fC <-.3
+fR <-.7
+```
+Furthermore, based on experimental observation, we observe that the viabilities of the three genotypes are as follows:
+
+```{r}
+wCC <-.5
+wCR <- .4
+wRR <- .3
+w <-c(wCC,wCR,wRR)
+```
+Now, suppose we have a population of 100,000 newborn mice (before selection has occurred) and the population is in Hardy-Weinberg equilibrium.  That would mean that we would have the following numbers of inviduals.
+```{r}
+N <-100000
+Ngenos.pre <-c(fC^2,2*fC*fR,fR^2)*N
+Ngenos.pre
+```
+But, as they mature, the viability differences come into play, at reproductive age, the numbers become
+```{r}
+Ngenos.post <-Ngenos.pre*w
+N.post <- sum(Ngenos.post)
+Ngenos.post
+N.post
+```
+Note a couple of things here.  First, whereas initially there were `r as.integer(N)` embryos, after selection, there are only `r as.integer(N.post)` adults.  If we take the ratio of those two values, we get the **mean fitness** of the population
+```{r}
+wbar <-N.post/N
+wbar
+```
+And note that the two factors that contribute to that are the genotype frequencies in the embryos (determined by the allele frequencies of the parents) and the viabilities of the those embryos as determined by their genotypes.
+
+We can now ask the usual questions - is this new, post-selection, population of mice in Hardy-Weinberg equilibrium, and what are the allele frequencies?  We will use our old hw function to do those calculations:
+
+```{r}
+hw.post <-hw(Ngenos.post)
+
+```
+And our answers are
+
+1.  No, they are not in Hardy Weinberg equilibrium, and 
+2.  The allele frequencies have changed.  Whereas our starting frequency of the C allele was .3, we now see that it is .358.
+
+But let's look at another scenario.  Suppose we repeat the above, only now assume that selection is 10 times more intense, that is that the viabilities of the three genotypes are .05, .04, and .03.  We can repeat the same calculations as above:
+
+```{r}
+w <-c(.05,.04,.03)
+Ngenos.post <-Ngenos.pre*w
+wbar <-sum(Ngenos.post/Ngenos.pre)
+wbar
+Ngenos.post
+hw(Ngenos.post)
+```
+And we see that the allele frequency change that results is identical to what we saw previously (although now there is not a significant difference from Hardy-Weinberg expecations in the genotype frequencies).  This leads to an important point - **It is the fitness of genotypes relative to those of others, that is important, as opposed to the absolute magnitudes of those fitnesses.**.  
+
+So from here on out, we will work with relative fitnesses, defined as follows.  One genotype, usually that one with the highest absolute fitness, will be assigned a relative fitness of 1, and the others some values 1-s and 1-t, where s and t, the selection coefficients, reflect the intensity of selection and assume values between 0 and 1.
+
+### A Simple case - A Recessive Lethal
+
+With a little simple algebra, we were able to show that, when an allele is a heterozygous lethal, its expected frequency at time t is simply  
+
+q~t~ =[q/(1+q)]^t^
+
+Where q is its initial frequency.  we can see that graphically with the following code:
+
+```{r}
+par(mfrow=c(1,1))
+t <-c(0:100)
+q <- .9
+qt <-(q/(1+q))^t
+plot(qt,type="l", xlab="Generation",ylab="q",ylim=c(0,1),col="red")
+```
+
+So what we see is that, as expected, the frequency of a recessive allele drops quickly, so that by 10 generations or so, it is effectively zero
+
+### A more general approach
+
+We could repeat the algebra we did for lethal selection for other scenarios; for example  where the fitness of the recessive homozygote is 1-s, where s<1.  Instead of doing so, we can easily derive a more general equation, given the model of
+
+w(AA) = 1  
+w(Aa) = 1-hs  
+w(aa) = 1-s  
+
+Having done so, we can then show that  
+
+&delta;p = p(w~A~ - w)/w
+
+Where w~A~ is the mean fitness of individuals with an A allele (homozygote or heterozygote) and w is the mean fitness of the population
+
+The following R code implements that equation.  It takes as inputs the initial value of p, the values of h and s, and whether or not a plot is to be returned.  The default function returns a vector with the values of p.
+```{r}
+
+deltap <-function(pinit,h,s,plot=FALSE){
+
+p <-c(pinit,rep(0,99))
+dpg <-c(0,rep(0,99))
+for(i in 2:100){ 
+pt <-p[i-1]
+qt <-1-pt
+wbar <-1-(2*pt*qt*h*s)-s*qt^2
+dp<- ((pt*qt*s)*(pt*h+qt*(1-h)))/wbar
+p[i] <-pt+dp
+
+ }
+p2 <- seq(0,1,.01); q2 <-1-p2
+wbar2 <- 1-(2*p2*q2*h*s)-s*q2^2
+dp2<- ((p2*q2*s)*(p2*h+q2*(1-h)))/wbar2
+if(plot){
+par(mfrow=c(1,2))
+print(dp2)
+plot(p, type="l", ylab="p", xlab="Generation", ylim=c(0,1),col="blue", main="Allele Frequencies vs. time")
+lines(1-p,col="red")
+plot(p2,dp2,type="l",xlab="p",ylab="Delta p", xlim =c(0,1), main="Delta(p) vs. p")
+}
+p
+
+}
+```
+
+#### Selection against a deleterious recessive
+
+We can start with the case of h=0 and s=1, the lethal situation we described above (we set the initial value of p to .1 and thus q to .9)
+```{r}
+out <- deltap(.1,0,1)
+plot(1-out,type="l",xlab="Generation",ylab="q",lwd=2,cex=1.5)
+#lines(1-deltap(.1,0,.2,plot=FALSE), col="blue",lwd=2,cex=1.5)
+#lines(1-deltap(.1,.5,.2),col="purple",lwd=2,cex=1.5)
+```
+Now, what is we had weaker recessive selection, say with s=.1?
+```{r,eval=FALSE}
+lines(1-deltap(.1,0,.2,plot=FALSE), col="blue")
+```
+And we see that, as expected, while q declines, is does so much more slowly.  But now let's add in selection against the heterozygote as well, setting h to .5 (meaning that the fitness of the heterozygote is intermediate to that of the homozygote.
+
+```{r,eval=FALSE}
+lines(1-deltap(.1,.5,.2),col="purple")
+```
+
+The differences, while present, are not spectacular.  But what about rates of change?  After all, that is what determines the rate of evolution.  We can look at that with the same function, only now setting the plot flag to TRUE.
+
+First, the lethal case:
+```{r,results="hide"}
+x <-deltap(.1,0,1, plot=TRUE)
+```
+
+And we see that, as p increases, &delta;p declines, meaning that when *a detrimental allele becomes rare, selection becomes inefficient*.
+
+Now let us suppose that s=.1, as above
+
+```{r,results="hide"}
+deltap(.1,0,.2,plot=TRUE)
+```
+
+How do we explain this?  as p increases from zero, selection becomes more effective, as the number of AA and Aa genotypes(with a fitness of 1) increases, however, as aa individuals become rare, the efficiency declines.
+
+Finally, if we set the fitness of the heterozygote to be intermediate to that of the two homozygotes: 
+
+```{r,results="hide"}
+deltap(.1,.5,.2,plot=TRUE)
+```
+
+Now we see that delta p is maximized when p=.5  .  Of course, we know from Hardy-Weinberg theory that this is when heterozygotes are most common, and since selection in this case is acting on them, this result is as expected.
+
+#### A special case - heterozygote advantage
+
+
+
+All of the above have been examples of directional selection, with one allele or the other ultimately going to fixation.  But what about the case of heterozygote advantage?  For example, suppose that w have the following:
+
+w(AA) = 1-s  
+w(Aa) = 1  
+w(aa) = 1-t  
+
+And as an example, suppose that s=.4 and t=.3.  To use our function, we need to do some algebra to normalize relative fitnesses to that of AA, but when we do, we find that s=-.166 and h=-4, so we can plug those into our function and we get
+
+```{r,results="hide"}
+deltap(.1,4,-.16,plot=TRUE)
+abline(h=0,col="red")
+```
+
+There are two things to note.  First of all, as expected, we see that there are nonzero equilibrium values for both p and q - after all, heterozygotes have the maximum fitness. This means that there are three equilibrium points in the &delta;p vs. p curve, when p=0, p=1, or when p and q are at their equilibrium values.
+
+But what is that mean fitness?  We can calculate it as follows:
+```{r}
+p <-(.3/(.4+.3))
+q <-1-p
+wbar <-1 - .4*p^2- .3*q^2
+wbar
+```
+
+And we see that it *the mean fitness of the population is less than 1*.  Thus, the good news about heterozygote superiority is that it maintains variation.  The bad news?  At a cost to population fitness.  We will address that more in the future.
+

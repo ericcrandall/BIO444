@@ -1,0 +1,82 @@
+---
+title: "<center>Coalescence I.  Setting the Stage</center>"
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r}
+
+library(phangorn)
+library(TeachingPopGen)
+```
+
+## Exploring Gene Genealogies
+
+One of the two key tenets of Darwinian evolution is common descent - the idea that any two organisms share a common ancestor.  The same principle holds for alleles - two homologous sequences, regardless of their current differences, at some point in the past shared a common ancestor.  The problem is that, unlike reproductively isolated species, the relationships are reticulated, so that different pairs of alleles have different ancestries.  The objective of coalescence analysis is to develop the necessary theory to generate expectations regarding the process, and then analyze actual data within that framework.  The theory can be daunting, however it is worth the effort, since it offers the promise of providing robust insights into population and species histories.
+
+### A Visual introduction
+
+Before delving into the theory, we can consider the problem qualitatively.  The data we have consist of homologous DNA sequences, so we know those sequences have some pattern of ancestry.  A phylogeneticist interested in that history would use one or more available algorithm to construct a phylogenetic tree, under the assumption that the most similar sequences share the most recent common ancestry.  We can do that with our acp29 data, reading it as follows:
+
+
+
+```{r}
+data(acp29) #read the data from a local file
+names(acp29)<-c(1:17) # rename the sequences to clean up the output
+```
+
+#### Plotting a tree
+
+Let's start with a possible tree that purports to trace our sequences to a common ancestor.  The easiest way to do that is with a function in the package `phangorn`[@phangorn] (which may need to be installed in the usual way)
+
+```{r}
+#install.packages("phangorn") # uncomment if you need to install
+library (phangorn) #note that this make take a while to load
+```
+```{r}
+
+tree.rat <-pratchet(as.phyDat(acp29),trace=0) # Do parsimony; requires conversion of data to different type of object
+tree.rat <-root(tree.rat,16,resolve.root=TRUE)
+plot(tree.rat,root.edge=TRUE) # Plot the data, ignoring inferred branch lengths
+```
+
+Don't take this tree too seriously; it is simply a possible gene genealogy, and there are no doubt many more.  Remember - we are dealing with alleles in a population, not genes in different species.  So we need to dig further.
+
+Furthermore, note that we are now dealing with expectations for for a tree, not for some summary measure.  Thus, it is not particularly obvious how we could generate a quantitative distribution of  trees that could result in the data (remember - 17 sequences of 702 base pairs, with 15 segregating sites.).  As we will see below, we can generate trees based on those paramters - as many as we want - but how do we reduce them down to summary statistics that can be further analyzed?
+
+### Generating random trees
+
+We reture to program `ms`.  Remember that it does is to simulate sequence evolution under the neutral model - that is, given either a value of &theta; or S (as well as, when appropriate, some other population parameters), it will generate simulated data sets; in addition it can, if the appropriate options are set, generate the data necessary for illustrating each set as a tree.  `ms` can be run either from the command line or as part of the package `phyclust` [@Phyclust]; to the greatest extent possible we will use the latter approach.
+
+#### Running the simulations
+
+So what we will do is to generate 6 random data sets, each with 17 sequences, 702 base pairs and 15 segregating sites. The numbers following the -r parameter indicate that there is 0 recombination and 702 total positions, and the -T option indicates that we wish to have descriptions of the trees generated.
+```{r}
+tr <-ms(nsam=17,nreps=6,opts ="-s 15 -r 0 702 -T" )
+```
+
+#### Plotting the trees
+
+We will talk a lot more about using ms output, but for now, we can use the read.tree function in `ape`[@Paradis2004] to extract the data and then plot the trees:
+
+```{r, results='hide', fig.height=15}
+#par(mfrow=c(3,2))
+trees <-read.tree(text=tr)
+sapply(trees,plot)
+par(mfrow=c(1,1))
+```
+
+These could be thought of as the gene genealogies of six different genes, **all sampled from the same individuals**.  What we see is a veritable forest (and if we increased nreps, we could get even more - `ms` is VERY fast, so that generation of 1000 simulations is a simple matter).  The question now becomes how to summarize the simulations in a way that is amenable to our usual form of analysis.  That is where we will go next.
+
+### Summary
+
+Everything we have covered assumes that a given set of alleles has a common ancestor (usually referred to as MRCA, or most recent common ancestor).  We have also assumed that the processes that gave rise to the set of alleles we've sequenced are the stochastic processes of mutation and drift, which are the components that go into &theta;, the neutral parameter.  What we see, however, is that there are, even for a small sample of alleles, a nearly infinite number of geneologies that can give rise to the observed data.  What we will now do is to divert into theory for a bit and ask how we might use some of the work we have done in analyzing DNA polymorphisms to see how we can better quantify the coalescent process.
+
+

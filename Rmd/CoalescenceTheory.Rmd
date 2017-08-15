@@ -1,0 +1,152 @@
+---
+title: "<center>Coalescence - A Little Theory</center>"
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+csl:  "genetics.csl.txt"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+## Part 2.  The Underlying Theory
+
+So keep in mind - our essential questions is the following:  *Given an observed set of allelic DNA sequences, what can we infer about the evolutionary processes that gave rise to them?*  For now, we're going to simplify the question by only asking whether the data can be explained by the processes of mutation and drift occurring in a finite population.  Furthermore, since we are working backwards from extant species, we needn't be concerned about the vast number of new variants that would have been lost by the processes we've already discussed.
+
+The approach, which we already outlined, is to make inferences about the ancestry of alleles.  The classic approach, developed by  @Kingman1982 is to consider the problem from the standpoint of the whole population.  However, in most cases, the data one works from consists of a sample drawn from that data.   We will briefly consider the first approach, but focus most of our attention on the second.
+
+### Looking back one generation
+
+First, in a population of N individuals (2N alleles), and assuming that self-fertilization is possible, what is the probability that two lineages coalesce in the previous generation?  That is simply \(\frac{1}{2N}\), since there are 2N alleles in the population.  And given that, the probability of two lineages not coalescing is simply \(1-\frac{1}{2N}\).
+
+### Going back further.
+
+Suppose we go back r generations.  What we want to figure first is the probability of two lineages not coalescing.  It's a fairly easy derivation to show that this is just going to be \((1-1/2N)^r\).  We can then use that to ask the following question - what is the probability that two genes first find a common ancestor in generation r?  To get that, we combine the probability that they have not coalesced by generation r-1 with the probability (1/2N) that they do in generation r.  This leads to
+
+\(P\{coalescence\,in\,generation\,r\}= (1-\frac{1}{2N})^{r-1}*\frac{1}{2N}\)
+
+Let's look at this a little more closely.  What we are saying is that there is a certain probability, over some time interval t, that an event (coalescence) occurs, which, we've seen is 1/2N.  Now for the next interval t, the same probability exists, only this now a sample size of (1-1/(2N)).  This would continue on out as t -> infinity.  What this is is a geometric distribution.  We can summarize it as follows:
+
+Suppose there is some event that occurs with probability p during a particular time period.  *What we are examining is the time to the first occurrence of the event.*  In our case, the event is the most recent coalescent event.
+
+Rather than get into the math of it, let's look at what our expectation would be, using simulation.  Let's assume a population of 100, with 2N thus = 200, and generate 1000 geometrically distributed random values
+
+```{r}
+N <-100
+geo <-rgeom(1000,1/(2*N))
+mean(geo)
+hist(geo,main="Time to Coalescence, N=100",xlab="Generations")
+```
+
+And we see (which we could also show analytically) that the mean time to coalescence is, in fact 2N.  For that reason, from here on out, we will scale time in units of 2N, so that we have, for this example, the following:
+
+t | generations
+---|---
+1|200
+2|400
+3|600
+
+etc.  
+
+### For sample size n
+
+Our main interest is in looking at an actual set of allelic DNA sequences in a coalescent framework.  In so doing, there are two quantities that are useful - time to the most recent common ancestor (TMRCA) and total branch length.  We will take a brief analytical look at both to see how we can generate expectations and then see how we can use ms to examine their distributions.  Note that in what follows, the lower case "n" will refer to the number of sequences in our experimental sample, as opposed to the upper case N, the effective size of the population
+
+#### TMRCA
+
+So, when scaling time by 2N, we see that the expected rate of coalescence for two alleles is 1.  But in a real experiment, we would have some sample of n alleles.  We already saw when talking about nucleotide diversity that there are n(n-1)/2 pairs of sequences in a sample of n, thus we have the same number of pairs of sequences coalescing.  so if the rate of 1 pair of sequences coalescing is 1, the rate for for n sequences is simply n(n-1)/2.  So here is the important point - the time for the first coalescent event to occur is the reciprocal of the rate or
+
+\(\hat{t}_{coalescence\,1}=\frac{1}{\frac{n(n-1)}{2}}\)
+
+and rearranging, we get
+
+\(E(t_{1})=\frac{2}{(n(n-1)}\)
+
+
+Now let's go back one more step.  If two lineages have coalesced into 1, we now have a total of n-1 remaining.  So we repeat the process, only now substituting n-1 for n in the above equations and get
+
+\(E(t_{2})=\frac{2}{(n-1)(n-2)}\)
+
+And for generation k,
+
+\(E(t_{k})=\frac{2}{k(k-1)}\)
+
+And we would continue this until there is only one lineage left, at which we have reached the most recent common ancestor.  And how long will that take?  it will simply be the sum of all of the tk's, or
+
+\(E(TMRCA) = ∑_{k=2}^{n}\frac{2}{k(k-1)}\)
+
+
+##### An Example
+
+Let's use the example of k=4 and figure out the times to the first, second, and third coalescent events:
+
+```{r}
+n <-c(4:2) # number of lineages working from the present backwards through the coalescent events
+
+t <-1/(n*(n-1)/2) # calculate the tune to each event
+t
+sum(t) #sum to get E(TMRCA)
+```
+
+And we see that the expectation is that E(TMRCA)  is `r sum(t)`.  Keep this value in mind; we will return to it shortly.
+
+#### Total branch length
+
+In looking at our tree, we can also ask what the total lengths of the branches are.  Based on our previous calculations, this actually turns out to be easy.  if we have k lineages at a given point, each with an expected time to coalescence (which we've already determined) then for the tree length  in going from k to k-1 is simply k(E(t~k~)).  For the entire tree, therefore, we can sum this, like we did before, over k=2 to k=n.  The algebra of this is pretty straightforward  - it ends up to be
+
+\(E[tree\,length]=2∑_{k=1}^{n-1}\frac{1}{k}\)
+
+
+
+In our example, therefore
+```{r}
+lngth <-2*sum(1/c(1:3))
+lngth
+```
+And we see that the total tree length is `r lngth`.
+
+### Simulating the distributions of TMRCA and Total Tree Length
+
+So we have expectations for our two quantities, but as always we'd like to look at their distributions.  This is actually not all that hard to do analytically, but as a means of further exploring ms, we can do it, as we have so often, by simulation.  For now, we will stick with the example on n=4.  However, what we will do is to ask ms to do 1000 simulations of coalescence of four sequences, each with 1 segragating site (the choice of this number is completely arbitrary at this point).
+
+```{r}
+sims <-ms(nsam=4, nreps=1000,opts=("-s 1 -L"))
+```
+
+Because we specified the -L option, part of the information returned is TMRCA and tree length.  We will use the read.ms.output function (in the course package) to get the data into a usable form:
+
+```{r}
+sims.out <-read.ms.output(txt=sims)
+
+```
+
+Note that this returns a list of objects; what we are interested is in sims$times:
+
+```{r}
+colnames(sims.out$times) <-c("TMRCA","Length")
+head(sims.out$times)
+
+```
+The first column of this is simply the estimates of TMRCA for each of the 1000 simulations; the second column is the total tree length.  We can look at their means and do quick plots of them as follows:
+
+```{r,results='hide',fig.height=10}
+tms <-2*sims.out$times
+sim.mean <-apply(tms,2,mean) #ms scales in terms of 4N, so we've mutliplied by 2 for comparison's sake.
+#par(mfrow=c(2,1))
+sapply(1:2,function(x){ hist(tms[,x],main=colnames(tms)[x],xlab=" ")
+                        abline(v=sim.mean[x],col="red")})
+
+sim.mean
+par(mfrow=c(1,1))
+```
+
+
+
+The top panel shows the distribution of TMRCA; the bottom one that of total length. In both cases, the red lines indicate the means. Remembering that we arrived at the expected TMRCA to be `r sum(t)` and that of total length to be `r lngth`, we see that our simulated values are quite close to that - `r sim.mean[1]` and `r sim.mean[2]`.
+
+### Summary
+
+Remember where we want to be.  We want to be able to find summary statistics that describe the coalescent process, which we can then use to compare observed data to the expected distribution.  Now we have two numbers for coalescence - TMRCA and total tree length - and we can simulate both their expected values and their distributions.  But remember the summary statistics we have for DNA - π (mean pairwise differences) and S (number of segregating sites).  How can we bring these together?  That's where we're headed next.
+

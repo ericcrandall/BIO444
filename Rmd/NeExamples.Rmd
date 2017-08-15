@@ -1,0 +1,73 @@
+---
+title: <center>Some Calculations of Effective Population Size</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: "NeBib.bib"
+csl:  "genetics.csl.txt"
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+```{r,echo=FALSE}
+library(knitcitations)
+cite_options("citation_format" = "pandoc",hyperlink = TRUE,max.names = 2)
+```
+### Background
+
+Effective population size is a widely used concept - `r citet("10.1038/nrg2526")` has written an excellent introduction to the subject.  Furthermore, in Table 3 of that paper (below) he summarizes some estimates made of Ne based on nucleotide sequence data.  We will work through a couple of those examples.
+
+![NE](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/images/CharlesworthNeTable1.jpg)
+
+### Humans and Apes
+
+The question of the effective population sizes of humans and the great apes was considered by `r citet("10.1534/genetics.166.3.1375")` in a fairly straightforward way, using the Tajima estimator to do so:
+
+&pi; = 4Ne&mu;
+
+It takes only trivial algebraic rearrangement to recognize that
+
+Ne = &pi;/4&mu;
+
+We can calculate &pi; from nucleotide sequence data; the question is what to use for &mu;.  One very approximate way to get at that would be to divide the percent divergence between to species by 2t, where t is the estimated time of divergence.  We can do that for humans and chimpanzees as follows:
+
+```{r}
+td <-6000000
+nucdiv <- .0129
+mu <-nucdiv/(2*td)
+mu
+```
+Note that this is a yearly mutation rate; to get the per generation rate, we need to multiply it by the average number of years per generation (20 in humans):
+
+```{r}
+mu.hum <-mu*20
+```
+
+Now, looking at 10 nuclear genes, Yu et al found the average value of &pi; to be .087.  Using these value, we can then calculate Ne as follows:
+
+```{r}
+pi.hum <-.00087
+n.hum <-pi.hum/(4*mu.hum)
+n.hum
+```
+And we come up with the surprisingly low figure of `r as.integer(n.hum)` (note that the estimate of &mu; they used was slightly different, as it was calculated based on divergence among gorillas, chimpanzees and humans, not just the latter two taxa).
+
+### E. coli
+
+This quesion is addressed by Charlesworth and Eyre-Walker `r citep("10.1093/molbev/msk025")`, using synonymous differences in 10 genes.  In this case, the estimate &theta; (using the Watterson estimator) was 0.76; the mutation rate had previously been estimated to be 5X10^-10/nucleotide per generation.  Our estimate of Ne can thus be made by
+
+```{r}
+th.ecoli <-.78
+mu.ecoli <-5*10^(-10)
+n.ecoli <-th.ecoli/(4*mu.ecoli*2)
+n.ecoli
+```
+
+
+### References
+
+```{r,echo=FALSE,message=FALSE}
+write.bibtex(file="NeBib.bib")
+```
+

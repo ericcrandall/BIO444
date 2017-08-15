@@ -1,0 +1,130 @@
+---
+title: 
+- <center>Is It a Fair Coin?</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+```{r, echo=FALSE}
+library(TeachingPopGen)
+
+```
+
+## The Basic Problem - Bionomial Variables.
+
+In the simplest case, working with genetic data is an exercise in the manipulation of binomial (or in the multi-allelic case multinomial) random variables. For now, consider the case of a biallelic locus, with alleles A and a, both with equal frequencies (p=q=.5).  If we think of a population as consisting of a collection of gametes, then drawing samples from it would be akin to  a coin flip.  To determine the probability of a particular outcome, we  could consider consider combinations and permutations, and then apply the binomial theorem.  Alternatively, the same result can be obtained via simulation, and in a way that leads more directly to dealing with more complex situations.
+
+### Flipping a Coin
+
+Where better to start a consideration of probability distributions (in particular the binomial) with a coin flip.  We can do a **trial**, flip a coin, that has two possible **outcomes** (heads or tails), and assuming its a fair coin, we can hypothesize that
+
+p{HEAD}= p = .5
+p{TAIL}= q = .5
+
+and since these are the only possible outcomes (we will ignore the improbable outcome of the coin landing on its edge), the two probabilities sum to 1.  And if we were to do 2N trials, our **expectation** is that  we would observe Np heads and Nq tails.  But of course, we know that chance plays a role as well.  So what we have to do is ask, given this hypothesis and expection, how can we characterize the expected **distribution** of outcomes?  
+
+#### The Experiment
+
+Suppose we start with the following question.  "If you were to flip a coin 20 times and get 17 heads, would you consider it to be a fair coin"?  In practice, in a class of junior and senior biology majors, the results were as follows
+
+Answer | Percent
+---|---
+Yes | 53%  
+No  | 32%  
+Not Sure | 15% 
+
+#### Analysis
+
+As we will do throughout, we will have  computer simulate the experiment 10000 times and plot the results.  When we do so, we will also identify the 5% of the 10000 outcomes that deviate from the expected the most.  R is very good at helping us do this.  First, we can do the experiment of flipping a fair coin (P{H}=P{T} =.5) 10000 times
+```{r}
+set.seed(3972) #set the random number generator seed so that results are reproducible
+flips <-rbinom(10000,20,.5) # do 1000 replications of 20 flips of a fair coin
+length(flips)
+head(flips)
+
+```
+We can easily determine the mean of the outcome:
+
+```{r}
+mean(flips)
+```
+Which is very close to 10, which is what we would intuitively expect (and indeed, in the analytical world, E(H)=pN = .5*20 = 10)
+
+And we can do a quick and dirty plot of those data
+```{r}
+hist(flips,xlab="Number of Heads",ylab="Number", main="1000 Replicates of 20 Coin Flips", xlim =c(0,20))
+```
+
+
+But let's return to our question.  We've actually done the experiment once, and we observed 17 heads.  We can consider two mutually exclusive hypotheses:
+
+>* H0 (the null hypothesis) - the coin is fair (P{Head} = .5)
+>* H1 (the alternative hypothesis) - the coin is not fair (P{Head} ≠ .5)
+
+Obviously, had we gotten 10 heads, that would have matched our expectation, and we would accept the null hypothesis.  But we got 18.  It that by chance, or should we reject our null hypothesis (that the coin is fair)?
+
+There are two ways to do this - analytically and numerically.  In the analytical approach, we want to calculate the *exact* probability of getting 18 heads.  Here, as you can find in any statistics text, the binomial formula can be applied; for k successes in n trials
+
+p{n,k} = n!/((n-k)!*(k!)) *p^k^ q^(n-k)^
+
+The left part of the expression (the one with the factorials) gives the number of combinations of flips resulting in k heads that are possible; the right half is the probability of any one of them occurring.
+
+This is easy to code in R:
+
+```{r}
+N=20 #number of trials
+H=17 #number of heads observed
+p <- q <-.5  #probabilities of heads and tails
+P17 <-factorial(N)/(factorial(N-H)*factorial(H))*p^H*q^(20-H)
+P17
+```
+So we see that the **exact** probability of getting 18 heads is about 1 in 1000, not very likely.  And as a side note, we can ask R to tell us how many of our simulated experiments resulted in 18 heads by the following:
+
+```{r}
+Obs17 <-length(which(flips==17))
+Obs17
+```
+
+So our expectation (calculated by multiplying the exact probability by 10,000) based on the binomial was `r round(P17*10000,0)` and we observed `r Obs17`.
+
+But while R can do this calculation easily, it is a pain to do manually, and even in R, as N and K get large, the computational load gets considerable.  Furthermore, in real life, we are often interested in a slightly different question - what is the probability of getting as much or greater deviation from our expected outcome (17 observed when 10 are expected in this case)?  Here the analytical solution can quickly become very onerous (although we will see that such an exact test of Hardy-Weinberg is sometimes necessary).
+
+To do this, we will use the following standard.  **If we expect to see as much or more deviation from the expectation of the null hypothesis in less than 5% of replicated trials, then we reject the null hypothesis**.  In our case, the results suggest we may have gotten "too many" heads, however in the general case the deviation could be in either direction - that is, either too many or two few.  
+
+Thus, let's ask the question,  given our simulated results, which outcomes fall in that category.  In other words, of the 10000 simulations of 20 coin flips, which gave outcomes that occurred less than 5% of the time?  The R quantile () function does that; as implemented below, it finds the two tails of the distribution 
+```{r}
+
+q <-quantile(flips,c(.025,.975))
+q
+```
+So what this says is that 2.5% of the trials resulted in fewer than 6 heads, while 2.5% resulted in more than 14.  And of course, we observed 18.  We can illustrate this graphically, using the  colhist() from TeachingPopGen, which will color in those portions of the distribution that fall within these ranges and abline(), which will draw a line showing where our outcome fell
+```{r}
+
+colhist(flips,tail=2,xr=c(0,20),xlab="# Heads",,ylab="# Ocurrences",main="Is it a Fair Coin?")
+abline(v=17,col="blue")
+```
+And we see that our outcome (17 Heads) falls falls well outside the range of deviation from our expectation that we would expect to see by chance.
+
+
+#### Conclusions
+
+Thus, we can see that our obseved value (shown by the blue vertical line) lies far outside of the observed distribution of outcomes in the simulations; in fact, in none of the trials was 18 heads obeserved.  Thus, based on our standard we set (chance of as much or greater deviation occurring by chance < 5% ) we reject our null hypothesis.
+
+But what do we know about this particular coin?  We have rejected the hypothesis that it is fair.  But note that all our alternative hypothesis says is that it is not fair.  *It tells us nothing about what the value of the true probability of getting a head, <u>with that particular coin</u>*.  We will come back to that point in detail when we consider Bayesian statistics.
+
+### Summary
+
+In the preceding, we have used what statisticians call the "frequentist" approach to hypothesis testing.  It can be summarized as follows.
+
+1.  Based on a null hypothesis, we predict the expected value of some parameter of the distribution of possible outcomes.  in this case it is pN; the general term for such a parameter is &theta;.
+2.  We ask, based on a specified rejection criterion (in this case 5%) whether the outcome we observe is consistent with that expectation.
+3.  If it is not, we reject the null hypothesis.
+
+
+This is, in fact, the classic approach to testing genetic data.  Every introductory genetics text presents it as the means for determining, for example, whether the observed results of a particular cross are consistent with Mendelian predictions.  We will explore that futher in the next section, but do keep in mind that, as a means of determining estimates of the actual values of the parameters of an unknown distribution, the frequentist approach has its limits.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

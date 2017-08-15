@@ -1,0 +1,176 @@
+---
+title: 
+- <center>Genomic Data and Hardy-Weinberg</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r,echo=FALSE,results='hide'}
+library(TeachingPopGen)
+```
+```{r,results='hide',message=FALSE}
+library(HardyWeinberg)
+```
+
+
+### HW Analysis of SNP data
+
+It's time for some real data.  We've seen that we can test Hardy-Weinberg, and that in simulated data from finite populations, we do see (not unexpectly) some departures from our expectation due simply to chance.  But the question is, if we were to look at real data, what would we see?
+
+#### Loading the data
+
+To do this, we will work from an old human variation project called HapMap (it has largely been superceded by the 1000 Genomes Project).  These data consist of single nucleotide polymorphism genotypes of individuals from a variety of globally distributed populations.  For the most part, SNPs are biallelic data (each one has a major allele and a minor allele). For our exercise, we will use data for about 48,000,000 base pairs (from position 42505066 to 90394354) from chromosome 6 from the Yoruba (YRI) population, a sample of 90 individuals. 
+
+
+For demonstration purposes, a sample of the raw data from hapmap (400 SNP's out of a total of nearly 43000) are in TeachingPopGen, so we can access it by the following:
+
+```{r}
+
+data(ch6.yri)
+
+```
+
+This returns the raw data (ch6.raw) for the region in question; we will now use a built-in function to clean the data.  In doing so, we will eliminate all of those SNPs which have fewer than 5 individuals in any genotypic class.
+
+```{r}
+ch6.smp <-datprep(ch6.yri,min=5)
+```
+
+```{r}
+load("../QPopgen/Data2015/HwGenomeData") # to run in class
+```
+
+
+We can look at the data we have briefly as follows:
+
+```{r}
+head(ch6.sub)
+print(paste("Number of Loci = ",nrow(ch6.sub),sep=""),quote=FALSE)
+```
+And we see that it is simply a data frame, containing bilocus genotype numbers from the population for each of the SNP's that met our criteria.
+
+### Testing for Hardy Weinberg
+
+Now, we want to determine how many of these are in Hardy Weinberg Equilibrium.  We will do this in two ways.
+
+#### Ternary Plot of a subset of the data
+
+We saw in the last unit that we can visualize departures from Hardy-Weinberg on a ternary plot.  We can do so first on a sample of these data (number of loci=200:
+
+```{r}
+## This is code run in class only (on the complete data set)
+smp <-sample(1:nrow(ch6.sub),200)
+ch6.samp <-ch6.sub[smp,]
+trn <-  HWTernaryPlot(ch6.samp, hwcurve=TRUE,addmarkers=TRUE,region=1,vbounds=FALSE,axis=2,vertexlab=c("0","","1"),axislab="P",main="Chromosome 6 - 200 Random SNPS",cex.main=1.2)
+```
+
+and then on the complete set:
+
+```{r,warning=FALSE}
+trn <- HWTernaryPlot(ch6.sub, hwcurve=TRUE,addmarkers=TRUE,region=1,vbounds=FALSE,axis=2,vertexlab=c("0","","1"),axislab="P",main="Chromosome 6 - 100 Random SNPS",cex.main=1.2)
+```
+
+And we get a pattern very similar to what we did based on the simulated data.  And by looking at the structure of the data returned:
+
+```{r}
+str(trn)
+```
+
+we see that there are in fact `r trn$nsignif` SNPS that differ significantly from &chi;^2^ expectations.
+
+
+
+#### Chi-square test on the entire data set
+
+Next, let's look at the distribution of chi-squared values for the entire data set.  We get into some slightly sophisticated R functions here, but the nice thing is that takes only a few steps:
+```{r}
+options(warn=-1)
+hwtest <-apply(ch6.sub,1,hw,print=FALSE) #use the hw function in TeachingPopGen to test each snp
+  Hw.ch<-sapply(hwtest,function(x) x$Chisq) # Create a vector of the calculated chi square values
+  q <-quantile(Hw.ch,.95) # determine the upper quantile
+```
+
+
+```{r}
+
+colhist(Hw.ch,tail=1,xlab="chi-squared",ylab="Number",main="Chi Square Distribution, ch. 6")
+```
+So we see that indeed, some of the SNP's do show departure from Hardy Weinberg.  How many?  For this, we would most likely be using the "book value" for the 5% cutoff with 1 degree of freedom, or 3.84
+
+```{r}
+dep <-length(Hw.ch[Hw.ch>3.84])
+dep
+```
+And as a fraction of the total
+```{r}
+f.sig <-dep/nrow(ch6.sub)
+f.sig
+```
+
+So of the `r nrow(ch6.sub)` SNPs, examined, `r dep` indeed do show departure from Hardy Weinberg expectations.  This is actually similar to the 5% we would expect by chance.
+
+So is there anything significant about any of those snps in the "red zone"?  In bioinformatics, a more stringent probability test is usually applied for cases of multiple simulatneous tests like this - that is to divide the normal cutoff percent (0.05) by the number of comparisons being made.  In this case, that would be
+
+```{r}
+p.cut <- .05/nrow(ch6.sub)
+p.cut
+```
+
+And we can do a little bit of manipulation of our hwtest results to determine if we have any such SNPS
+
+```{r}
+hw.p <- sapply(hwtest,function(x) x$prob)
+snp.out <-which(hw.p<p.cut)
+length(snp.out)
+```
+
+#### The distribution of F
+
+Before addressing that, we can also look at the mean and distribution of Wright's F statistic
+
+```{r}
+Hw.f <-sapply(hwtest,function(x) x$F)
+colhist(Hw.f)
+f.mean <-mean(Hw.f)
+abline(v=f.mean, col="red")
+f.range <-range(Hw.f)
+f.mean
+f.range
+```
+So we see that the mean of f is very close to zero, although there are outliers that might be worth exploring further.
+
+#### The Chromosomal Distribution of F values
+
+So what if we want to look at the distribution of chi-squared or F values based on chromosomal position?  Doing so might show regions of the chromosome that show systematic departure from Hardy-Weinberg expectations and thus might be targets of further investigation.  Those positions were in our original data set that we loaded (ch6.yri), so we can extract them and plot them for our selected data as follows: 
+```{r,fig.height=10}
+hw.smp <- apply(ch6.smp, 1,hw,print=FALSE)
+chi.smp <-sapply(hw.smp, function (x) x$Chisq)
+f.smp <-sapply(hw.smp, function (x) x$F)
+snps <-rownames(ch6.smp)
+pos <-ch6.yri$V3[rownames(ch6.yri) %in% snps]
+par(mfrow=c(2,1))
+plot(pos/1000000,chi.smp,xlab="Chromosomal Position",ylab="chi-squared",pch=20,main="Chi-squared")
+abline(h=3.84,lty=2,col="blue")
+plot(pos/1000000,f.smp,pch=20,xlab="Chromosomal Position (MB)",ylab="F",main="F")
+abline(h=0,col="red")
+abline(h=c(-.2,.2),lty=2,col="blue")
+par(mfrow=c(1,1))
+```
+What constitutes a "significant" departure from zero?  That is not an easy question to address at this point, but we'll somewhat arbitrarily consider any value greater than &plusnm; 0.2 to be significant.  For chi-squared, we'll use the standard p <0.05 significance level for one degree of freedom (3.84).  These values are indicated on the two plots with dashed blue lines.  There are a few bits of information we can glean
+
+1.  The chi-squared plot shows the positions of the eight SNPs that show significant departures from HW expectations.  They appear to be fairly randomly distributed over the chromosome.
+2.  Note that when the correction described above, none of them are significant.
+2.  We see a similar number of SNPs that show values of F outside of the range of ± 0.2.  However, we note that some show a positive values and others a negative.  As a thought question, how do these two classes of SNPs differ with respect to the nature of their departure from Hardy-Weinberg Expectations?
+
+### Summary
+
+There are a few reasons for undertaking this exercise.  
+
+1.  We need to remember that the Hardy Weinberg equilibrium (or departure therefrom) is a property of the *population*, not of any individual locus.  Therefore since some loci will, by chance, depart from the expected proportions in a given sample, we need to be conservative about extrapolating from single locus data to population-level properties.  
+1.  When we do see outliers, we have to proceed with caution.  For example, in bioinformatics, departure from Hardy-Weinberg is used as an indicator of possible problems with the raw data -  if heterozyotes are erroneously scored as homozygotes, then there will be apparent departures.
+2.  In cases where an allele occurs at low frequency, the chi-squared test is fraught with danger.  In such cases, and especially in typical sample sizes (N~100), the expected numbers of homozygotes of the low frequency allele are very small, which can artificially inflate chi-squared values.
+

@@ -1,0 +1,29 @@
+---
+title: <center>The Hardy Weinberg Equilibrium</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography:  ~/Dropbox/TPG.bib
+output: 
+    html_document:
+      code_folding: show
+      theme: paper
+      toc: yes
+      toc_depth: 5
+---
+
+```{r child="../Rmd/IntroHW.Rmd"}
+
+```
+
+```{r child="../Rmd/HardyWeinbergII.Rmd"}
+
+```
+<!-- need to insert some problems here -->
+
+```{r child="../Rmd/HardyWeinbergIII.Rmd"}
+
+```
+```{r child="../Rmd/HwGenome.Rmd"}
+
+```
+
+### References

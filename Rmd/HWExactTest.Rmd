@@ -1,0 +1,100 @@
+<center>
+# Testing Hardy Weinberg II  
+## When &chi;^2 Isn't Sufficient</center>
+========================================================
+```{r,echo=FALSE}
+#source("./R/style.Chapter.R")
+#source("http://db.tt/A6tReYEC")
+source("http://sph.umich.edu/csg/abecasis/Exact/snp_hwe.r")
+```
+Needs a bunch of work - 
+
+1) Redundant with what we just did on chi squared in the previous unit
+2) Want to include Maximum Likelihood - HWLratio from HardyWeinberg
+3)  End up with discussion of Guo and Thompson; perhaps screenshots from Genepop.
+
+### Background
+
+In the last unit, we looked at use of the &chi;^2 test to determine goodness-of-fit of observed genotype numbers to those expected under the Hardy-Weinberg equilibrium.  We saw that the test was straightforward, and indeed it can be readily applied to large data sets.  So is it enough?  
+
+In many cases, yes.  However, remember the two-fold nature of our  sampling problem in population genetics.  One of them, the size of our analyzed sample, is an **experimental** one; the other (which we will be exploring in much more depth in future units), is the **biological** sampling that takes place in finite populations, when only a limited number of gametes comprise those that contribute to the next generation.  The latter is the problem we are most interested in, however before we get to it, we need to think about the former.
+
+One well-known problem with the &chi;^2 test arises when the expected number of one or more classes becomes small (for example, less than 5).  Remember that in calculating the statistic, we are dividing by the expected number in each class, so as that number gets small, the contribution of that class to the calculated total becomes large.  Indeed, if we had an expectation of zero for some class, its contribution to the total would be infinite.
+
+ 
+
+### An example
+
+So how much of this is a problem?  To explore this, we will examine SNP data from chromosome 3 in the CEU population.  Furthermore, we will focus our attention on the more polymorphic SNPs, ones in which there are at least 10 individuals in each of the three genotypic classes.  First, we get the data
+```{r}
+dat <-read.table("/Users/cochrabj/Dropbox/Public/QPopgen/Data/ch3.gfreq.ceu.txt",skip=3)
+```
+Now we will extract the columns of interest (the genotype numbers)
+```{r}
+genos <-dat[,c(13,16,19)]
+colnames(genos) <-c("00","01","11")
+head(genos)
+```
+Next we will subset these data to exclude all of these in which we observed fewer than six individuals in any genotypic class.
+```{r}
+genos.sub <-genos[apply(genos,1,function (z) sum(z<6)<1),]
+```
+A brief check shows that we have reduced the number of SNPs to analyze by about 1/2 - from 95,000 or so to about 47,000.  Now what we will want to do is to calculate both the &chi;^2 and exact probabilities for each of these.  First, a function to do the chi square:
+
+```{r}
+chitst <-function(obs){
+n <-sum(obs)
+  p <- ((2*obs[1]+obs[2])/(2*n))
+q <-1-p
+
+exp <-((c(p^2*n,2*p*q*n,q^2*n)))
+
+chi <-sum((obs-exp)^2/exp)
+pr <-1-pchisq(chi,1)
+pr
+}
+```
+#### The chi square test
+
+Now we can apply that function to all of the data and see how many SNPs show a significant deviation:
+
+```{r}
+chi <-apply(genos.sub[,c(1,2,3)],1,chitst)
+n.chi <-length(chi[chi<.05])
+n.chi
+```
+And we see that there are quite a few that are significant.
+
+#### The Exact Test
+
+We can now compare that to the results from the exact test.  To do so, we will use a function written by Wigginton and publicly available:
+
+```{r}
+source("http://sph.umich.edu/csg/abecasis/Exact/snp_hwe.r")
+```
+And apply it to our data, just as we did for the &chi;^2
+```{r}
+ex <- apply(genos.sub, 1, function (x) SNPHWE(x[2],x[1],x[3])) # note that this function requires three numbers, the first of which is number of heterozygotes
+```
+And see how many significant comparisons we now have
+```{r}
+n.ex <-length(ex[ex<.05])
+n.ex
+```
+And we see that the number of departures determined to be significant is significantly reduced - from 2516 determined by the &chi;^2 test to 1912 by the exact test.
+
+### Summary
+
+In statistics there are two types of possible errors.  A Type I error is the incorrect rejection of a true null hypothesis, or a false positive; Type II errors are failures to reject false null hypotheses, or false negatives.  In our case, what we have in essence been asking is what is the Type I error rate of the &chi;^2 test.
+
+
+
+### A little rough code
+
+Try to see the overlap of the two
+```{r}
+xx <-cbind(genos.sub,chi,ex)
+length(which(xx[,4]<.05&xx[,5]<.05))
+```
+Shows that all of the significant exact tests are also chi-square signficant; obviously not the other way around.
+

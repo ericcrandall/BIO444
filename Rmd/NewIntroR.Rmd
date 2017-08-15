@@ -1,0 +1,130 @@
+---
+title: "Introduction to R and RStudio"
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography:  ~/Dropbox/TPG.bib
+output:
+  html_document:
+    css: ~/Dropbox/Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+
+## Overview of R and RStudio
+
+From the outset, we need to recognize that there are lots of valuable standalone programs for evolutionary genetic analysis, many of which operate on Windows, Mac and Linux platforms and do so in a user-friendly fashion.  However, there is one serious downside to exclusive dependence on such packages - many of them require specialized data formats, and outputs from one such program are often not readily input into another.
+
+R [@RHome], on the other hand, has a couple of advantages:
+
+###  It is a data oriented programming language,
+
+so virtually any data can be input in some form or another.  For example, one can directly read data from [HapMap](http://www.hapmap.org), [ALFRED](http://alfred.med.yale.edu), [Dryad](http://www.datadryad.org) and other such data bases, and with some manipulation (a. k. a. munging) get them into a format that can be used for a wide variety of applications.
+
+### R is vector-based
+
+For those who remember the days of having to wrestle with subscript indices in languages like FORTRAN and BASIC, R is a delight.  For example, suppose you wish to create a vector of integers from 1:100.  It is as easy as
+
+```{r}
+x=c(1:100)
+x
+```
+
+No need to set dimenstions or any of that stuff.  And we can then do simple manipulations on those objects, such as 
+
+```{r}
+x*2
+```
+
+And every element is multiplied by 2.  
+
+### And we can do plots.  
+
+Working with our same vector, we can easily get a simple working plot by
+
+```{r}
+plot(x)
+```
+
+### R is imminently extensible
+
+with both built-in functions that carry out complex tasks based on simple commands, as well as add on packages that provide additional capabilities for specialized tasks.  For example, suppose we want to generate a bunch of random binomial variants, akin to doing 100 experiments  of flipping a coin 100 times qne plotting how many heads we get.  We can write
+
+```{r}
+h <-rbinom(100,100,.5)
+hist(h)
+```
+
+### And then there are packages.  
+
+R is open source, so there are legions of skilled programmers specifically developing add-on packages that can be installed and provide additional functionality.  We will use a lot of these packages, including
+
+>* ape [@Paradis2004] and pegas [@Paradis2010]  - provide essential functions for population genetic analysis and tree manipulation
+>* phyclust [@Phyclust] - an independently developed package that has the interesting ability to run some otherwise command-line stand-alone programs (ms [@ms], seq-gen) directly within R
+>* rehh [@rehh] - Brings the world of Pardis Sabeti and extended haploytpe analaysis to R.  Data munging is challenging, but once done, it is rewarding.
+
+### RStudio
+
+By itself, R can be intimidating.  In particular, it is a "command line" program, meaning that once a command is entered, it is executed, something that is not necessarily desirable when performing complex tasks.  The program becomes much more functional if multiple lines of code can be entered simultaneously, and  importantly *the code can be annotated such that a reader can understand what's being done*.
+
+RStudio is an "Integrated Development Environment", or IDE, that greatly facilitates working with R, and quite importantly documenting that work.    
+### Installation is easy
+
+Go to RStudio.org, look for the download program for your platform(Windows, Mac or whatver) and download it.  Windows will probably have to be unzipped and executed; Mac will come as a DMG file that has to be installed.  But be assured that in just a few minutes (I did it while wating to board a plane) you will have the system up and running.
+
+When you open RStudio, you are presented with four panes.  
+
+1.The upper left is where you do most of the work,  it is here you can type sets of commpands, run them and see what happens,
+2. You can enter single commands in the lower left that will execute when you hit return, however the more valuable role of that panel is to display numerical results that arise for the command blocks you run in the upper left pane.
+3.  The upper right pane I think of a s a bookeeping area.  It provides a list of all of the objects that are available in memory (and thus can be used in the currnet session).  It gives the object name, as well as the nature of the object (vector, matrix, list, data frame, and many others.)
+4.  The lower right is where the graphs appear, and this is the fun stuff.  R is exceptionally good at providing visualization of data in ways that can be readily interpreted; much of what we do will focus on interpretation of this output.
+
+### Creating a "Markdown" file for Program Execution
+
+This is the coolest feature of R studio.  The best place to start is with the video below, in which Roger Peng of Johns Hopkins runs you through the basics of what we'll be doing.
+
+<iframe width="100%" height="360" src="https://www.youtube.com/embed/DNS7i2m4sB0" frameborder="0" allowfullscreen></iframe>
+
+Suppose I've written a file that includes some text (such as this) as well as "chunks" of code that can be executed.  The code is sparated by the following delimiters:
+
+\```{r}  
+#Code goes here  
+\```
+
+When the HTML rendered, or knitted, you will see the actual coded in a shaded box, followed by the result of that code's execution in an unshaded one.  Everything outside the chunk will be treated as regular text and formatted accordingly.
+
+### Publishing as HTML
+
+So up to this point, we have completed a narrative describing some basics of R and RStudio, and we have embedded a few chunks of code to illustrate some points.  What we would now like to do would be to publish our writing in a format that is broadly accessible to others.  To do so, RStudio has the package "knitr" built in, which will render a markdown document (such as this) in standard html, accessible from any browser.  To do so is simple - either click the "Knit HTML" button at the top of the window, or press Shift-Command-H.  If you haven't done so already, you will be prompted for a file name for saving the R Markdown file (it will have the suffix .Rmd added).  Two additional files will then be generated - a markdown file, which can be accessed by other programs for format tweaking and so forth, but most importantly, an html file that can then be opened in any browser.  
+
+### Getting Help
+
+The philosophy of this project is that the reader should learn by doing.  Thus, we won't spend a whole lot of time dealing with the minutiae of the R programming language; rather we will introduce particular functions and concepts in the context of actual problems.  However, there are several places the user can turn for quick assistance:
+
+#### R Help pages
+
+Simply entering ?function on the command line (in the lower left pane) will bring up the standard help page for that function.  While these pages are sometimes cryptic, they should include
+
+>* A brief description of what the function does
+>* A description of its syntax
+>* The nature of the arguments that the function uses
+>* The value that is returned
+>* (usually) a few examples of its uses
+
+In the case of packages, the easiest way to get documentation in RStudio is to select the "Package" tab in the lower right pane of the RStudio display and click on the package of interest.  That will bring up a page with links to information on that package, and most importantly to the help files for all of the functions contained within it.
+
+
+#### Markdown syntax
+
+Markdown is probably the easiest way to embed basic formatting information into a document, in such a way that is can be rendered into a publishable format.  A good general introduction to it can be found [here](http://net.tutsplus.com/tutorials/tools-and-tips/markdown-the-ins-and-outs/); a description of its use in Rstudio can be found [here](http://www.rstudio.com/ide/docs/authoring/using_markdown).
+
+### Summary
+
+So at this point, where are we?
+
+1.  We gave R and R Studio up and running
+2.  We have performed some basic data retrieval and made a bar plot
+3.  We have rendered our narrative and code into HTML so that it can be accessed on the web.
+
+But, you ask, what good is all of this?  How do we address real questions with real data?  To get there, we need to spend a bit of time looking at at least a few of R's capabilities with respect to data manipulation.
+

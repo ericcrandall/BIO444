@@ -1,0 +1,24 @@
+---
+title: "<center></center>"
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: "bibliography.bib"
+csl:  "genetics.csl.txt"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+```{r,echo=FALSE}
+library(knitcitations)
+cite_options("citation_format" = "pandoc",hyperlink = TRUE,max.names = 2)
+```
+
+
+### References
+
+```{r,echo=FALSE,message=FALSE}
+write.bibtex(file="bibliography.bib")
+```

@@ -1,0 +1,135 @@
+---
+title: <h1>The Fate of New Mutations</h1>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+bibliography: ../TPG.bib
+output:
+  html_document:
+    css: ~/Chapter.css
+    toc: yes
+    toc_depth: 5
+    code_fold: show
+---
+## The Fate of a Mutation
+
+So we see that mutation is random with respect to adaptation, and that the occurrence of mutation is rare.  But it does happen, so we need to look at the expected fate of a mutation.  In so doing we will think about three stages:
+
+1.  What is the immediate fate of a new mutation?
+2.  We know that with genetic drift, the ultimate fate of all alleles are fixation aor loss.  How does mutation enter into that process?
+3.  When we compare taxa at the molecular level, what we usually look for are fixed differences, or substitutions, at homologous positions.  That means that some mutations occur in a lineage and go to fixation.  What are the dynamics of that process?  How long does it take?
+
+In his chapter on stochastic processes in evolution, @Gillespie2006 begins with "Pity the fate of the  mutation".  Why?  It is worth exploring this question in some detail.
+
+#### Setting the stage - the first generation
+
+For simplicity's sake, we're going to use a haploid model for this exercise.  Let N be the population size, which is constant, and suppose that in generation zero, a single mutation occurs.  All of the members then reproduce, with the number of progeny of each individual being a Poisson variable with mean 1 (i. e. the average progeny per individual is one.).  We can simulate that as follows:
+```{r}
+N <-100000
+u <-rpois(N,1)
+hist(u,xlab="N",main="Simulated Poisson Distribution, N=10000, µ=1") 
+```
+Note that the most frequent number of progeny is either zero or 1.  If our new mutant happened to be one of those that had zero progeny, that means that it would go extinct.  What is the probability of that occurring?  It is simply the ratio of the zero class to the total number of reproducing individuals (10000); that can be calculated by
+```{r}
+z <-length(u[u==0])/length(u)
+z
+```
+So approximately 36% of the time, *by chance alone*  that mutation will be lost.
+
+
+#### What would happen in subsequent generations?
+
+For this, we turn away from our simulation approach.  It turns out that @Fisher1930 has a pretty straight forward analytical one.  
+
+We start by noting that, while we did it via simulation, we could also have calculated the probability associated with the zero class in a Poisson distribution with mean 1 by the formula e^c(x-1)^, where x is the probability of leaving zero ancestors in the previous generation and c is the mean number of progeny (in our case 1)
+
+```{r}
+x1 <-exp(-1)
+x1
+```
+
+And note that if we use the results from our LB analysis above, in which we found the mean reproduction rate of mutants to be 1.08, then we would get
+```{r}
+exp(1.08*(-1))
+
+```
+Which is not that much different!  Even though the mutant cells have an 8% fitness advantage, usually considered to be quite large, there is still a 33% chance that it will be lost due to chance in population of constant size.
+
+
+Now what about future generations?  We can set up recursion, in which we start with x=0, and with each generation set x[i+1] to e^c(x[i]-1)^.  So to get x[2, for example], we could do the following for a neutral mutation (with no effect on fitness:
+
+```{r}
+x2 <-exp(x1-1)
+x2
+```
+
+So now we see that in two generations, the probability of loss is over 50%.  We could continue to do this manually, but instead, we can do this as an r function and see what happens in 100 generations
+
+```{r}
+fate <-function(c){
+x <-rep(0,100) # create a vector of zeros, which will hold the results of the recursion calculation
+for(i in 1:99){
+  x[i+1] <-exp((1+c)*(x[i]-1))
+}
+
+return(x)
+}
+```
+With that function in hand, we can now see what will happen in the case of a neutral mutation, one which confers no advantage or disadvantage (c=0)
+
+```{r}
+x0 <-fate(0) 
+```
+We can then plot the results
+```{r}
+plot(x0, xlab="Generation",ylab="Probability",main="Probability of Loss of New Mutation", ylim=c(0,1),xlim=c(0,100),type="l")
+```
+And what we see is that very quickly, the probability of loss of such a mutation *in a constant size population* approaches 1.
+
+But what if the mutation confers an advantage?  Remember that in our LB calculations, we inferred that those 7 new mutations that occurred conferred, on average, an 8% advantage (or c=.08)  We can plug that into our function and add the results to the plot:
+```{r}
+x1 <-fate(.08)
+plot(x0, xlab="Generation",ylab="Probability",main="Probability of Loss of New Mutation", ylim=c(0,1),xlim=c(0,100),type="l")
+lines(x1,lty=2)
+
+```
+This suggests that, during the first few generations following the occurrence of the mutation, *the probability of loss of an advantageous mutation, by chance, is not much different from that of a neutral one*.  Furthermore, while we do see that in later generations, that mutation is more likely to survive than the neutral one, the probability of loss is still around 80%.  To illustrate this point, we can calculate the probability of the advantageous mutation surviving 100 generations as 
+
+```{r}
+ s1 <-1-x1[100]
+s1
+```
+
+which can be contrasted with the similar probability for a neutral allele
+
+```{r}
+s0 <-1-x0[100]
+s0
+```
+or a ratio of 
+```{r}
+s1/s0
+```
+A seven-fold advantage is significant, but to quote Fisher:
+
+"*The fact  is, that a selective advantage of the order of 1 per cent., though amply powerful enough to bring about its evolutionary consequences 
+with the utmost regularity and precision when numbers of individuals of the order if 1,000,000 are affected, is almost inoperative in comparison to random or chance survival, when only a few individuals are in question*"
+
+As an exercise, you might want to try to repeat the calculations we did above for the case of a mutation conferring a 1% advantage.
+
+### Mutation vs. substitution
+
+This is a good point to make an important point regarding terminology.  In everything we have talked about so far, we are talking about *mutations*, as noted at the outset, as a change in DNA sequence.  Thus, when one occurs, there is a single copy of the mutation present in 2N alleles, an obviously very low frequency.  But obviously some mutations subsequently increase in frequency, and resulting from either chance (genetic drift) or deterministic (selection) processes, increase to a frequency of 1, or go to fixation.  At that point, we say that a *substitution* has occurred.  The distinction between mutation and substitution is one to keep in mind as we move forward.
+
+### Conclusions
+
+So we are left with three observations:
+
+1.  Mutations occur without respect to the presence or absence of a selective agent - this is what we mean when we use the shorthand "random mutation". While rates and processes of mutational change are in fact distributed nonrandomly in the genome, this basic tenet, first demonstrated by Luria and Delbruck, holds in all cases in which it has been examined.
+2.  The rate at which individual genes mutate are typically very low (more on this in subsequent units)
+3.  The typical fate of a particular new mutation in a finite population of constant size, *even if it confers a selective advantage* is that it will be lost.
+
+Point three, on the face of it, may seem paradoxical.  All populations are finite; many have relatively constant population sizes, If variation is the raw material of evolution, and it is those mutations that confer an advantage that benefit from natural selection, how can the process occur if most of them are lost?
+
+There are a few general responses we can make at this point.  First, although mutations in a given gene and a given generation may be rare, there are lots of genes in the genome undergoing the process, the total number of mutations occurring can be quite large.  Second, of course, while the probability of loss of a particular advantageous mutation is high, it is not 1, so that some will obviously survive.  And at this point, natural selection can take over, right?
+
+Not so fast.  Before we get to that, we need to consider the issue of population size more closely.  For that, we will now incorporate mutation into our thinking about genetic drift
+

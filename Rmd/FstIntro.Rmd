@@ -1,0 +1,217 @@
+---
+title: "<center>Fst and Population Subdivision</center>"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r}
+library(HardyWeinberg)
+library(TeachingPopGen)
+```
+
+
+## Introducing F~st~
+
+Having spent some time thinking about the history of alleles, we now want to turn our attention back to genotypes and their distributions.  Of course, all of our considerations in this context have been in terms of departure from Hardy-Weinberg expectations, which we can test for significance by a &chi;^2^ test or related procedure.
+
+But let's think about it in another way.  Remember that, for a biallelic locus, we have one parameter, p, that we estimate from the data; q is simply 1-p, and based on those, we calculate the expected frequency of heterozygotes, or heterozygosity, as 2pq.  So in fact, any departure from Hardy-Weinberg will in fact be manifest as a difference between observed and expected heterozygosity.  Thus, let's define  
+
+* F = 1-Hobs/Hexp = 1-Hobs/2pq (Equation 1)
+
+Where Hobs is the observed frequency of heterozygotes in our population.  This relationship can also be written as
+
+* F = (Hexp-Hobs)/Hexp (Equation 2)
+
+Note that if Hobs=2pq, then F=1-1=0; if Hobs<Hexp, then F>0 and vice versa.
+
+### The simple case - one population
+
+We can start with one population, of size 100.  It has some allele frequency p.  We'll generate some data as follows:
+
+```{r}
+set.seed(1123)
+pop1 <-HWData(nm=1,n=100,f=runif(1,0,1), p=runif(1,.05,.5))# generate data for a random locus with some p between .05 and .5 and some f between 0 and 1
+pop1
+```
+Now we want to calculate the expected heterozygosity (2pq).  This is fairly straightforward; we can do it as follows
+```{r}
+p <-(2*pop1[1]+pop1[2])/(2*sum(pop1))
+Hexp <-2*p*(1-p)
+Hexp
+```
+And of course, Hobs is the observed frequency of AB, the second element in pop1:
+
+```{r}
+Hobs <-pop1[2]/sum(pop1)
+Hobs
+```
+
+```{r}
+F.pop1 <-1-(Hobs/Hexp)
+F.pop1
+```
+So if this were all we had, we would conclude that observed heterozygosity is less than expected, suggesting, for example, some form of assortative mating or inbreeding, leading to the observed reduction.
+
+### Adding Population Subdivision - the Wahlund effect
+
+Now consider the following - we have two populations with the following allele frequencies
+```{r}
+pop1 <-c(.64,.32,.04)
+pop2 <-c(.09,.42,.49)
+```
+We saw easily seethat both are in Hardy-Weinberg equilibrium, so in the context of our current consideration
+
+* F(pop1) = F(pop2) = 0
+
+But then we asked what would happen if a single sample were considered, with 2/3 of the individuals coming from pop1 and 1/3 from pop2:
+
+```{r}
+popt <-(2/3)*(pop1)+(1/3)*(pop2)
+popt
+```
+We can now look at the observed and expected heterozygosity in the combined sample, using a  function in the TeachingPopGen package.
+```{r}
+f.comb <-Fis(popt)
+f.comb
+```
+And we see that again, observed heterozygosity is lower than expected.  
+
+This is an example of something known as the **Wahlund Effect**.  In simple terms, it states that if a sample is derived from multiple populations whose allele frequencies differ, then there will be an apparent deficit of heterozgyotes relative to those expected based on the overall allele frequency, *even when the individual populations are themselves in Hardy-Weinberg Equilibrium*.
+
+So, suppose we've surveyed a sample of individuals, and we find some nonzero value of F.  How do we interpret it?  Is it due to within-population departure from HW, among subpopulation variance in allele frequency, or both?  In what follows, we will see how we can separate these two factors, and in so doing introduce ourselves to one of Sewall Wright's greatest contributions to theoretical population genetics.
+
+### Some hypothetical data:
+
+In the preceding discussion, we showed two ways , given a single sample of genotypes, that an apparent heterozygote deficit could result.  Now, let's suppose we have actually collected 5 separate samples, perhaps from different locations, and we want to assess these two sources of departure from Hardy Weinberg.  To keep the arithmetic simple, we'll have equal size samples from each subpopulation (100).
+
+#### Generate the data
+
+We'll use the package HardyWeinberg to generate our data, allowing for both variation in allele frequency (p) and within-subpopulation departure from expected heterozygosity (f):
+```{r}
+dat <-(sapply(c(1:5),function(x) (HWData(nm=1,n=100,f=runif(1,.05,.2),p=runif(1,.1,.9)))))
+rownames(dat) <-c("AA","AB","BB")
+dat
+```
+#### Departures from HW within Populations
+
+First, we can simply ask qualitatively whether heterozygosity in each of the five populations differs from expected:
+
+```{r}
+f1 <-apply(dat,2,Fis,freq=FALSE)
+f1
+```
+And we see that we have varying degrees of departure from expectation.
+
+#### Restructuring the Data
+
+Think back on what we've said so far about within-population departures from expectations and those resulting from the Wahlund effect.  In the case of the former, the critical parameter is observed heterozygosity; in the latter, the critical elements are the allele frequencies of the subpopulations.  So let's create a matrix that includes those numbers - p, q, and Hobs - for each population
+```{r}
+dat <-apply(dat,2,function(x) x/sum(x))
+p <-apply(dat,2,function(x) x[1]+.5*x[2])
+dat.2 <-rbind(p,1-p,dat[2,])
+rownames(dat.2) <-c("p","q","Hobs")
+dat.2
+```
+#### Calculating Heterozygosities
+
+Now we want to calculate two measures of  heterozygosity:
+
+* Hi - this is simply the mean of the five subpopulation heterozygosities - (∑Hobs)/n
+* Hs - This is the mean of the expected heterozygosities of the 5 populations - (∑2pq)/n
+
+Where n is the number of populations (5 in this case)
+
+```{r}
+Hi <-mean(dat.2[3,])
+Hs <-mean(2*dat.2[1,]*dat.2[2,])
+Hi; Hs
+```
+#### Fis
+
+So we now have a mean of the observed heterozygosity (Hi) and one of the expected (Hs).  Referring back to Equation 2, we can now define
+
+* Fis = (Hs-Hi)/Hs
+
+Which is easily calculated
+```{r}
+f.is <-(Hs-Hi)/Hs
+f.is
+```
+So we now have a statistic that quantifies the mean effect of departure of heterozygosity from expectation within subpopulations.  Keep this in mind; we now need to quantitate the effect of the Wahlund effect.
+
+### What About Subdivision?
+
+In the previous calculations, we came up with Hs, the average expected heterozygosity of the five subpopulations. What we now want to ask is what the expected heterozygosity would be if in fact the samples were derived from a single HW population, with one value of p.  To get that, we define one more heterozygosity statistic:
+
+* Ht =2 *mean(p<sub>i</sub>) *mean(q<sub>i</sub>)
+
+This can be easily calculated as follows:
+
+```{r}
+Ht <- 2*mean(dat.2[1,])*mean(dat.2[2,])
+Ht
+```
+
+#### Fst
+
+So once again, we have a comparison we can make - the expected heterozygosity for a single population with p=mean(p) and the heterozygosity expected based on the observed allele frequencies of the populations.  We can therefore apply Equation 2 again as follows
+
+```{r}
+Fst <-(Ht-Hs)/Ht
+Fst
+```
+This is the critical measure.  It is, as we shall see shortly, a function of the variance in allele frequences among populations.  It is fairly easy to show that if var(p)=0, then Fst- = 0, but more on that later.
+
+#### For completion's sake, Fit
+
+We now have three measures of heterozygosity:
+
+```{r}
+Hi; Hs; Ht
+```
+And we have calculated two F statistics:
+```{r}
+f.is;Fst
+```
+We could also ask what the mean reduction of heterozygosity within populations relative to the expected total heterozygosity:
+```{r}
+Fit <-(Ht-Hi)/Ht
+ Fit
+```
+Quite honestly, this may be the last time we will ever see this statistic.  Fis and Fst are much more meaningful biologically.
+
+### Fst and Allele frequency variance.
+
+So far, we have alluded to the idea that Fst is a function of allele frequency variance.  It is fairly easy to formalize that relationship.  Let's start with the difference between the observed and expected frequency of homozygotes for one allele:
+
+* freq(aa)<sub>obs</sub> - freq(aa)<sub>exp</sub> = ∑q<sub>i</sub>^2^ /n - mean(q<sub>i</sub>)^2^
+* = &sigma;<sub>q</sub>^2^
+
+Similar logic could be applied to f(AA), so the total difference in homozygosity resulting in subdivision would be 2*&sigma;^2^, which in turn will equal the negative of Hobs-Hexp.  So we have
+
+* -(Hs-Ht) = Ht-Hs =2&sigma;^2^
+
+and
+
+* Fst = (Ht-Hs)/Ht = 2&sigma;^2^ /(2pq)
+* = &sigma;^2^/pq
+
+Where p and q are the means of the subpopulation allele frequencies.
+
+We can show this for our data we have been analyzing as follows
+```{r}
+sigma <-var(dat.2[1,])*((5-1)/5) #second term is correction to get population vs. sample variance
+Fst.var <-sigma/(mean(dat.2[1,])*mean(dat.2[2,]))
+Fst.var
+```
+And we see that we get the same value as we did when we calculated Fst previously (`r Fst`).  This observation is experimentally very important - it means that, if what we are interested in is population subdivision, then all we need are the allele frequencies of the subpopulations, not the genotype frequencies, in order to compute Fst.
+
+
+### Conclusion
+
+So what we have done, in effect, is to partition the deviation from Hardy Weinberg into components based on departure from heterozygosity within populations (resulting from some form of nonrandom mating, perhaps) and that associated with the Wahlund effect (the result of allele frequency variation among populations).  The basic mathematics here are quite simple, and for most of our purposes, will suffice.  You should be aware, however, that other measures of subdivision (e. g. the Weir and Cockerham statistics), which are more amenable to significance testing, are also used.  However, while we may touch on a few of them in the future, at this point we need to turn our attention to the analysis of real data.

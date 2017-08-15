@@ -1,0 +1,18 @@
+---
+title: "Lab4Output"
+author: "Your Name Here"
+date: "February 23, 2016"
+output: html_document
+---
+Quickie to plot results of frequency vs. probability of fixation
+
+```{r}
+dat <-read.csv("./Data/Lab4results.csv")
+dat
+```
+
+```{r}
+with(dat,plot(Frequency,Percent_Fixation,pch=16,,main="Allele Frequency and Probability of Fixation",cex.main=.8,cex.lab=.8))
+with(dat, abline(lm(Percent_Fixation~Frequency),col="red"))
+```
+

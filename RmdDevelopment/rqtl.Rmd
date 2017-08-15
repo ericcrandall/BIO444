@@ -1,0 +1,81 @@
+---
+title: <center>rQTL</center>
+author: <center>Bruce Cochrane</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+A quick and very rough introduction to qtl mapping in R.  
+
+```{r}
+library(qtl)
+```
+First, look at raw data
+
+```{r}
+dat.raw <-read.csv("http://www.rqtl.org/sug.csv")
+dat.raw[1:8,1:10]
+```
+
+So we see that we have four phenotypes, sex, and then genotypes for a bunch of loci.  First two lines (not shown) have chromosome and position for each marker.
+
+Now use the package to input this stuff in a more usable form
+
+```{r}
+sug <- read.cross("csv", "http://www.rqtl.org", "sug.csv",
+                  genotypes=c("CC", "CB", "BB"), alleles=c("C", "B"))
+summary(sug)
+```
+Note that sex and ID are treated as phenoytpes.
+
+Now look at the genetic map:
+
+```{r}
+plot.map(sug)
+```
+
+Look at phenotype 1 (blood pressure:
+
+```{r}
+plotPheno(sug, pheno.col=1)
+```
+
+Do a single QTL analysis on phenotype 1 ()
+
+```{r}
+sug <- calc.genoprob(sug, step=1)
+
+out.bp <- scanone(sug)
+
+summary(out.bp)
+plot(out.bp)
+```
+
+Go back and look for high probability genes
+
+```{r}
+summary(out.bp, threshold=3)
+```
+
+
+Do the same thing for heart rate
+
+```{r}
+out.hr <-scanone(sug,pheno.col = 2)
+plot(out.hr)
+summary(out.hr,threshold=3)
+```
+
+Now do phenotype 3 (birth weight)
+```{r}
+out.bw <-scanone(sug,pheno.col = 3)
+plot(out.bw)
+summary(out.bw,threshold=3)
+```
+
+So all three have a gene on chromosome 15, and in the latter two cases they are pretty close.  But the same gene?  Difficult to conclude, but absolutely need more detailed map.

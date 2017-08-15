@@ -1,0 +1,101 @@
+---
+title: <center>Inferring D from Genotypic Data </center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+## Estimating LD From Genotype Data
+
+In our consideration of measures of linkage disequilibrium (D, D', r) we proceeded from the assumption that we could, in some fashion, count gametes.  In a haploid population, of course, this is no problem.  However, in the case of diploids, while we can infer the gametic combinations of most individuals, in some (the double heterozygotes) we cannot.  Thus, we need to find a way to estimate linkage disequilibrium from what is effectively incomplete data.
+
+As we have done previously, we will restrict our attention to the two locus case, with two loci with two alleles each.  A number of approaches have been proposed (and are reviewed quite well in Weir); as an example, we will focus on one proposed forty years ago by [Hill, 1974](http://www.nature.com/hdy/journal/v33/n2/pdf/hdy197489a.pdf).
+
+### An example
+
+In the reference cited above, Hill (Table 3a) uses an example of codominant  data, in which 1000 individuals were scored for their MN an Ss blood types.  To keep our nomenclature consistent, we will refer to the alleles controlling MN as A1 and A2; those controlling Ss will be designated B1 and B2.  So the first thing we will need t do is load the data, which are available in TeachingPopgen:
+```{r}
+library(TeachingPopGen)
+data(HillData)
+```
+The data are imported in a matrix named gmat, which we can inspect:
+```{r}
+gmat
+```
+What it consists of is the genotype numbers for all nine possible genotypes.  To make the data consistent with our A,B nomenclature, we can change the row and column names:
+
+```{r}
+rownames(gmat) <-c("AA","Aa","aa")
+colnames(gmat) <-c("BB","Bb","bb")
+gmat
+```
+Now, let's look at these in terms of gametic composition.  Some are real easy - all of the double homozygotes (for example AABB) consist of two identical gametes, so we can state that in the total pool of 2000 gametes, there must be 2*57, or 114, that are derived from AABB individuals and are in fact AB gametes.  We also can accurately infer the gametes that make up single heterozygotes.  So using AABb (of which there are 140) as an example, we can see that these genotypes, in terms of gametes, have to be (AB)/(Ab), meaning that this genotype consists 140 AB and 140 Ab gametes to the pool.  In this fashion, we can count the gametes for eight of the nine genotypes.
+
+The problem is the ninth - the double heterozygotes (AaBb).  In fact, these individuals could be either (AB)/(ab) or (Ab)/(aB).  So how do we account for this?  
+
+To do this, Hill proposed use of a procedure called expectation maximization.  We won't go into the details, as  yhe mathematics are a bit involved, but in essence we do the following:
+
+1.  Count those gametes that can be directly identified
+2.  Based on those, select a possible starting frequency for the AB gametes
+3.  Use these two to re-estimate the AB frequency (that is, use the number actually counted plus the number that would be contributed by the double heterozygotes given the estimate of AB frequency used)
+4.  Estimate D based on these numbers
+4.  Repeat steps 3 and 4, using the newly calculated value
+5.  Continue this iterative process until a stable value of D is obtained.
+
+So let's see how this works with these data (HillD is a function in TeachingPopGen that does the math).  Below are the results of 20 iterations, shown graphically and numerically.
+
+```{r}
+HillD(gmat)
+```
+It is quite evident from the plot produced that an equilibrium value of D is quickly reached - in this case 0.07.  But is this correct?  To test the concept, we'll do a couple of simulations:
+
+### Independent Assortment
+
+First, let's generate a simulated data set with two loci, each of which are assorting independently and for which D=0.  We will set the value of p (f(A)) at .2 and that of r (f(B)) at .6.
+
+```{r}
+A <- rbinom(1000,2,.2)
+B <-rbinom(1000,2,.6)
+genos <-table(A,B)
+genos
+```
+Now we can run HillD to see what we get:
+
+```{r}
+d1 <-HillD(genos)
+print(paste("Final Estimate of D = ",signif(d1[20,2],4)))
+```
+And we see that D converges on a value close to zero, as expected.  
+
+### If D is not Zero
+
+
+We also need to test whether, given a dataset that was generated with some nonzero value of D, the Hill approach returns a correct value.  To do this, we need to do the following:
+
+1.  Calculate the gamete frequencies based on some prespecified values of allele frequencies and D.
+2.  Use those gamete frequencies to generate expected genotype frequencies and numbers.
+3.  Us expectation maximization to calculate D.
+
+Step 2 above is actually rather laborious - there are 10 possible combinations of gametes, and the expected frequency of each  (assuming random mating) has to be calculated individually.  We will do it with another function in teaching popgen, which accepts as input the allele frequencies p and r, as well as the prespecified value of D:
+
+```{r}
+genos <-genotype.generate(.4,.7,.1)
+genos
+```
+And we can do our Hill calculation as before:
+
+```{r}
+d1 <-HillD(genos)
+print(paste("Final Estimate of D = ",signif(d1[20,2],4)))
+```
+And again we see rapid convergence to a value quite close to the actual value.
+
+
+### Conclusion
+
+This is one of several means of estimating D based on real data.  In fact, the issue of "phasing" - that is, determining linkage relationships in heterozygotes - is one that has become quite sophisticated.  Fortunately for us, we can use HapMap data, in which these methods have been applied, and work from gametes that were inferred from genotype data with a high degree of confidence.

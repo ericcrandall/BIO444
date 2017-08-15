@@ -1,0 +1,31 @@
+---
+title: "Fay and Wu's H Test"
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+---
+
+Continuing on our effort to build the functional capabilities of sum_stats into pure R, we'll need to work on the Fay Wu H statistic.  The key is getting the unfolded SFS and doing appropriate manipulations.  Note that this is a preliminary version that needs fleshing out; not sure whether we'll use it this year.
+
+
+
+#### Simulation
+```{r}
+dat <-ms(nsam=100,nreps=1,opts=("-t 10"))
+dat.ms <-read.ms.output(txt=dat)
+gams <-dat.ms$gametes[[1]]
+```
+
+#### Getting the Site Frequency Spectrum
+```{r}
+sf <-sfs(gams)
+```
+#### And calculating the statistics
+```{r}
+pi.s <-pi(sf)
+th <-theta.H(sf)
+h <-pi.s-th
+pi.s;th;h
+```
+

@@ -1,0 +1,22 @@
+---
+title: "Introduction"
+author: "Bruce Cochrane"
+date: "January 27, 2016"
+output: html_document
+---
+### Background
+
+The text written here is just that - text as you would enter it into a word processor.  When this document is compiled ("knitted") it will be formated like any other text.  Code to be executed needs to be inserted in a "chunk" (opt-cmd-I)
+
+```{r}
+x <-2*2
+x
+```
+Now we will do a plot.  We'll create two vectors v1 and v2, and make an xy plot of them
+
+```{r}
+v1=c(1:4)
+v2=c(2,4,6,8)
+plot(v1,v2)
+```
+

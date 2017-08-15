@@ -1,0 +1,24 @@
+---
+title: <center>Constructing a Site Frequency Spectrum</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%%B %%d %%Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+### Instructions
+
+Below you will have a small data set (each student's is unique).  It shows the segregating sites for a hypothetical DNA sequence, with 0 indicating the ancestral allele and 1 indicating the derived one.  By hand, construct a site frequency spectrum.  Label the axes appropriately and turn it in on paper on **Monday, April 3** in class.
+
+```{r,echo=FALSE}
+library(knitr)
+dat.ms <-ms(nsam=10,nreps=10, opts='-t 4')
+dat.sum <-read.ms.output(txt=dat.ms)
+gams <-(data.frame(dat.sum$gametes[[1]]))
+colnames(gams) <-1:ncol(gams)
+kable(gams,caption="Each row is one gamete; each column is a segregating site")
+```
+

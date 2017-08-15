@@ -1,0 +1,32 @@
+---
+title: <center>Bibliographic Essay</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+## Bibliographic Essay 
+
+
+### Historical
+
+It is hard to believe that, prior to about 1920, there were many who considered Mendelian genetics to be incompatible with Darwinian Evolution.  It was the seminal work of, among others, R. A. Fisher, J. B. S. Haldane and Sewall Wright that led to their reconciliation and what is now known as the "Modern Synthesis" of evolutionary biology.  The late historian, biologist and iconolclast Will Provine wrote of the early days of that period of resolution; the book that resulted from his Master's thesis [@Provine1971] is well worth reading.  Provine also wrote a seminal biography of Sewall Wright, one of the greatest geneticists of the twentieth century [@Provine1986].
+
+Two of the most important academic lineages were those of Theodosius Dobzhansky and James Crow. Dobzhansky and his colleagues  focused more on empirical population genetics, while Crow and his students (particular Motoo Kimura) made seminal contributions to the theoretical underpinnings of the field.  Two good places to start are with Dobzhansky's *Genetics of the Evolutionary Process*[@Dobzhansky1970] and Kimura's *The Neutral Theory of Evolution*[@Kimura1985].  For those who wish to delve deeper into their original work, collected volumes of Dobzhansky's [@DobzhanskyGNP] and Kimura's [@KimuraCollection] are well worth perusal
+
+### Texts
+
+There are basically two types of population genetics texts - the comprehensive and the overview.  The classic in the former category is @crowkimura; there are those who argue that anyone who wants to acquire a deep and basic understadning of the subject should start by digesting this in its entirety.  It is, however, more than fifty years old, and much has happened since then.  For more modern takes, see @Hamilton2009, Charlesworth and Charlesworth, or Hedrick.
+
+The shorter versions tend to be much more accessible, however that can be both a blessing and a curse, as often they overdo compression of difficult concepts.  The classic in this genre is Metter and Gregg; Three others worthy of note are @Crow1986, Gillespie and Hartl.  The most recent of these books, @nielsen2013introduction, is one that we will refer to regularly as we progress.
+
+Finally, Joe Felsenstein has produced a comprehensive online treatment of theoretical population genetics [@FelsensteinBook].  It is free of charge and can be downloaded as a pdf file.  
+
+### Collections
+
+

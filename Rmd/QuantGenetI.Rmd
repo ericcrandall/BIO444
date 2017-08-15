@@ -1,0 +1,154 @@
+---
+title: <center>Introduction to Quantitative Genetics</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+### Background
+
+Up to this point, we have taken a largely gene-centric approach - that is, we have asked questions about how evolutionary forces are manifested in terms of allele and genotype distributions.  However, it is axiomatic that relative fitness is determined by phenotypic differences.  Furthermore, many phenotypic traits are *continuous* and *quantitative*, meaning that, unlike alleles, SNPs, microsatellites, etc., individuals cannot be assigned into different discrete categories.  So how can we reconcile this fact with the basic Mendelian model?
+
+### Polygenic Traits
+
+Suppose we have a trait that is determined by a single biallelic locus at which p=q=0.5.  Further, suppose that there is no dominance - the phenotype of the heterozygote is exactly intermediate to those of the two homozygotes.  In that case, we would be able to assign individuals into discrete phenotypic classes, and assuming the population is in Hardy-Weinberg equilibrium, we would see something like the following: 
+```{r}
+par(mfrow=c(1,1))
+hist(rbinom(1000,2,.5),xlab=c("Phenotype"),main=c("Single Gene Trait"))
+```
+But now, what if more loci are involved?  In the following, we illustrate the expected phenotypic distributions in cases where the trait is determined by 4, 10, or 20 similar loci, all making equal contributions
+
+```{r,results='hide'}
+par(mfrow=c(1,3))
+n <-c(4,10,20)
+sapply(n,function(x) hist(rbinom(1000,x,.5),xlab="Phenotype",main=paste(x,"Loci",sep=" ")))
+```
+And we see that as the number of loci increases, the phenotypic distribution becomes more continuous.  
+
+
+### Heritability
+
+But having reconciled the problem theoretically, we now face a much bigger problem - how can we make inferences about the genetic basis of an evolutionarily significant quantitative trait?  What we have done so far presents one challenge - how do we determine the number and identity of the loci (hereafter referred to as quantitative trait loci, or qtl) that contribute to variation in a phenotype of interest.  But there is a second problem as well - genes aren't the only factor that contribute to this variation - uncontrolled environmental factors can do so as well. We can express this with the simple expression
+
+Vp = Vg + Ve
+
+where Vp is the total phenotypic variation, Vg is the fraction of that variation resulting from genotypic variation, and Ve is the fraction resulting from environmental (non-genotypic) factors.  And we can define **heritability** mathematically as:
+
+h^2^ = Vg/(Vg+Ve)
+
+where h^2^, the **broad sense heritability**, is <b>The fraction of the total variation of a phenotype that is the result of genotypic variation among individuals <u>in a population</u></b>.  
+
+To begin to explore this, we will look at an historical example, from the late 19th century.  Sir Francis Galton performed a simple experiment - he measured the heights of parents and their offspring and then performed a regression analysis, in which he analyzed offspring height as a function of average parental (or mid-parental) height.  To correct for the average difference in height between sons and daughters, he multiplied the height of daughters by 1.08.  
+
+We can start by simply looking at the distributions of offspring and parent heights:
+
+
+```{r}
+data(galton)
+
+par(mfrow=c(1,2))
+hist(galton$child, breaks=100, main="Offspring", xlab="Height")
+hist(galton$parent, breaks=100, main="Mid-Parental", xlab="Height")
+mean(galton$parent)
+mean(galton$child)
+```
+But to what extent are the heights of particular offspring related to those of their parents?  To address that, we need to determine the covariance of parent and offspring.  By *covariance* we mean the tendency of pairs of data (in this case mid-parental and offspring height) to deviate similarly from the relevant population mean We can do that as follows:
+
+```{r}
+galton.cv <-cov(galton$parent,galton$child)
+galton.cv
+```
+Since this is covariance between one parent and a particular offspring, we need to multiply by two take into account both parents:
+```{r}
+Va <-2*galton.cv
+Va
+```
+And this is, in fact, an estimate of additive genetic variance.
+
+Now we need the total variance in the population - that is, the total variance of  midparental height:
+
+```{r}
+mp.var <-var(galton$parent)
+mp.var
+```
+And again, this needs to be multiplied by two to take into account both parents.  We can then take the ratio of genetic variance to toal to get our estimate of heritability:
+```{r}
+h2 <-Va/(2*mp.var)
+h2
+```
+But if all that seems abstract, there's actually a more visually intuitive way of arriving at the same conclusion.  What we can do is to plot the data and then do a regression analysis:
+```{r}
+
+par(mfrow=c(1,1))
+plot(galton$parent,galton$child, pch=19, col="blue", xlab="Parent", ylab="Offspring")
+lm1 <-lm(galton$child~galton$parent)
+lines(galton$parent,lm1$fitted,col="red",lwd=3)
+lms <-summary(lm1)
+lms
+```
+And we see that there is a highly significant relationship - the slope of the line, which is in fact equal to the narrow-sense heritability, is `r lms$coefficients[2,1]`.  That is, of course, identical `r h2`, the value we calculated using the variance-covariance approach.
+
+### Application of the Breeder's equation -
+
+Now we'll use a simple example of selecting for seed weight in *Phaseolus*, applying the "Breeders Equation" to some simple data.
+```{r}
+M <-403.5 # starting population mean
+Ms <-691.7 #mean weight of selected parents
+M1 <-609.1  #mean weight of offspring
+S <- Ms-M # Selection differential
+R <- M1-M # Response to selection
+hsq <- R/S
+hsq
+```
+
+So by this alternative means, we can also estimate the heritability of a trait.  Note however, that in a selection experiment, as selected variants go to fixation, the fraction of the total phenotypic variance due to genetic variance will decline, meaning that *heritability is not a constant*.  
+
+### Additive and dominance components.
+
+Now let's consider how genes affect phenotypes when they are present in diploid genotypes.  For now, we'll consider a single locus:
+
+m = mean homozygote phenotype = (m11+m22)/2
+
+a= (m11-m22)/2
+
+d = m12-(m11+m22)/2
+
+With these values, we can express the phenotypic values of the three geneotypes as 
+
+m11 = m+a  
+m12 = m+d  
+m22 = m-a  
+
+```{r}
+m11 <- 1.202
+m12 <- 1.059
+m22 <-.948
+
+m <-(m11+m22)/2
+a <-(m11-m22)/2
+d <- m12-(m11+m22)/2
+m;a;d
+```
+So what are those values?  A lot can be made of them, but suffice it to say that a is referred to as the main effects of the locus on the phenotype and d the dominant.  
+
+Note the difference between the average of the homozygotes (1.075) and the observed heterozygote phenotype(1.059) - difference is d.  
+
+
+If we extended our analysis to additional loci, we could do something similar to factor in epsitatic interactions among them as well.  But here's the important point - *epistasis and dominance are consequences of genotypes that are reshuffled during meiosis and recombinaton.   Thus, from an evolutionary perspective, our major concern is the additive contributions of alleles*.  Thus, what we are most concerned with is **heritability in the narrow sense**, defined as 
+
+h^2^ = Va/(Va+Ve)
+
+### Conclusion
+
+At this point, what have we done?
+
+1.  We have established a theoretical basis for genetic control of quantitative traits.
+2.  We have outlined two approaches to estimating heritability, one based on parent-offspring regression and one on response to selection.
+3.  We have briefly considered non-additive components of genetic variation (dominance and epistasis).
+
+But remember - our intent is to make the connection between phenotype and genotype, but all we've done is to show that, in certain cases, we can measure heritability.  But both of the examples we described required very specific information - either parent-offspring relatedness or known selection differentials.  What if we wished to make similar inferences in wild populations?  And, perhaps more importantly, what we have not done is to make progress towards identifying the actual qtl's that contribute to a particular trait.  We will address these questions in the subsequent three units.
+
+

@@ -1,0 +1,36 @@
+---
+title: <center>Methodological Notes</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+## Other Software
+
+Below you will find a brief introduction to some of the analytical methods of modern population genetics.  The references included are ones you should review carefully prior to starting any data analysis that incorporates them.  Note that these are typically **not** the documentation for the programs themselves (which are provided elsewhere); rather they are research papers that describe the methods and assumptions that underly the particular impelementations.
+
+### ms
+
+While there are many more sophisticated simulators of the neutral coalescent, `ms` remains a stalwart, and it is what we will use throughout the course.  For a very nice introduction to coalescent theory, see @Hudson1990.  The actual program `ms` is described by @ms.  
+
+### Bayesian Phylogenetic Inference with BEAST
+
+There is so much to BEAST (Bayesian Evolutionary Analysis by Simulating Trees) that it is impossible to summarize its capabilities in a couple of paragraphs.  For a broad overview, the recent book by @BeastBook is the place to start - it combines a reasonably readable introduction to the theory, along with an introduction to some specific applications.
+
+One of the temptations in a BEAST analysis is to use tip dates to calibrate the tree.  Used appropriately, this can be very powerful, however @Rieux2016 provides essential background, as well as some suggestions as to how to test whether such an approach is valid with a given data set.
+
+### Structure
+
+The original method was described by @Pritchard2000, however at that point the methodology did not incorporate the possibility of admixture into the algorithm.  This was subsequently added [@Falush2003a, @Falush2007] and is now a routine part of STRUCTURE analyses.
+
+### Approximate Bayesian Computation
+
+Before delving into this area, you should read @Csillery2010, which provides a great overview of the method and its potential.  Remember that the key purpose of ABC is to compare different evolutionary models by simulating a set of summary statistics under each and then determining in which posterior distribution those statistics calculated from observed data are most likely to fall.
+
+
+

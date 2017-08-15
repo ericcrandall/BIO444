@@ -1,0 +1,132 @@
+---
+title: "<center>Table of Contents </center>"
+output:
+  html_document:
+    css: TOC.css
+---
+```{r,echo=FALSE}
+#source("./R/style.TOC.R")
+```
+<center><h3>`r format(Sys.Date(),format="%B %d %Y")`</h3></center>
+</br>
+
+## [Introduction](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Introduction.html)
+
+</br>
+
+## Working in the R Environment
+
+1. [Why R (and R Studio)?](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/NewIntroR.html)
+2.   [A (little bit of) Basic R](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/BasicR.html)
+3.  [Data Frames and Lists](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/DataFrames.html)
+2.  [Generating and analyzing distributions in R](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Distributions.html)
+3.   [An Example](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/DataManip.html)
+
+
+## Random Variables, Distributions and Expectations  
+
+1.  [Is it a fair coin?  A Quick Introduction to Binomial Probability](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/CoinFlip1.html)
+2.  [Dealing with Continuous Variation](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Normal.html)
+3.  [The Chi-squared distribution](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/chisq.html)
+4.  [Introduction to Bayesian Statistics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/BayesIntro.html)
+
+
+## Data Sources
+
+1.  [Introductory Comments]
+1. [Inputting a Genalex Data Sheet]
+2.  [Human Allele Frequency Data from ALFRED]
+3.  [FASTA Files from Genbank]
+4.  [HAPMAP]
+4.  [BiomaRt, Opensci, and Chopsticks]
+
+##  Equilibria in Population Genetics
+
+### One Locus - the Hardy Weinberg Equilibrium
+1.  [What it is - the Basics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/IntroHW.html)
+2.  [Further Exploration - &chi;^2^ Testing, Multiple Loci, Maximum Likelihood Estimators](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/HardyWeinbergII.html)
+3.  [The Relationship Between Genotype and Allele Frequencies](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/HardyWeinbergIII.html)
+3.   [Hardy Weinberg in the Context of Genomics - an Introduction](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/HwGenome.html)
+
+
+### Multiple Loci - Linkage Disequilibrium
+
+1.  [Linkage Disequilibrium - what is it?](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/LDIntro.html)
+3.  [The Fate of Linkage Disequilibrium](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/LDFate.html)
+2.  [Inferring Linkage Disequilibrium with Real Data](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/DfromGenotypes.html)
+
+
+## Finite Populations
+
+### Stochastic Factors - Drift and Mutation
+
+1.  [Modeling Genetic Drift](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/DriftIntro.html)
+2.  [Effective Population Size](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/NeDetermination.html)
+1.  [Mutation - Random or Adaptive?](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Mutation.html)
+2.  [The Fate of New Mutations](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/MutationFate.html)
+3. [Drift, Mutation and the Infinite Alleles Model](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/InfiniteAlleles.html)
+
+
+### The History of Finite Populations - Introduction to Coalescence
+
+1.  [Introduction to DNA Sequence Variation](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/IntroDNA.html)
+2.  [Site Frequency Spectra](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/sfsDNA.html)
+1.  [A Brief Overview of Coalescent Theory](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/CoalescenceI.html)
+2.  [Essential Theory](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/CoalescenceTheory.html)
+4.  [S, &pi; and Coalescence](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/PiSCoalescence.html)
+5.  [Exploring &pi; and &theta;w](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/PiSCoalescenceII.html)
+6.  [The Tajima Statistic](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Tajima.html)
+7.  [The Fay-Wu Statistic](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/FayWu.html)
+7.  [Comparing Data with Simulation](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/ms-sstats.html)
+
+### Population Subdivision
+
+1.  [Introduction to F Statistics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/FstIntro.html)
+2.  [Fst and Human Subdivision](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/FstHuman.html)
+3.  [Migration](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Migration.html)
+4.  [Isolation by Distance](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/IsolationByDistance.html)
+
+## Selection
+
+### Selection Theory
+1. [The Basics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/SelectionI.html)
+2. [More Aspects of Selection Theory](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/SelectionII.html)
+
+### Using polymorphism data 
+1.  [Basic Single Locus Tests of Selection](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/SelectionIII.html)
+2.  [A Detailed Example](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/SelectionIV-MKDetailed.html)
+
+## Looking for Evidence of Selective Sweeps 
+
+1.  [Extended Homoygosity - the basics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/EHHChapter.html)
+
+## Quantitative Genetics
+
+1. [Basic Principals of Quantitative Genetics](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/QuantGenetI.html)
+1. [QTL mapping in R](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/rqtl.html)
+3. [The Animal Model](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/AnimalModel.html)
+
+##  Appendices
+
+### The TeachingPopGen Package
+1.  [Introduction](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/TeachingPopGen/inst/doc/TeachingPopulationGenetics.html)
+2.  [Coalescence Functions](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/TeachingPopGen/inst/doc/Coalescence.html)
+
+### Some Data Processing Examples
+
+1.  [Merging HapMap and SNP database data](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/Hyal2rehh.html)
+
+### Supplemental Chapters
+
+1.  [Exact Tests of the Hardy Weinberg - still rough](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/HWExactChapter.html)
+2.  [Calculating Linkage Disequilibrium from Genotypic Data](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/DfromGenotypes.html)
+3. [msABC and Bayesian Approaches to Coalescence](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/msABCtest.html)
+
+### Videos
+
+1.  [Starting your First Project](https://dl.dropboxusercontent.com/u/9752688/QPopgen/Demo/mp4/InstallTPG.mp4)
+2.  [A Little Bit of Markdown](https://dl.dropboxusercontent.com/u/9752688/QPopgen/Demo/mp4/MarkDownIntro.mp4)
+
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+

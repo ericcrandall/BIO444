@@ -1,0 +1,95 @@
+Overview of msABC
+========================================================
+### Background
+
+In what we have done with ms so far, there are two issues that warrant futher consideration:
+
+1.  In order to get summary statistics from simulations run in ms, we have to use the second executable sample_stats, and to date that has not been implemented in an R package.
+2.  We saw that we could use Bayesian logic to estimate &theta;, but we also raised the issue that, if we want to extend the analysis to multiple parameters, the problem became much greater.  Furthermore, the method we used for inputting the prior distribution into the ms function was a bit awkward and slow.
+
+The package [msABC](http://www.bio.lmu.de/~pavlidis/home/?Software:msABC) is a derivative of ms that can help with both of these.  No it does not run in native R, and like ms it is distributed as C++ code that can be compiled in a Unix environment (Mac or Linux), so it is not something easily installed in a Windows environment.  But it is worth it is a tool that we need to keep in mind.
+
+###  Bayesian estimation of theta
+
+#### The command line
+
+The format of the command line for msABC is similar to that of ms, however it has some differences:
+
+1.  A number of options available in ms, including -T (tree) and -L (length), are not available
+2.  As part of the command line, one can specify a distribution for a parameter.  In the example below, we will specify a uniform distribution between 0 and 20 for &theta;
+
+The following code does the same thing we did with ms - generates 10000 simulations of 42 samples, length 702, with &theta; drawn from U(0,20).  The output is written to the file msabc.out
+```{r}
+
+system( "msABC 42 10000 -t -U 1 20 -r 0 702 >msabc.out")
+```
+As you see, there is only one line of fairly straightforward code, and it runs rather quickly.
+
+#### The output
+
+Now we will use the read.table R function to read in the data and take a look at it.
+```{r}
+
+test <-read.table("msabc.out",header=TRUE)
+head(test)
+```
+This is quite different from our input from ms alone, and even more extensive than what we got from sample_stats.  However, look at the first five columns - they contain much that is of use:
+
+1.   p_theta - the input value of theta, generated from U(0,20)
+2.  s_segs - number of segregating sites
+3.  s_theta _pi - the estimate of π (Tajima's estimator of &theta;)
+4.  s_theta _w - the Watterson estimator of &theta;
+5.  s_tajimasD - the Tajima statistic
+
+#### Generating a Posterior Distribution
+
+So, returning to our Bayesian problem from the previous unit, remember that we want to select those input values of &theta; that resulted in there being 48 segregating sites.  This can be done as follows:
+
+
+```{r}
+post <-test$p_theta[which(test$s_segs==48)]
+```
+And what we have done is to select `r length(post) samples that fit our criterion.  They can now be plotted, and the mean and credible interval of the distribution can be calculated
+
+```{r}
+plot(density(post),main="Posterior Distribution, S=48",xlab="Theta")
+rug(post)
+m <-mean(post)
+q <-quantile(post,c(.025,.975))
+abline(v=m,col="red")
+m; q
+```
+And we get results quite similar to what we've seen previously
+
+#### One more exploration - What About D?
+
+So we've selected those simulations that resulted in 48 sites.  Remember that we also calculated D from our data to be -1.98.  So is that what we get from our simulations?  We can address this by again focusing our attention on those simulations that gave the same number of segregating sites as were in the original data:
+
+```{r}
+postD <-test$s_tajimasD[which(test$s_segs==48)]
+plot(density(postD),main="Posterior Distribution of D",xlab="D")
+abline(v=mean(postD),col="red")
+rug(postD)
+Dm <-mean(postD)
+
+Dq <-quantile(postD,c(.025,.975))
+abline(v=Dq,col="darkgreen")
+Dm; Dq
+```
+And we see that the mean value is `r Dm` quite different from that which we observed (-1.98) - indeed the observed value falls well outside of the 95% credible interval, which is between `r Dq[1]` and `r Dq[2]`
+
+### Conclusions
+
+#### The program
+
+msABC is a useful tool.  Even for simple simulations, with fixed parameter values, it provides a simpler way to get summary statistics.  As noted, it does not generate trees, nor will it provide information on tMRCA and tree length.  But it will accept demographic parameters, and they can also have prior distributions specified, so there is a lot that can be done in the Bayesian realm.
+
+#### The Challenge
+
+Let's think for a moment about where we stand with respect to our spaghetti squash data:
+
+1.  We know that S=48 and D = -1.98.  The latter is significantly different from our expectations under the infinite sites model.
+2.  We have seen by Bayesian analysis that the mean value of &theta;, given S = 48 and assuming a uniform distribution for &theta;, is about 6.
+3.  However, the mean value of D of the posterior distribution is only `r Dm`.
+
+So whether we are left with the obvious conclusion that we cannot explain our data baed on &theta; alone.  We need to incorporate other paramters as well, but what ones?  Before we can address that, we need to spend some time considering population structure more carefully.

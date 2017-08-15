@@ -1,0 +1,214 @@
+---
+title: <center>Probability Distributions in R</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output: 
+  html_document:
+    css: ~/Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+### Background
+
+Much of what we work with in population genetics involves comparison of estimates of parameters calculated from real data to the expected distributions of random variables with particular parameters.  This is what we did in the previous unit, when we looked at coin flips, height distributions, and Mendelian ratios from the frequentist perspective.  R contains a number of built-in functions that make these analyses straightforward, and most importantly obviate the need to delve into the mathematical details (any introductory probability or statistics text can provide that background to the interested reader).  The purpose of this unit is to briefly demonstrate R's capabilities.  To do so, we will first describe those distributions that play the most significant roles in population genetics, and then look briefly at some of the most widely used R functions, using the normal distribution as an example.
+
+Every distribution we use is defined by a set of **parameters**, values that, when applied to the relevant formula, will generate the theoretical distribution of a random variable for which those parameters apply.  What we want to do is to measure some value from real sample or samples, and determine whether or not those values are likely to have been drawn from that particular distribution.  Thus, what we do in general in R is to construct those theoretical distributions, allowing us to analyze the observed data at hand.
+
+### Some significant Distributions
+
+There are a wealth of distributions that have been defined over the years; as we will also see in some cases we will generate our own via simulation.  Of the classic distributions, there are four that are of particular importance.  
+
+#### The Normal Distribution
+
+We all know this one - it is the "bell curve" - a continuous variable with two parameters -  a mean and a standard deviation.  In genetics, it is usually the starting point for description of some quantitative phenotype - weight, seed production, height, etc.  
+
+#### The Binomial distribution
+
+The binomial distribution (and its close relative the multinomial) describes the expected results of a series of *trials*, in which there are two possible *outcomes*, which are sometimes referred to as "success" or "failure", and there is some fixed *probability* of success.  Thus, the two parameters that describe a binomial distribution are the number of trials (N) and the probability of success (p).  In genetics, alleles at a biallelic loci constitute a binomial variable - a particular allele can be either "A" (success) or "a" (failure).
+
+#### The Chi-Squared Distribution
+
+We've already looked a bit at this one, seeing how it can be used to determine whether an observed outcome differs significantly from that predicted based on a prior model.  It is used for discrete data, and the sole parameter is the number of degrees of freedom.  This, of course, can be determined exactly from our data.  That is in fact what makes it such an important distribution - it doesn't matter how the prior model was constructed - all that matters is how many classes of observations there are, the sample size, and the normalized magnitude of the deviation between observed and expected.
+
+#### The Poisson Distribution
+
+The Poisson distribution is best described by a couple of examples:
+
+1.  Consider family size in an asexual population whose size is constant.  That is, the average number of offspring produeced per individual is one.  However, in fact the family size can be 0, 1, 2 . . .,  but since zero is a lower bound, it would not make sense to try to fit the distribution to a normal one.  
+2.  Another example from genetics is mutations.  If we say, for example, that on average 1 in 10^8^ copies of a particular gene acquires a mutation over a particular period of time, then if we look over several time periods in a large population, we will see many in which zero mutations occur, a few in which one does, a very few in which two occur, etc.
+
+Both of these can be thought of as Poisson processes the *rate* (&lambda;) as the single parameter.  And a unique mathematical property of a Poisson process is that that parameter defines both the mean and the variance of the distribution
+
+### What R can do
+
+So with that limited background, we can look at some of the most commonly used R functions.  We will do so in a bit of detail with the normal distribution and then briefly look at some examples of similar functions applied to normal data.
+
+#### rnorm() - Generate Random Data
+
+Suppose we are told that, based on data from lots and lots of veterinarians, that the average weight of a male cat is 5 kg, with a standard deviation of 1 kg.  We'd like to see what the distribution would be for 10000 cats, but we certainly don't want to round that many up and weigh them.  Let's let R do it for us:
+
+```{r}
+cats.mean <-5
+cats.sd <-1
+cats <-rnorm(10000,cats.mean,cats.sd)
+summ.cats <-summary(cats)
+summ.cats
+hist(cats)
+```
+
+Dissecting the above:
+
+1.  The rnorm() function is given the number of points we want to generate, along with our two parameters (mean and standard deviation).  It returns a vector of length 10,000, each corresponding to the weight of a theoretical cat.
+2.  When we use the summary() command on the output, we get a nice numerical summation of the data, giving the range (Min. and Max.), the Mean, and values for the quartiles of the distribution.
+3.  hist() will give us a quick histogram of the data; we could of course use either additional graphical parameters or our function colhist to make a more elegant plot.
+
+#### quantile() - Partition Distributions by Percent Occurrence
+
+Let's explore the quantiles that were returned by the summary() function above.  What do they really mean?  In this case they are telling us that of all the kitties in the population, the smallest 25% weigh between `r summ.cats[1]` and `r summ.cats[2]`, another 25% weigh between `r summ.cats[2]` and `r summ.cats[3]`, and so forth.  Another way we can get those numbers is with the quantile() function:
+
+```{r}
+q.cats <-quantile(cats,c(0,.25,.50,.75,1))
+q.cats
+```
+And we get the same values.  But notice what we did - we gave the function our data (cats) and a vector describing how we want the distribution to be apportioned.  But we can use any vector we want - for example, what if we wanted (as is often the case) to determine the cutoff values for the upper and lower 2.5%.  We could do so as follows:
+
+```{r}
+q2.cats <-quantile(cats,c(.025,.975))
+q2.cats
+```
+And now we can plot the histogram and add vertical lines to indicate these values:
+```{r}
+hist(cats)
+abline(v=q2.cats,col="red")
+```
+This is in fact the basis for the colhist function - it determines the quantiles as described above, and colors the bars of the histogram accordingly:
+
+```{r}
+colhist(cats)
+```
+Finally based consider the following.  At the time the picture below was taken, Hector, pictured below weighed about 8 kilograms.  Assuming that we have the correct mean and standard deviation for the weight of male cats, was he overwieight?
+
+![Hector](https://dl.dropboxusercontent.com/u/9752688/QPopgen/TutorialFigs/Hector.jpg)
+
+#### dnorm() - The Density Function
+
+The next few functions are not ones we will use often, but they do come up at times.  They all involve direct calculation of the distribution rather than working from simulated data (the approach we use most often).  In the first, what we want to do is to calculate the shape of the distribution *in theory*, based on the mathematical formulation alone.  This is what is known as the density function; what we do is to pass the parameters of our distribution to the function, along with a set of points for which we wish to obtain expected frequencies.  We will continue with our male cat example, where we have seen in our simulated sample that the size falls within the range of 1-9 km.  
+
+```{r}
+sq <-seq(1,9,.01)
+cat.dens <-dnorm(sq,cats.mean,cats.sd)
+plot(sq,cat.dens,type="l",xlab="Weight (kg)",ylab="Frequency",main="Distribution of Male Cat Weight")
+```
+So here we have asked r to calculate the expected frequencies of cats ranging from 1-9 kg in increments of .01 kg.  The 800 points that are generated are then plotted, resulting in the expected bell curve.
+
+#### pnorm() - The Cumulative Distribution Function
+
+Another question might be "what fraction of cats weigh less than 4 kg"?  The pnorm function allows us to get that as follows:
+```{r}
+cats.5 <-pnorm(4,cats.mean,cats.sd)
+cats.5
+```
+And as we did with the density function, we can plot it over the same range as follows:
+
+```{r}
+plot(sq,pnorm(sq,cats.mean,cats.sd),type="l",xlab="Weight (kg)",ylab="Fraction Below",main="Cumulative Distribution Function")
+```
+
+#### qnorm() The Opposite of pnorm()
+
+Now let's turn that around a bit.  Suppose we wanted to ask the question (similar to what we did with quantile data) "What are the upper and lower 2.5% weight cutoff points"?  qnorm will do that as follows:
+
+```{r}
+cats.qn <-qnorm(c(.025,.975),cats.mean,cats.sd)
+cats.qn
+```
+Note that these are very similar to the quantile values we calculated with our simulated data above.
+
+### Two Other Applications
+
+#### The Binomial and the Hardy-Weinberg Equilibrium
+
+We will be examining the Hardy-Weinberg distribution in some detail.  However, in the terms that we are using here, we can think of alleles as binomial random variables with frequencies of p and 1-p.  To generate genotypes, we sample them two at a time.  So if we wanted to generate 1000 alleles,, setting p=.3, we could do the following:
+
+```{r}
+p <-.3
+alleles <-rbinom(1000,1,p)
+table(alleles)
+```
+So with the rbinom function, we've asked r to sample from a binomial distribution, with the frequency of success (denoted by a 1) one at a time.  The table() function, in this case, just counts our zeros and 1's.
+
+But to make genotypes, we want to sample two at a time - one allele from the male gametic pool and one from the female.  We can do that as follows:
+
+```{r}
+genotypes <-rbinom(1000,2,p)
+geno.dist <-table(genotypes)
+geno.dist
+```
+Here the zero class is the number of one homozygote (aa), the 1's represent heterozygotes (Aa) and the 2's the other homozygote (AA).  And of course, it's no secret that the expected frequencies of these three classes are (1-p)^2^, 2p(1-p) and p^2, so we can compare our observed (simulated) values above to the numbers as follows:
+
+```{r}
+genos.exp <-c((1-p)^2,2*p*(1-p),p^2)*1000
+genos.exp
+```
+And we see that the values are very similar.  In fact, just for the heck of it, we can use a TeachingPopGen function to test whether the observed values differ significantly from the expected:
+
+```{r}
+ch.test <-chixw(geno.dist,genos.exp,1)
+ch.test
+```
+And we see that they do not.
+
+#### qchisq() and chi-squared
+
+Remember that, with the &chi;^2^ test, we want to determine whether the deviation of some observations from expectation is greater than that expected by chance.  To do that, we typically calculate our value from our data, and then look up the critical value of &chi;^2 on a table or from a graph.  In fact, we can get the critical values from r by using the qchisq  function.  First, for 1 degree of freedom, at the 5%level:
+
+```{r}
+p <-.05
+df <-1
+crit <-qchisq(1-p,df)
+crit
+```
+And we get our familiar value of 3.84.  But what if we wanted it for both the 5% and the 1% level?
+
+```{r}
+p <-c(.05,.01)
+crit <-qchisq(1-p,df)
+crit
+```
+And finally, what if we wanted to make our own table of 1-10 degrees of freedom.  Here we briefly introduce another fun feature of R, the apply family of functions.  What we're going to do is
+
+1.  Create a vector of degrees of freedom from 1-10
+2.  For each of those values, apply perform the qchisq function
+3.  Convert the output to a dataframe and print it.
+
+```{r}
+dfs <-c(1:10)
+chi.tab <-sapply(dfs,function(x) qchisq(1-p,x))
+chi.df <-data.frame(Crit.05=chi.tab[1,],Crit.01=chi.tab[2,])
+round(chi.df,3)
+```
+And we see that we have recreated part of the first two columns of any standard &chi;^2^ table
+
+#### Generating Random Numbers with runif()
+
+There are many occasions in which one might wish to be able to generate a set of random numbers uniformly distributed between a lower and upper bound.  This is actually quite straightforward.  Suppose we would like to do so, generating 1000 numbers between zero and 1.  The syntax is
+
+```{r}
+num.un <-runif(1000,0,1)
+summary(num.un)
+hist(num.un)
+```
+
+####  Reproducibility - setting the seed
+
+Finally, if were to run any of the simulation code above (that which involves generation of random data) yourself, you would get slightly different answers.  This is simply because different random numbers were selected.  Often, however, you would like your code to be 100% reproducible, meaning that anyone running it would get the exact same results.  That can be done by setting the random number generator seed with the set.seed() function:
+
+```{r}
+set.seed(123)
+```
+You can use whatever integer you want - as long as it stays the same, then the random numbers generated in repeat execution of the code that follows will be the same.
+
+### Conclusions
+
+So in the above, we've walked through some of the major approaches we can take to working with probability distributions.  We could have done similar steps for each of the other distributions (as well as for many others available in R), but again, the basics are similar to what we saw for the normal (although the function calls, like the rbinom function we used above, differ based on the paramters of the distribution in question). As we've said before, much of what we've done stems from analysis of simulated data, so it is important to understand how we do that (with rnorm, rbinom, etc) and analyze the results.  The analytical functions - especially qnorm, qchisq, etc - come in handy at times but are less prevalent in the material we will be covering.
+

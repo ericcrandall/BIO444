@@ -1,0 +1,22 @@
+---
+title: "Analytical prediction for F"
+author: "Bruce Cochrane"
+date: "February 17, 2016"
+output: html_document
+---
+
+So assume that F = p{identity by descent}
+
+and 
+
+F = 1-(1-1/2N)^t^
+
+Then we can code as follows
+
+```{r}
+N=1000
+t <-1:10000
+f <-1-(1-1/(2*N))^t
+plot(t,f, type="l")
+```
+

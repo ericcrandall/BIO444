@@ -1,0 +1,92 @@
+---
+title: <center>Hardy Weinberg III <br> The Relationship between Genotype and Allele Frequencies</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+### The Relationship between Genotype and Allele Frequencies
+
+Think about relationship between p and heterozygosity (fraction of individuals that are heterozygous).  At extremes - p= 0 and p=1, heterozygosity is obviously zero, but what  what happens in between? A very important point to recognize is that while the frequency of heterozygotes is a function of p, the frequency of homozygotes is a function of p^2.  What that means qualitatively is that as p gets small, p^2 gets very small, meaning that, in a finite sample, it is quite possible that there will be no homozygotes for the minor allele present.
+
+#### Thinking about rare alleles
+
+In diploids particular allele (call it a) can exist in one of two states - either in a homozygote or a heterozygote.  If its frequency is q, and the size of the population is N, then there are 2N copies of the allele, and the number that are in homozygotes is simply 2Nq^2^.  Thus, we can determine the fraction of a alleles that occur in homozygotes to be
+
+2Nq^2^/2Nq = q
+
+And the fraction that is in heterozygotes is thus
+
+1-q = p
+
+[Felsenstein](http://evolution.gs.washington.edu/pgbook/pgbook.pdf) describes this relationship particularly well (pg. 9).
+
+And that leads us to the following critical prediction:  **Most rare alleles are found in heterozygotes, while most common ones are found in heterozygotes.** We can examine this graphically by plotting q (from 0 to .99) against q/p (the ratio of the frequency in heterozygotes to that in homozygotes) as follows:
+
+
+```{r}
+q <-seq(0,.9,.001)
+p <-1-q
+fhet <-q/p
+plot(q, fhet,type="l", ylab="heterozygote/homozygote", main="Heterozygote/Homozygote as a Function of p",xlab="p")
+```
+
+And we see that as p increases, the ratio increases exponentially.  This becomes even more extreme as we approach 1:
+```{r}
+q <-seq(.9,1,.001)
+p <-1-q
+fhet <-q/p
+plot(q, fhet,type="l", ylab="heterozygote/homozygote", main="Heterozygote/Homozygote as a Function of p",xlab="p")
+```
+
+In fact, in this range, we can use the approximation of q ≈ 1, so that the ratio then ≈ 1/p:
+
+```{r}
+plot(q, fhet,type="l", ylab="heterozygote/homozygote", main="Heterozygote/Homozygote as a Function of p")
+lines(q,1/p,col="red", type="l",xlab="p")
+```
+And we see that indeed the fit is quite close
+
+#### Exploring the entire range of allele frequencies
+
+Now we want to examine expected heterozygosity for the entire range of possible values for p (0 to 1).  We can explore this graphically, using what is called a DeFinetti diagram (or sometimes a ternary plot).  It is best to work through a few by example.  Fortunately, the R package HardyWeinberg has excellent capabilities in this regard.
+
+```{r,message=FALSE}
+library(HardyWeinberg)
+```
+
+We will start by generating a plot that shows the theoretical relationship between p and heterozygosity.  First, however, we need to generate simulated  multiple locus data; for example 100 genes in a sample of 100
+
+```{r}
+dat <-(HWData(100,100))
+
+```
+This returns a matrix numbers, consisting of one row per locus and one column per genotype.  We can look at a little of it as follows :
+
+```{r}
+head(dat)
+```
+And its structure is pretty clear.  We will come back to using these numbers in a minute, but first, we'd like to visualize the theoretical relationship between p and heterozygosity.  We can do so as follows:
+
+
+```{r,results='hide'}
+HWTernaryPlot(dat, hwcurve=TRUE,addmarkers=FALSE,region=0,vbounds=FALSE,axis=2,vertexlab=c("0","","1"),axislab="P",main="Theoretical Relationship betweeen p and H",cex.main=1.2)
+abline(h=.5,lty=2)
+```
+
+The parabola in this curve indicates the expected heterozygosity given the value of p plotted on the x axis.  What we see is that heterozygosity is maximized at 0.5 when p equals .5  (indicated by the dashed line).  
+
+Now we can add our simulated data to the plot.  Remember that we generated 100 simulated data points (genotype distributions for 100 alleles in a sample size of 100, all drawn from expected HW distribution).  Let's put them onto the de Finetti diagram
+```{r,results='hide'}
+HWTernaryPlot(dat, hwcurve=TRUE,addmarkers=TRUE,region=0,vbounds=FALSE,axis=2,vertexlab=c("0","","1"),axislab="P",main="Adding 100 Loci from N=100",cex.main=1.2)
+```
+
+And we see we have a bunch of scatter (although the theoretical curve is followed pretty well.)  But what falls within chi square acceptance value?
+
+```{r,results='hide'}
+options(warn=-1)
+HWTernaryPlot(dat, hwcurve=TRUE,addmarkers=TRUE,region=1,vbounds=FALSE,axis=2,vertexlab=c("0","","1"))
+```
+Remember, testing at the 5 % level, so not surprising that a few will fall outside of acceptance region.  But the key point to remember is that the data we have simulated here were 100 loci from 100 individuals *in a Hardy Weinberg Population*.  In our next exercise, we will take this one step further and look at some real data.  

@@ -1,0 +1,165 @@
+---
+title: <center>Fst, ALFRED and Human Subdivision</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: "bibliography.bib"
+csl:  "genetics.csl.txt"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+```{r,echo=FALSE}
+library(TeachingPopGen)
+library(knitcitations)
+cite_options("citation_format" = "pandoc",hyperlink = TRUE,max.names = 2)
+```
+
+
+
+## Application to Human Data
+
+In this unit we want to do three things.  First, from our browser, we will take a look at ALFRED, a database of human allele frequencies maintained by Ken Kidd at Yale University.  Second, we will use some of those data to introduce the idea of nested F statistic analysis, wherein we ask at what level (population and/or continent) population subdivision occurs.
+
+
+
+
+### Loading the Data
+
+In a very compelling paper, `r citet("10.1093/molbev/mst260")` reported evidence showing that for a region of chromosome 21, a particular haplotype of Neanderthal origin has been the subject of recent positive selection in Tibetan populations.  The evidence included geographic differentiation of allele frequencies of SNPs in the resion.  One such marker is rs11130248;  we will use frequency data from the ALFRED database to do a bit of F statistic analysis.
+
+First of all, we need to read the data.  To do so, we are going to "scrape" it directly from the Internet, using a function in the package XML.  Before we can do so, however, we need to browse to the Allele Frequency table for the data; to get there, search for the SNP on Alfred.  You should get to [this page](http://alfred.med.yale.edu/alfred/recordinfo.asp?condition=sites.site_uid=%27SI087775I); on it you will note that there is a table at the top that includes a cell with the header "Alfred UID".  This number needs to be in the following code.
+
+```{r}
+library(httr)
+siteid <-"SI087775I" #and one for the ALFRED ID of the SNP we are interested in
+dat <-read.alfred(siteid) # Read and clean the data
+head(dat)
+```
+
+### Examining the data
+
+As we can see, the read.alfred function finds the data we want and returns it as a dataframe, with one line per sample and columns consisting of the continent of origin, the population within that continent, 2N, and the two allele frequencies P and Q.  Note that ALFRED does not contain individual data; hence we can only look at subpopulation differentiation and higher - we can't look at within-population structure.
+
+#### A quick histogram of everything
+
+So what do these data look like?  We can do a quick bar plot of allele frequencies,labeling the bars by continent, as follows:
+
+```{r}
+barplot(dat$Q, names.arg=dat$Continent,las=2,main="Figure 1")
+```
+And we see, exactly as reported, that this particular allele is almost nonexistent in European populations, is variable in African ones, and is at the highest frequencies in Asia and North America (Native Americans of Asian origin)
+
+#### Aggregating the data
+
+To make this a little cleaner (and for some subsequent analysis), we can aggregregate the data by continent and replot it:
+```{r}
+dat.cont <-aggregate.alfred(dat)
+head(dat.cont)
+barplot(dat.cont$Nq/dat.cont$N2,names.arg=dat.cont$Continent,las=2,main= "Figure 2")
+```
+
+### Calculating F~st~
+
+#### By Continent
+
+Note that we now have the data in two forms - by population and aggregated by continent.  We can start by simply calculating Fst at the continental level
+```{r}
+fst.c <-fst.cont(dat.cont)
+fst.c
+```
+Remembering that Sewall Wright suggested that values of Fst > .05 suggest some degree of population differentiation, this result suggests that further investigation may be warranted.
+
+#### By Continent and Population
+
+The value we have determined for fst, `r fst.c`, suggests that strong allele frequency differentiation exists among continents.  But remember that we also saw (Figure 1) that those frequencies vary among populations from the same continent as well. We can address that by calculating nested F statistics as follows:
+
+```{r}
+fst.n <-fst.nest(dat)
+fst.n
+```
+And we can summarize the results:
+
+Source | Statistic | Value
+---|---|---
+Among Populations Within Continent | F~sr~ | `r fst.n$Fsr`
+Among Populations Relative to Total | F~st~ | `r fst.n$Fst`
+Among Continents Relative to Total | F~rt~ | `r fst.n$Frt`
+
+### Interpretation
+
+By doing the nested analysis, we see that, while intercontinental differentiation is higher than we typically see with human data, comparable diferences exist among populations within regions.  In fact, looking back to Figure 1, this should not be surpising.  Except for the European populations, we observe substantial allele frequency variation on each continent, and that is what is reflected in the Fsr statistic
+
+### A Contrasting Case
+
+A critical question that emerges from this sort of analysis is whether the results obtained are specific to the gene or region under consideration, or whether they in fact reflect population structure.  We will look at a couple of studies on that point in a bit, but for now, we can select another snp,  rs10488710.  We've looked up the UID number, and we can input it as follows
+```{r}
+siteid2 <-"SI001899B"
+
+dat.2 <-read.alfred(siteid2)
+```
+Repeating the steps above, we can get plots both by population and by continent
+```{r}
+barplot(dat.2$Q, names.arg=dat.2$Continent,las=2,main="Figure 1")
+```
+```{r}
+dat2.cont <-aggregate.alfred(dat.2)
+head(dat2.cont)
+
+barplot(dat2.cont$Nq/dat2.cont$N2,names.arg=dat2.cont$Continent,las=2)
+```
+And quite clearly, this site is much less variable than is the first one we examined.  We can do the nested Fst analysis on it
+
+```{r}
+dat2.nest <-fst.nest(dat.2)
+dat2.nest
+```
+And if we restrict ourselves to the aggregated-by-continent data, we see the same:
+```{r}
+dat2.cont.fst <-fst.cont(dat2.cont)
+dat2.cont.fst
+```
+
+And in fact se see negligible evidence for differentiation at any level.  So what value should we use to characterize human population structure?
+
+
+### The Bigger Picture
+
+What we will do now is to look at Fst values for 1000 random SNPs drawn from the ALFRED database.  It is possible to download a table that includes those values for over 600,000 snps from ALFRED, however to save time, such a sample has been included as data in TeachingPopGen; we can load it as follows
+
+```{r}
+data(HsFstSample)
+```
+
+```{r}
+#ch1 <-read.table("http://www.users.miamioh.edu/cochrabj//SitesWithFst.txt",header=TRUE)
+
+```
+We can then plot the distribution of Fst's for these SNPs and compare them to those we obtained for our two previously examined SNPS
+```{r}
+ch1.sub <-HsFstSample
+
+hist(ch1.sub$Fst,xlab="Fst",main="Fst - 1000 Random SNPs")
+fmean <-mean(ch1.sub$Fst)
+abline(v=fmean,col="red")
+abline(v=fst.c, col="blue")
+abline(v=dat2.cont.fst,col="darkgreen")
+```
+
+For the total Alfred dataset, the mean value for Fst is `r fmean`.  This is actually in quite good agreement with the value of 0.12 recently reported based on a data set of 1.1 million autosomal snps `r citep("10.1371/journal.pone.0049837")`.  And in fact, the two SNPs we analyzed are in the opposite tails of the distribution, suggesting that neither, by itself, is a good indicator of population structure.
+
+### Conclusions
+
+We started this unit by focusing in on one particular SNP, in a region in which multiple lines of evidence have suggested the occurrence of Neanderthal introgression followed by selection.  We saw that analysis with Hierarchical F statistics provide a means of quantitating the level of differentiation.  We furthermore showed that, at least at the inter-continental level, this SNP is an outlier with respect to Fst, indicating that some process other than population subdivision is affecting its frequency distribution.
+
+We also showed that the mean value for intercontinental Fst, based on `r nrow(ch1.sub)` SNPs is `r fmean`.  It is important to understand what this means -  **ca. `r as.integer(fmean *100)` percent of the variation in human population is the result of genetic differentiation among continents`.**  Figures like this have been reported using a variety of genetic markers - allozymes, microsatellites, SNPs and others - and have been used as evidence to argue against race (at least as correlated with continent) as a meaningful biological construct.  
+
+But there is one important point we have overlooked.  In everything we have discussed, we have considered each SNP in isolation.  In fact, of course, a population consists of individuals with multilocus genomes, not ones with collections of independently assorting genetic elements.  So what happens if we broaden our view and address questions about population structure questions based on genotypes rather than genes?  Stay tuned.
+
+### References
+
+```{r,echo=FALSE,message=FALSE}
+write.bibtex(file="bibliography.bib")
+```

@@ -1,0 +1,194 @@
+Extended Haplotype Analysis of the HYAL2 gene
+========================================================
+### Background
+
+REHH is a nice package for doing extended heterozygosity type analysis.  However, the munging is horrible.  Here, we are going to go after the region of the HLYA2 gene, implicated by [Ding et al] as a Neanderthal-derived gene that has been the target of selection in asian populations.  The problem is that we need to obtain the phased haplotype data from hapmap and the ancestral allele information from snpdata (via BioMart).  That takes some effort.
+
+Before beginning, we went directly to hapmap and donwloaded the phased haplotype data for JPT+CHB for all of chromosome 3.  We can read that as follows
+```{r}
+dat.hm <-read.table("./Data/ch3.phased.chb+jpt.gz",header=TRUE,stringsAsFactors=FALSE,row.names=1) #read downloaded (but still compressed) haplotype file
+```
+We also need to prepare bioMart for use
+```{r}
+library(biomaRt)
+snpdata <-useMart("snp")
+snp.human <-useDataset("hsapiens_snp",mart=snpdata)
+```
+More with that later.  Now we want to subset the hm data, such that it gives us snps in 500000 base pairs surrounding the gene.  It's HM position is chr3:50330244..50333903, so we use that as a starting oint
+```{r}
+ hya.snp.names <-rownames(dat.hm)[dat.hm$position_b36>50000000 & dat.hm$position_b36<55000000]
+head(hya.snp.names)
+```
+We now have 2483 SNP's.  Now we need to get the corresponding SNP data via biomaRt
+```{r}
+hya.anc <-getBM(
+  attributes=c("refsnp_id","chr_name", "allele","allele_1","minor_allele","chrom_start"),filters=c("snp_filter","chr_name"),,values=list(hya.snp.names,"3"),mart=snp.human)
+```
+And check to see if any lack ancestral data
+```{r}
+table(hya.anc$allele_1)
+```
+Only 8, but they have to be removed
+```{r}
+hya.anc.sub <-hya.anc[hya.anc$allele_1 !="",]
+```
+We then need to place the SNP data in the proper chromosomal order, which we do as follows:
+```{r}
+hya.anc.sub.ordered <-hya.anc.sub[order(hya.anc.sub$chrom_start),]
+plot(hya.anc.sub.ordered$chrom_start) #plot the results to check
+```
+
+Next, we need to extract the data for these snps from the chromosomal data we downloaded from HapMap
+```{r}
+dat.hm.sub <-dat.hm[hya.anc.sub.ordered$refsnp_id,]
+```
+And check to be sure that in fact the same snip id's are in both data sets
+```{r}
+table(rownames(dat.hm.sub)==hya.anc.sub.ordered$refsnp_id)
+```
+They are, so now we need to start preparing the appropriate rehh files.  Before doing so, however, we can save our processed data for future use.
+```{r}
+save(dat.hm.sub,hya.anc.sub.ordered, file="./Data/HYAL2rehh")
+```
+```{r}
+library(rehh)
+```
+The files we are going to need are as follows:
+
+1.  Haplotype data, one sample per line, coded as 1's and 2's
+2  map.inp, with snpID, chromosome number, position (per HM), and the two codes for ancestral and derived alleles.  Note that since we are starting with letters, we should be able to make all of the ancestrals 1's and the derived 2's
+```{r}
+load("./Data/HYAL2rehh")
+```
+EXPLORATORY
+
+First, make a vector of the ancestral alleles
+```{r}
+anc <-hya.anc.sub.ordered$allele_1
+head(anc)
+```
+Code taken from oru previous effort to convert it to 1's and zeros.
+```{r}
+dat.sub <-dat.hm.sub
+y <-sapply(dat.sub[,2:341], function(x) ifelse(x==anc,1,2))
+```
+
+And that needs to be transposed
+```{r}
+haps <-t(y)
+colnames(haps)=rownames(dat.sub)
+#haps <-cbind(c(1:340),haps)
+```
+head(haps)
+```
+
+A bit more to do on that, but the map file is easy
+```{r}
+map.input <-data.frame(cbind(rownames(dat.sub),3,as.numeric(hya.anc.sub.ordered$chrom_start),1,2),stringsAsFactors=FALSE)
+ 
+
+```
+
+As a temporary test, and recognizing we still have to fool with haps, let's move forward
+```{r}
+write.table(haps,file="hyal2.hap")
+write.table(map.input, file="hyal2.map",col.names=FALSE,quote=FALSE,row.names=FALSE)
+```
+```{r}
+setwd("./Data")
+```
+
+Note that there was messed up here, and we fixed it by reordering the map file base on pos.  That means that the haplotypes are a bit out of order, but we're going to proceed onward for now, then go back and tweak the code to hopefully fix the problem.  But wwe will run the rest from the faster laptop.
+```{r}
+hap.rehh<-data2haplohh(hap_file="hyal2.hap",map_file="hyal2.map",chr.name=3)
+```
+
+OK.  With the caveat that we still have to fool a bit with the order of the haplotypes, we can at least move ahead.
+
+```{r}
+res.scan<-scan_hh(hap.rehh)
+```
+```{r}
+head(res.scan)
+```
+```{r}
+plot(res.scan[,2],res.scan[,6],type="l")
+```
+
+```{r}
+hya.ihs <-ihh2ihs(res.scan,freqbin=.05)
+```
+```{r}
+ihsplot(hya.ihs$res.ihs)
+```
+OK.  So the bottom line is that for teaching purposes, we need to save res.scan and write up the munging more cleanly as an appendix.  I really do like doing a rough plot of all of the points with p>2, and then focusing from there.  But the rescan step is very slow, so I think we need to save that for demonstration purposes.  Note also that there is a warning about a low allele frequency class when creating the ihh file - we may need to explore that further as well.  So for me:
+
+1.  Fix the ordering thing in the hapmap data
+2.  Look into the freqbin issue - DONE; doesn't change things much
+3.  Write clean narrative getting us to this part.
+4.  Explore the ihh peak further
+5.  In narrative, address the fact that the HYAL2 gene does not emerge.
+
+```{r}
+save(res.scan,file="hyal2.res-scan")
+```
+```{r}
+setwd("./Data")
+load("hyal2.res-scan")  # execute to restore data
+```
+
+And we need to identify the snps for which p>2; then use one for a mark for the EHH demo
+```{r}
+head(hya.ihs[[1]])
+```
+```{r}
+snps.sig <- hya.ihs[[1]][which(hya.ihs[[1]][,4]>2),]
+snps.sig
+```
+rs17053472  looks like a good one
+
+##### Debugging problem with function
+```{r}
+map <-read.table("hyal2.map",row.names=1)
+```
+```{r}
+(sum(diff(tmp_pos) < 0))
+```
+```{r}
+tmp_pos <- as.numeric(map[, 2])
+        if (sum(diff(tmp_pos) < 0) > 0) {
+            stop("SNP should be ordered on the map, check also that both haplotypes (column of haplo) and map (row of map) are ordered in the same way")
+        }
+        if (sum(diff(tmp_pos) == 0) > 0) {
+            warning("Some SNPs map to the same position")
+        }
+```
+So if I understand diff correctly, it just takes the difference between adjacent elements, for example
+```{r}
+vec <-c(1,2,4,7,11,7)
+diff(vec)
+```
+It should be one less than the number in the original vector:
+
+```{r}
+df <-diff(tmp_pos)
+```
+and it is.  We can find the source of the problem by
+```{r}
+which(df<0)
+```
+And let's plot that region
+```{r}
+plot(map[385:400,2])
+```
+the 8th and 9th points 
+
+```{r}
+library(calibrate)
+```
+```{r}
+textxy(c(1:16),map[385:400,2],rownames(map)[385:400],cx=.8)
+```
+So it looks like, for some reason, we need to order the two data sets, resave them, and try again.
+
+And the bottom line is that we probably need to deal with the ordering better right from the start.  In fact, 

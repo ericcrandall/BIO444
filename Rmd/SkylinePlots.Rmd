@@ -1,0 +1,332 @@
+---
+title: 
+- <center>Inferring Population History</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center>
+bibliography: ../TPG.bib
+csl: ../genetics.csl.txt
+output:
+  html_document:
+    css: ..//Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+```{r,echo=FALSE}
+options(warn = -1)
+
+```
+
+
+## Background
+
+We have all seen examples in which sequence variation has been used to make inferences about past population history.  But how is that done?  In fact, what is involved is no more than a (very) sophisticated application of coalescent theory.  At its core, of course, the key to any coalescent model is an estimate of &theta;, which in turn needs to be parsed into its two components, Ne and &mu;.  Other factors - migration, recombination, subdivision, etc. are also important, but for now we will focus on those two.  First, we will see what we can learn from simple simulations, in which the gene genealogy is known.   Then we will turn to some Bayesian methods for working with real data.  
+
+## Skyline plots
+
+For now, we are going to consider mutation to be a constant.  Thus, over the time course of a particular coalescent lineage, the only parameter that can vary is N. Further more, at any given time T, there will be a certain number of lineages, and those lineages will persist for some interval of time.  The theory involved here is complex, but in essence @Pybus2000 and @Strimmer2001 showed that, given estimates of those over the time course of a robust phylogeny, one could estimate N for each interval.  These can then be plotted against time (measured, at least initially, in substitution rate), to generate what is known as a skyline plot.  We will look at some simple examples below.
+
+### The simple case - N is constant
+
+So let's have ms generate us a phylogeny of 10 sequences, with &theta; equal to 5, returning a tree
+
+```{r}
+set.seed(1234)
+tr <-ms(nsam=20, nreps=1, opts=("-t 5 -T"))
+tr <-read.tree(text=tr)
+```
+
+Now we can look at the tree, along with a simple skyline plot of the tree
+
+```{r,fig.show='hold'}
+par(mfrow=c(2,1))
+plot(tr,cex=.5)
+sk <-skyline(tr)
+plot(sk)
+par(mfrow=c(1,1))
+```
+
+Note that in all of these plots, the Y axis is in actuality Ne multiplied by the substitution rate (something that we would have to provide).  
+
+But remember that we are assuming that periods of rapid coalescence are associated with  population size changes, but we are basing this on the mutational process being linearly related to time. Since mutation is a stochasitic process, some of the inferred fluctuation in population size is in fact due to that randomness.   We thus need to estimate some minimum interval for which proportionality holds (i. e. correct for error) and collapse the shorter branches.  There is a function in ape that uses a liklihood procedure to estimate the best value of that minimum (&epsilon;).  First, let's look at the length of the coalescent intervals (in units of subsitutions) calculated from the data:
+
+```{r}
+tr.ci <-coalescent.intervals(tr)
+data.frame(tr.ci$lineages,tr.ci$interval.length)
+```
+
+Now, we will let the computer smooth the data by calculating a factor epsilon that is designed to remove the random fluctuations from the data:
+
+```{r]}
+eps <-find.skyline.epsilon(tr.ci)
+eps
+```
+
+And if we plug that into our skyline plot, and compare it with our previous plot
+
+```{r,fig.show='hold'}
+par(mfrow=c(2,1))
+plot(skyline(tr), main="Uncorrected")
+plot(skyline(tr,eps),main=paste("epsilon = ",round(eps,3)))
+```
+
+We see that, as we modeled originally, this is in fact a constant size population.
+
+### A population growth model.
+
+A while back, we looked at the effect of population growth on coalescence.  Our scenario is repeated below:
+
+Suppose our current population is 10^5^ , but it is the result of growth at the rate of 2% per year and there are 5 generations per year.  To factor growth into ms, we need to convert the yearly growth rate into the growth rate per 4N generations. We will also do more "sequencing" by examining 100 samples.  We can do so as follows:
+
+```{r}
+N <-100000
+r <-.02 #growth rate per year
+gen <-5 #generations per year
+nyears <-(4*N)/5 # 1 coalescent unit in years
+g <-r*nyears # growth rate in coalescence units
+m.out <-ms(nsam=100, nreps=1, opts=(paste("-t 12 -T -r 0 702 -G",g,sep=" ")))
+tree.gr <-read.tree(text=m.out)
+```
+And we can repeat what we did above to get an initial skyline plot
+```{r,fig.show='hold'}
+
+plot(tree.gr,cex=.5)
+plot(skyline(tree.gr))
+```
+
+But what about epsilon in this case?  Becuase the average branch length is longer, we might intuitively expect that it would be smaller.  But let's examine that
+
+```{r}
+ci.gr <-coalescent.intervals(tree.gr)
+eps.gr <-find.skyline.epsilon(ci.gr)
+
+```
+
+And it is - `r eps.gr`, as opposed to `r eps` in the previous case.  And we can look at the skyline plots with and without the collapsing and we see
+
+```{r,fig.show='hold'}
+plot(skyline(tree.gr),main="Uncorrected")
+plot(skyline(tree.gr,eps.gr),main=paste("Epsilon = ",round(eps.gr,5)))
+```
+
+Note that what we see are stepwise changes - obviously an approximation.  And when we find the minimum interval for which noise is filtered out, we see that what was in fact a continuous process gives a signal of a single stepwise one.
+
+### Can we detect a bottleneck?
+
+Our final simulation will be of a bottleneck event (taken directly from ms documentation)
+
+```{r,fig.show='hold'}
+tr.bot <-ms(nsam= 150,nreps=1, opts=("-t 6.4 -G 14 -eG .2 0 -eN .3 .5 -T"))
+tr.bot <-read.tree(text=tr.bot)
+par(mfrow=c(1,1))
+plot(tr.bot)
+plot(skyline(tr.bot))
+```
+Note that with the simple skyline plot, there is no obvious evidence of a bottleneck.  But what about if we figure epsilon as before?
+
+```{r}
+ci.bot <-coalescent.intervals(tr.bot)
+eps.bot <-find.skyline.epsilon(ci.bot)
+plot(skyline(tr.bot,eps.bot))
+```
+And we see a pretty good indicator of a bottleneck followed by growth.  This illustrates an important point:  **One should never attempt to draw conclusions from an uncorrected skyline plot.  Calculation of the minimum coalescence interval (&epsilon;) is essential.** 
+
+### Some real data
+
+Up to now, aside from the fact that these are simulated data, there is another issue.  That is, everything is scaled in terms of units of substitutions.  What we really want, of course, is time, but for that we need to have some empirical estimate of the rate of substitutions that has occurred per year.  In fact, the ape package provides some sample data for 193 human deficiency virus sequences, in which that rate could be determined by direct measurement.  We can look at these data as follows:
+
+```{r,fig.show='hold'}
+data("hivtree.newick") # load sample data
+tr.hiv <-read.tree(text=hivtree.newick)
+tr.hiv
+ci.hiv <- coalescent.intervals(tr.hiv)
+eps.hiv <-find.skyline.epsilon(ci.hiv)
+plot(skyline(tr.hiv),show.years=TRUE, subst.rate=.0023,present.year=1997)
+plot(skyline(ci.hiv,eps.hiv),show.years=TRUE, subst.rate=.0023,present.year=1997)
+```
+
+Notice that his is a much larger data set than what we've been modeling.  We have also incorporated an empirically determined substitution rate (substitutions per year) so we can scale the X axis in years before proesent.  The Y axis remains scaled by Neµ, but not that is is a logarithmic scale
+
+### MCMC estimation
+
+The stepwise model we have been using so far, one that assumes population changes are associated with coalescence events, is clearly not biologically realistic.  This method, implemented in APE, derives a smooth population size function based on the given geneologies.  The paper describing the work is quite straightforward (at least as theoretical papers go) and is worthy of at least brief perusal  @Drummond2005 developed methodology for "smoothing" these curves - in essence it takes an MCMC approach to find a set of parameters that results in a smooth population growth function based on one or more gene geneologies.
+
+#### The Bottleneck model
+
+So we can use the mcmc.popsize function to determine the prior distribution of N's; note that we have a burnin cycle of 1000 followed by an MCMC cycle of 10000
+```{r}
+tr.bot.mc <-mcmc.popsize(tr.bot,10000,,burn.in=1000,progress.bar=FALSE)
+```
+Now we can plot this and compare it to our original skyline plot
+```{r}
+par(mfrow=c(1,1))
+pop.bot <-extract.popsize(tr.bot.mc)
+plot(skyline(tr.bot,eps.bot))
+lines(pop.bot,col="red")
+```
+And what emerges is a fairly good manifestation of the population growth following the bottleneck.  
+
+#### HIV Sequence
+
+But now we can do the same analysis with real data - the West African HIV samples we looked at previously.  We'll do the same MCMC cycle (which will take a while)
+```{r}
+mc.hiv <-mcmc.popsize(tr.hiv,10000,burn.in=2000,progress.bar=FALSE)
+```
+And we can now look, as before, superimposing the mcmc fit on the smoothed skyline plot (&epsilon; = `r eps.hiv)
+```{r}
+par(mfrow=c(1,1))
+pop.hiv <-extract.popsize(mc.hiv)
+plot(skyline(tr.hiv,eps.hiv),show.years=TRUE, subst.rate=.0023,present.year=1997)
+lines(pop.hiv,col="red",show.years=TRUE, subst.rate=.0023,present.year=1997)
+```
+And we see more or less what we would expect to see - constant growth from the 1940-1975 period, with an acceleration of growth occurring in the 1975-1990 period, coincident with the spread of the AIDS pandemic.
+
+
+### Arctic Fur Seals
+
+@Hoffman2011 have reported mitochondrial DNA for fur seals from the North Atlantic.  We will look more closely at their data when we introduce BEAST;   however, we can do a little bit of rough analysis with what we've done so far
+
+We should also say a little about animal mitochondrial DNA and why it is so widely used for reconstruction of recent population structure and demographics.  It main features can be summarized as follows:
+
+1.  It does not recombine
+2.  It has relatively short coalescence times
+3.  It contains regions that are both sufficiently conserved to be used in species identification ("DNA barcoding") but also ones that are highly variable within species (notably the D loop, or origin of replication).
+
+So to proceed, we need to do two things:
+
+1.  We need to build a test phylogeny
+2.  We need to apply the above analyses to it.
+3.  Based on an estimate of mutation rate, then we should get a profile of the population, scaled in years.
+
+```{r}
+data(furseals)
+image.DNAbin(as.matrix(fur.dat),show.labels = FALSE)
+fur.dat
+length(seg.sites(fur.dat))
+```
+
+Now make a distance matrix
+
+```{r}
+
+fur.dist <-dist.dna(fur.dat)
+```
+
+Now use the simplest possible tree building algorithm - UPGMA - to specify the inferred geneology, after which we will caclulate skyline plots, both with and without correction for mutational stochasticity
+
+```{r,fig.show='hold'}
+library(phangorn)
+#tr.fur.u <-NJ(fur.dist)
+tr.fur.u <-upgma(fur.dist)
+plot(tr.fur.u,show.tip.label = FALSE)
+```
+
+As such, it's not very informative (nor, in all likelihood, very accurate).  But we can use it as input for skyline analysis as follows, first withous smoothing and then with:
+
+```{r}
+#plot(skyline(tr.fur.u))
+ci.fur <-coalescent.intervals(tr.fur.u)
+ eps.fur <- find.skyline.epsilon(ci.fur)
+plot(skyline(tr.fur.u,eps.fur),ylim=c(.002,1))
+```
+
+So we could hypothesize a model of historical population growth followed by a more recent decline.  But we should be able to improve the model by mcmc analysis:
+
+```{r}
+
+mc.fur <-mcmc.popsize(ci.fur,10000,burn.in=1000,,thinning=10,progress.bar=FALSE)
+fur.pop <-extract.popsize(mc.fur)
+```
+<!-- original code for future reference -->
+And this can be plotted as before
+
+```{r,echo=FALSE,eval=FALSE,results="hide"}
+plot(skyline(tr.fur.u,eps.fur),ylim=c(.002,1.5))
+lines(fur.pop,col="red")
+```
+```{r}
+rn <-rev(range(fur.pop[,1]))
+plot(fur.pop[,1],fur.pop[,3], xlim=rn,type="l",xlab="time (# Substitutions)",ylab="Ne X Subst. Rate")
+lines(fur.pop[,1],fur.pop[,4],col="red")
+lines(fur.pop[,1],fur.pop[,5],col="red")
+```
+
+
+What we see is that there is clear evidence for an historically stable population, but based on this modeling, while there is some evidence of recent decline, it is not dramatic
+
+#### Putting a time frame on this
+
+Hoffman et al draw on other sources to estimate per site substitution rates; below we have converted them to the number expected for the 263 base pair fragmnet under investigation, to get Mu, an estimate of the rate of substitutions per sequence
+
+```{r}
+gtime <-9.89
+mu <-2.71*10^-6
+Mu <-(mu/gtime)*263
+Mu
+```
+
+We can now scale both axes by the substitution rate and replot to get what we really want - effective population size vs. time before present:
+
+```{r}
+yrs <-fur.pop[,1]/Mu
+yrs <-2012-yrs
+plot(yrs,fur.pop[,3]/Mu,type="l",xlab="Yrs. Before Present",ylab="Ne")
+lines(yrs,fur.pop[,4]/Mu,col="red")
+lines(yrs,fur.pop[,5]/Mu,col="red")
+```
+
+
+Note that the dates are obviously quite sensitive to the mutation rate; the one employed is given as a conservative estimate by the authors.  Nevertheless, based on these fixed parameters, what we see is an historically large population, with an indication of a recent decline
+
+### Conclusion
+
+
+In fact, as we shall see, in order to do real analyses such as this, we really need to turn to BEAST, which allows us to build much more detailed (and hopefully realistic) models, in which we set priors for all of the parameters involved in tree estimation.  Remember that what we have based our analysis on hear is the simplest possible algorithm (UPGMA), one that is rarely if ever used in modern analysis.
+So at this point you should have a grasp on the basics - Skyline plots associate the length of branches and the occurrence of coalescent events with demographic events, thus allowing some inference about past population processes.  But what we've looked at so far is two fairly simple models.  In the first case, we proceed from the assumption that substitutions occur linearly with time, and that coalescent events reflect changes in population size only.  We have subsequently changed that to average over small branches, thus reducing noise in the system, and we see that the situation becomes more simplified.  Finally, by what is basically a Bayesian curve-fitting algorithm, we can go from a stepwise model to a more realistic continuous one.  But remember - *the original data for skyline plot analysis is the inferred genealogy, and as we know, a particular set of sequences could be the result of a myriad of different ones.*  Hence, **you should treat everything we have done to this point as a demonstration only, NOT as an rigorous analytical approach to data analysis**  You may want to use it for preliminary data examination, however, for a rigorous analysis,  we need to step back and consider how this analysis might be refined by treating the geneaolgies as a random variable - that is, to explore tree-space, find the distribution of geneolgies that best fit the data, and then go from there. In some cases, we may also be able to empirically estimate substitution rates.   This is where BEAST comes in.
+
+
+### Bonus 1. Doing MCMC on the growth model
+
+Note that what follows is very rough code - treat it as such!!
+
+So from our earlier model, we created tree.gr, a simulation of a 2% growth model.  We can do the mcmc bit on it.
+```{r}
+gr.mc <-mcmc.popsize(tree.gr,10000,burn.in=1000,progress.bar=FALSE)
+gr.pop <-extract.popsize(gr.mc)
+plot(skyline(tree.gr,eps.gr))
+lines(gr.pop,col="red")
+```
+And we see a much nicer fit than we got with the previous models.  
+
+###
+Bonus 2.  What about spaghetti squash as a substitute for fur?
+```{r}
+data(spaghetti)
+spaghetti
+```
+```{r}
+ss.dist <-dist.dna(spaghetti)
+ss.tr <-upgma(ss.dist)
+plot(skyline(ss.tr))
+```
+add in eps:
+```{r}
+ss.ci <-coalescent.intervals(ss.tr)
+ss.eps <-find.skyline.epsilon(ss.ci)
+ss.eps
+```
+And plot
+```{r}
+plot(skyline(ss.tr,ss.eps))
+```
+OK, so it looks like a population expansion model.  Now mcmc it.
+```{r}
+ss.mc <-mcmc.popsize(ss.tr,10000,burn.in=1000,progress.bar=FALSE)
+```
+And do the final bit
+```{r}
+ss.pop <-extract.popsize(ss.mc)
+plot(skyline(ss.tr,ss.eps))
+lines(ss.pop,col="red")
+```
+

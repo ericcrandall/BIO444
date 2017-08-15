@@ -1,0 +1,23 @@
+---
+title: <h1>Advanced Topics</h1>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography:  ~/Dropbox/TPG.bib
+output: 
+    html_document:
+       css: ~/Dropbox/Chapter.css
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+
+This section includes some extensions of what has gone before, mostly involving statistical or numerical methods.  They build on what has gone before, but go beyond what is necessary to comprehend the major themes we have covered.
+
+```{r child="../Rmd/HWTestFinal.Rmd"}
+
+```
+
+```{r child="../Rmd/DfromGenotypes.Rmd"}
+
+```
+
+<!-- Other possibilities include Fay Wu and ABC -->

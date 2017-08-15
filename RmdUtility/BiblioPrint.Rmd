@@ -1,0 +1,14 @@
+---
+title: "Current Bibliography"
+output: html_document
+---
+
+```{r,echo=FALSE}
+library(bibtex)
+library(knitr)
+biblio <-read.bib("../TPG.bib")
+Keys=names(biblio)
+Titles <-sapply(biblio,function(x) x[[1]]$title)
+Out <-data.frame(Titles)
+(kable(Out))
+```

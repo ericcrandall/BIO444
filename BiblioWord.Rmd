@@ -1,0 +1,20 @@
+---
+title: "Untitled"
+author: "Bruce Cochrane"
+date: "May 12, 2016"
+bibliography: ./Rmd/TPG.bib
+output: word_document
+---
+### Historical
+
+It is hard to believe that, prior to about 1920, there were many who considered Mendelian genetics to be incompatible with Darwinian Evolution.  It was the seminal work of, among others, R. A. Fisher, J. B. S. Haldane and Sewall Wright that led to their reconciliation and what is now known as the "Modern Synthesis" of evolutionary biology.  The late historian, biologist and iconolclast Will Provine wrote of the early days of that period of resolution; the book that resulted from his Master's thesis [@Provine1971] is well worth reading.  Provine also wrote a seminal biography of Sewall Wright, one of the greatest geneticists of the twentieth century [@Provine1986].
+
+Two of the most important academic lineages were those of Theodosius Dobzhansky and James Crow. Dobzhansky and his colleagues  focused more on empirical population genetics, while Crow and his students (particular Motoo Kimura) made seminal contributions to the theoretical underpinnings of the field.  Two good places to start are with Dobzhansky's *Genetics of the Evolutionary Process*[@Dobzhansky1970] and Kimura's *The Neutral Theory of Evolution*[@Kimura1985].  For those who wish to delve deeper into their original work, collected volumes of Dobzhansky's [@DobzhanskyGNP] and Kimura's [@KimuraCollection] are well worth perusal
+
+### Texts
+
+
+### Collections
+
+
+### References

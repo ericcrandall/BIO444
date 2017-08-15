@@ -1,0 +1,32 @@
+---
+title: <h1>Linkage Disequilibrium</h1>
+author: <h2></h2>
+date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
+bibliography: ../TPG.bib
+csl: ../genetics.csl.txt 
+output: 
+    html_document:
+       css: ../Chapter.css
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+
+```{r,child="../Rmd/LDIntro.Rmd"}
+
+```
+
+---
+
+```{r,child="../Rmd/LDFate.Rmd"}
+
+```
+
+---
+```{r,child="../Rmd/LDheatmapExample.Rmd"}
+
+```
+
+---
+
+## References

@@ -1,0 +1,93 @@
+---
+title: <center>ms Basics</center>
+author: <center>Bruce Cochrane</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+### Introduction
+
+### The Basic Command Structure
+
+Any call to ms has to start with paramters:
+
+1.  `nsam` - the number of sequences to be simulated
+2.  `nreps` - the number of simulations to perform
+
+After that, there are numerous other paramters that can be included, and we will use some of them, but at a minimum, **either &theta; or S must be provided**.  In the r implementation, therefore, the basic command structure is
+
+`ms(nsam= , nreps= , opts=c(""))`
+
+The user then provides the numbers of sequences and simulations in the appropriate places, and whatever options that are desired as a text string within the quotation marks.  So let's do something simple - a single simulation of 10 sequences with 5 segregating sites - and see what we get:
+
+
+
+```{r}
+sim1 <- ms(nsam=10,nreps=1,opts=c("-s 10"))
+sim1
+```
+There is a lot of information here - in particular:
+
+1.  The first line is the call to ms
+2.  In the second line we see the segregating sites
+3.  Next are the relative positions of the sites on the sequence
+4.  Finally we see the 10 simulated gametes listed
+
+The problem is that the data format, as output by ms, is not particularly amenable to further analysis.  That can be rectified by the `read.ms.output` command as follows:
+
+```{r}
+sim1a <-read.ms.output(txt=sim1)
+summary(sim1a)
+```
+
+What we have is a list which includes much of the information we need.  It's still a bit convoluted, but from this run, we can easily get the list of gametes and do a site frequency spectrum:
+
+```{r}
+gams <-sim1a$gametes[[1]]
+sfs(gams)
+```
+
+### Multiple simulations
+
+In most cases, the value of a single simulation is limited.  What we want is usually to do lots of them and extract the distributions of summary statistics that we can use to compare to observed data.  Thus, it is not often that you will need to use output such as that above.  So in what follows, we will modify our command in two ways.  First, we will ask ms to do 1000 simulations (keeping the number of sequences the same).  Second, we will provide it with an input value of &theta; = 10 instead of S.  Once we have done that, we will produce a table of the summary statistics (i. e. we will never look at the raw ms output):
+
+```{r}
+sim2 <-ms(nsam=10,nreps=1000,opts=c("-t 10"))
+sim2.out <-ms.sumstats(sim2)
+head(sim2.out)
+```
+
+The first five column names should be familiar:
+
+S:  Segregating Sites
+pi: average pairwise differences
+th.W:  The Watterson Estimator of &theta;
+Tajima.D:  The Tajima statistic
+
+The last two are associated with the Fay-Wu test for evidence of positive selection; we will ignore them for the time being.
+
+### Getting and plotting trees
+
+One place where you might want to only run one simulation is to generate a tree that can be visualized.  We can do that with the -T option, and plotting is straightforward:
+
+```{r}
+sim3 <-ms(nsam=10,nreps=1,opts=c("-t 10 -T"))
+sim3.tr <-read.tree(text=sim3)
+plot(sim3.tr)
+```
+
+There are ways this can be beautified, but we're not going to worry about them for now.
+### TMRCA and total branch length
+
+### Summary of Commonly used options
+
+Code | Definition
+---|---
+-s | Set number of segregating sites
+-t | Set &theta;
+-T | return a Newick tree as part of the output
+-L | Return Tree length and TMRCA (in units of 4N)

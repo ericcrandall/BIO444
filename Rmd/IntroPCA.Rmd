@@ -1,0 +1,219 @@
+---
+title: <center>The Structure of Human Populations</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+```{r initialization}
+library(hierfstat)
+library(knitr)
+library(TeachingPopGen)
+```
+
+### Background
+
+In this unit (adapted from one used in a General Genetics class), we are going to introduce methods of grouping mulitlocus genotypes without prior assumptions about the geographic origins of individuals.  We will do this in two ways.  First, we will use Principal Components Analysis, a standard technique for reducing the dimensionality of multivariate data, which has the potential to allow us to visualize patterns in data that would be otherwise obscured by their complexity.  Second, we will briefly introduce assignment tests, where we go further and see how entire genomes can be assigned to groups, based on minimizing HW and linkage disequilibria, and how we can use those groups to make meaningful biological inferences.
+
+```{r,echo=FALSE}
+#load("./scratch/HumanFst.genind")
+
+load("/Users/cochrabj/Dropbox/Public/BIO342/scratch/HumanFst.genind")
+dat.pos <-read.csv("/Users/cochrabj/Dropbox/Public/BIO342/scratch/snp.chrom.pos.txt")
+pops <-read.csv("/Users/cochrabj/Dropbox/Public/BIO342/scratch/HapMapCodes.csv")
+bstats <-basic.stats(genos.gen, diploid = TRUE, digits = 2) 
+snps <-names(genos.gen@all.names)
+```
+
+### Background
+
+The first question we want to ask is, given all of the data we have regarding sequence-level genetic variation in humans, how much do different populations differ?  That is, if one were, for example, to randomly sample two individuals, one from Africa and one from Asia, how different would they be?
+
+To do this analysis, we are going to use data from `r nrow(dat.pos)` SNPs, drawn at random from the human genome.  Their distribution on by chromosome is shown below; most of the variance in the numbers per chromosome can be explained by the varying sizes of the chromosomes; Chromosome 2, a large one, has over 35 snps; conversely chromosome 21, a small one, has only one.
+
+```{r,echo=FALSE}
+barplot(table(dat.pos$chromosome),las=2,main="SNPs Selected per Chromosome")
+```
+
+We will also be working with the 11 major hapmap populations described below:
+
+```{r,echo=FALSE}
+kable(pops)
+```
+
+### A couple of single SNP examples
+
+
+```{r, echo=FALSE}
+Fst <-bstats$perloc$Fst
+names(Fst)=snps
+sample1 <- names(Fst[which(Fst==max(Fst))])
+sample2 <- names(Fst[which(Fst==min(Fst))])
+```
+
+From our data set, we are going to look at the distribution of allele frequencies among the 11 populations of two particular SNPs.  First, `r sample1`:
+
+```{r,echo=FALSE}
+fdat1 <-bstats$pop.freq[[which(names(bstats$pop.freq)==sample1)]]
+barplot(fdat1[1,],main=sample1,ylab="p",las=2)
+fst1 <-bstats$perloc$Fst[[which(names(bstats$pop.freq)==sample1)]]
+```
+
+If this were all we had to go on, What would we conclude?  Well, what jumps out is that the three african populations (LWK, MKK and YRI) have low frequencies, as does ASW, an African-American one.  So does this tell us something about genetic differences among races?  Remember - this is one SNP out of millions in the data set.  What if we look at another?
+
+```{r,echo=FALSE}
+fdat2 <-bstats$pop.freq[[which(names(bstats$pop.freq)==sample2[1])]]
+barplot(fdat2[1,],main=sample2[1],las=2)
+fst2 <-bstats$perloc$Fst[[which(names(bstats$pop.freq)==sample2[1])]]
+```
+
+Now we see that there is no obvious difference among any of the samples.  So what to hypothesize?
+
+### Fst as a measure of differentiation
+
+In our two cases, above, it should be clear that for `r sample1`, there is greater variance in allele frequencies than in `r sample2`.  That let Sewall Wright and others to propose the following measure to quantify differentiation.  It is defined as 
+
+Fst = &sigma;^2^(p)/<span style="text-decoration: overline">p</span> <span style="text-decoration: overline">q</span>
+
+where the numerator is the variance in allele frequency among populations and the p and q in the numerator are the means of p and 1-p obtained from averaging over all populations.  We can apply that to our two SNPs, and we find that, for the first, Fst = `r fst1` and for the second is in fact equals zero.  So remembering that what we are wishing to do is to look at population-level subdivision resulting from past genetic drift, what can we conclude? 
+
+### Visualizing Fst for Multiple SNP Loci
+
+So with that measure in hand, we can return to our `r nrow(dat.pos)` randomly selected SNPs, Calculate Fst graphically, and display them as follows:
+
+```{r,echo=FALSE}
+plot(bstats$perloc$Fst,pch=16,xlab="SNP", ylab="Fst")
+abline(h=.2,col="blue",lty=2)
+fsig <-length(which(bstats$perloc$Fst>.2))
+fmean <-bstats$overall[7]
+n <-nrow(dat.pos)
+```
+
+On this plot, a dashed line has been drawn at 0.2, a level that has been suggested as a (somewhat arbitrary) cutoff for determining if Fst, and thus genetic subdivision of the populations in question, is significant. In the case of our  `r n` SNPs, `r fsig` exceed this value, or `r round(fsig/n*100,1)`% of the analyzed SNPs.  And for this set of SNPs, the average value of Fst is `r fmean`, a value similar to that typically found with human data sets of this sort.  So what does this mean?  There are two important conclusions we can draw:
+
+1.  Most of the variation among individuals (90% in this case) is the result of variation found **within** particular geographical populations.
+2.  Only 10% of the variation observed is the result of differentiation **between** geographic populations.
+
+### A Step Further
+
+But now let's look at this another way.  Suppose we have an individual's genotype for all of these loci, as well as the hapmap dataset that we have been working with.  Could we make any inferences about that person's geographic origin?  True, not much of the total variation is due to regional differentiation, but some is.  
+
+Up to this point, we've been looking at the data on a snp-by-snp basis.  What we want to do now is to do so on an individual-by-individual one.  Here is the question we want to ask:  *Can we identify groupings of individuals based solely on their genotypes at the `r n` loci?*  To do so, we will use a statistical technique, called principle components analysis, that takes the total variation present in a data set and maps it to a finite number of dimensions.  The mathematics are not important for us, however the results are worth examining:
+
+```{r,echo=FALSE}
+x <-indpca(genos.gen)
+plot(x,cex=0.5,col=c(1:11),ax1=3,ax2=4,eigen=TRUE)
+```
+
+While the plot is not the clearest, you will see that there are three broad clusters.  To the left is one that includes most African and African-American individuals, to the top is one that includes most European and North American ones (including those from GIH, Gujarati Indians living in Houston), and one that includes primarily Asian individuals (CHB, CHD, JPT).  But Note the small group of individuals, including ones from CEU, JPT, YRI and CHB.  They have diverse geographic origins, but yet they are virtually indistinguishable based on this analysis.  What might be an explanation for them?
+
+### Another Way of Visualizing
+
+Here's another way the question can be framed.  Suppose we have a set of multilocus genotypes of unknown origin.  Can we find some number of K groups that they can be divided into, in such a way that Hardy-Weinberg and linkage disequilibrium is minimized, and if so, does it make any sense?  In fact, this is a very common strategy, and it has been used to address a number of questions.
+
+For our data, the results turn out to be not much more revealing than what we've already seen - there are three groups of genotypes into which individuals can be readily assigned.  So we need to turn to the literature.
+
+#### With lots more data
+
+Will adding more SNPs help?  How about if, instead of 267, we used something like 650,000?  That is exactly what [Li et al (2008)](http://www.sciencemag.org/content/319/5866/1100.full) did, and they obtained the following result:
+
+
+![SnpStructure](https://dl.dropboxusercontent.com/u/9752688/bio342/image/StuctureSnp.png)
+
+We will look at this figure in more detail in class.
+
+## Development Code
+
+### Followup on PCA
+
+So I'm wondering if we can somehow merge this with the pacadapt routines.  First. I'm wondering if the attached gives something akin to a scree plot:
+
+```{r}
+barplot(x$ipca$eig[1:10])
+```
+It sure looks good.  Now, the trick is to extract outliers.
+
+
+#### using base functions.
+
+We can try the `prcomp` function
+
+```{r}
+pca2 <-princomp(genos.gen,na.omit=TRUE)
+```
+Doesn't work.  Obviously, because its a genind.  Look at the structure
+
+```{r}
+head(genos.gen@tab)
+```
+```{r}
+library(pcadapt)
+```
+The data needed are in genos.gen@tab, so
+
+```{r}
+dat <-genos.gen@tab
+```
+```{r}
+dim(dat)
+```
+
+### Another useful stats function (from sample code
+
+```{r}
+ma <-cbind(1:6,1:3)
+S <-var(ma)
+ma; S
+```
+So that gives us a matrix and a variance/covariance matrix for it.  Now the function
+```{r}
+mahalanobis(c(0,0),1:2,S)
+```
+Just gives a single number for positioning.  Try another example
+```{r}
+x <-matrix(rnorm(100*3),ncol=3)
+Sx <-cov(x)
+D2 <-mahalanobis(x,colMeans(x),Sx)
+plot(density(D2,bw=0.5))
+```
+OK.  So it looks like what's happening is that based on the input data for K=2 and the variance/covariance matrix that results, we can plot this distance.  So we need to go back to the data, do the indpca code again and then see if we can pull out what we need.  We can also use the sample data from pcadapt to manage the same thing.
+
+#### PCA on our data
+
+```{r}
+pca <-indpca(genos.gen)
+plot(pca)
+```
+So the range of PC1 is -15 to +10; that of axis 2 is -10 to plus to.  And the dmimesionality should be a square matrix with 1 row/column for each of 534 indsiciduals
+
+So what we need may be buried in the object.  Time to explore.
+
+```{r}
+cmp13 <-pca$ipca$li[,1:3]
+S <-cov(cmp13)
+D <-mahalanobis(cmp13,colMeans(cmp13),S)
+plot(D,cex=.5)
+```
+Nope.  Not quite but we're getting there.
+
+And that does it! Now the whole thing will be to clean all of this up, make a pretty presentation, and we'll be off to the races.
+
+but just a little more play.  Let's set an arbiutrary cutoff of D=8 and see what we get
+
+```{r}
+hotsnps <-genos.gen@loc.fac[which(D>8)]
+data.frame(postion=which(D>8),snp=hotsnps,)
+```
+
+So to get this right, we need to 
+
+1.  Get the data into a genind
+2.  Do the above analysis
+3.  Identify the outliers
+4.  Bring it back to genes.
+
+And a critical point - we need to preserve the chromosomal positions as we do it.

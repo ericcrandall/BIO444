@@ -1,0 +1,100 @@
+---
+title: <center>LD HeatMaps</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+## Visualizing Multilocus Linkage Disequilibrium
+
+While it is techinically possible to think of linkage disequilibrium among more than two loci, in fact the calculations are onerous and the values rapidly converge on zero.  Thus the usual procedure when considering a large number of linked SNPs is to calculate the data in a pairwise fashion, and then construct a "heatmap", in which a color matrix is produced, and the intensity of the color (usually yellow to red) is correlated with the degree of LD.
+
+HapMap can produe these quite readily, but we an also do them in R.  In what follows, we will work through an example as a means of better understanding how to read and interpret heat maps.
+
+### Preparing R
+
+We will be using two R packages in the following - TeachingPopGen (as always) and LDheatmap.  If they aren't already installed, the following installation commands need to be run.  Otherwise they can be skipped
+
+```{r,eval=FALSE}
+install.packages("LDheatmap")
+library(devtools)
+install_github("bjcochrane/TeachingPopGen")
+```
+
+Then, as always, we need to put the two packages into our environment:
+
+```{r}
+library(LDheatmap)
+library(TeachingPopGen)
+```
+### A hypothetical example
+
+Suppose we have the following situation:  We have genotyped three SNPs (A, B and C) in a population, determined the haplotype relationships (not a trivial undertaking but doable) and found The following values for pairwise linkage disequilibrium:
+
+SNP1|SNP2|D
+---|---|---
+A|B|.25
+A|C|.10
+B|C|.15
+
+One way we can visualize this is as a *heatmap*:
+
+```{r,echo=FALSE,results="hide"}
+dat <-rbind(c(0,.25,.10),c(.25,0,.15),c(.10,.15,0))
+dat <-dat/.25
+colnames(dat) <-rownames(dat) <-c("A","B","C")
+xx <-LDheatmap(dat,color = heat.colors(10),add.key = FALSE,SNP.name = c("A","B","C"),add.map = TRUE,text = FALSE)
+```
+
+Note that the strongest LD is between locus A and B; in the heatmap the block connecting the two is red. It is somewhat less between B and C, hence the lighted color.  And the least is between A and C; that color is lighter still.
+
+### The data
+
+We will load some hapmap data off the web and then examine it.  It was originally downladed as genotypes.  We will load one set from the CEU (European) population and the other from CHB (Chinese)
+
+```{r}
+#hya.ceu <-read.hapmap.genotype("http://users.miamioh.edu/cochrabj/Data/hyal2.ceu.genotype") #European
+#hya.chb <-read.hapmap.genotype("http://users.miamioh.edu/cochrabj/Data/hyal2.chb.genotype")
+load("./Data/dat.hya.rda")
+```
+And we can inspect them with the summary command
+
+```{r}
+summary(hya.ceu)
+summary(hya.chb)
+```
+
+
+This tells us that there are 39 SNP genotypes in the CEU dataset and 35 in the CEU. We can look at one of the genotypes as follows:
+
+```{r}
+summary(dat.hya$Genotypes$CEU)
+```
+
+And that shows us that it includes 165 genotypes of the snp rs7641224, 156 of which are C/C and 9 of which are C/T.
+
+And where on the chromosome are they?
+
+```{r}
+range(hya.ceu$`Chromosomal Position`)
+```
+
+So we are dealing with snps contained within an approximately 100,000 base pair region.
+
+### The Analysis
+
+So with that in hand, we can proceed with the analysis and plot the heat maps for the two populations
+
+
+```{r}
+
+par(mfrow=c(1,1))
+LDheatmap(hya.ceu[[1]],hya.ceu[[2]],col=heat.colors(20),text=FALSE,title="CEU")
+
+LDheatmap(hya.chb[[1]],hya.chb[[2]],col=heat.colors(20),text=FALSE,title="CHB")
+```
+
+Note that, in general, LD is higher in the Chinese population than in the European one.  In fact, this is an example we may return to later - it has been hypothesized by @Ding2014 that the segment in question contains a haplotype derived from Denisovans, which has been subsequently the target of positive selection in Asian populations.

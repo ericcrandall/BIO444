@@ -1,0 +1,236 @@
+---
+title: 
+- <center>Migration</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r,echo=FALSE}
+library(phyclust)
+library(TeachingPopGen)
+```
+
+
+## Migration
+
+Having now developed the basic analytical framework for quantifying population subdivision, we need to consider the process that prevents populations from being completely isolated from one another - migration, or gene flow.  There are some fairly simple deterministic models that can be used to predict expected  outcomes with respect to allele frequency changes; we will consider them briefly.  However, bearing in mind that our real goal is to make inferences about how past migratory patterns have contributed to current distributions of genetic variation, it is worth is to explore migration in the context of coalescence in some detail.
+
+### The Classical Approach
+
+Here, we assume that we have two or more populations that consist of both natives and migrants; new migrants comprise a fraction m of each population in every generation.  We can briefly consider a couple of scenarios
+
+#### The Continent-island Model
+
+In this case, we have a large population on an island, with some allele frequency p^\*^ , and a much smaller island population with allele frequency p, which receives a fraction of its population m from the continent every generation.  We will assume that, because of the size difference between the two populations, migration from the island to the continent is effectively zero.  What we wish to do is to calculate p', the frequency on the island after one generation.  The relationship is quite simple:
+
+p' = (1-m)p + mp^\*^
+
+Where the first term is the contribution of the native population (1-m) and the second is that of migrants (m).  We can subtract p^* from both sides of the equation, thereby getting the difference between the island and mainland population on the left, and with a little bit of algebra we arrive at 
+
+p'-p^\*^ = (1-m)p + mp^\*^ -p^2^ , and by rearranging the right side, we see that 
+
+p'-p^\*^ = (1-m)(p-p^\*^ )
+
+and for t generations, we get
+
+p^t^ -p^\*^ = (1-m)^t^ (p-p^\*^ )
+
+or
+
+p^t^ = p^\*^ + (1-m)^t^ (p-p^\*^)
+
+This, of course, we can visualize.  We will examine the case where the allele we are following is initially fixed on the island population, has a frequency of 0.05 on the continent, and m=.01
+
+```{r}
+pstar=.05
+p0=1
+m=.01
+t <-c(1:500)
+p <-pstar+(1-m)^t*(p0-pstar)
+plot(p, type="l")
+p[500]
+p[500]-pstar
+```
+And perhaps not surprisingly, We see that the island allele frequency declines, such that by 500 generations it is `r p[500]`, which differs from the frequency on the continent by `r p[500]-pstar`.
+
+#### The Island Model
+
+Now consider a second scenario.  Suppose we have 5 islands, each with some population N, and every generation there is a fraction m of the total population that migrates somewhere, randomly arriving at one of the five islands, including returning to its island of origin.  Each island has some allele frequency p, and the average on all islands is pbar.  By the same logic we used above, if we consider one island at time t
+
+* p<sub>t </sub> = p <sub>t-1 </sub>(1-m)+pbar*m
+
+or for multiple generations
+
+p <sub>t </sub> = pbar+(1-m)^t^ *(p <sub>0 </sub> - pbar)
+
+To model this, consider five equal sized populations, with p <sub>0 </sub> equal to 0, .25, .5, .75 and 1, with m=1.
+
+```{r, results='hide'}
+# Below we initialize our variables and draw a blank plot
+p <-c(0,.25,.5,.75,1)
+m <-.1
+t <- c(1:50)
+pmean <-mean(p)
+plot(t,xlim <-c(1:50), ylim=c(0,1), xlab="Generation", ylab="p", main="Island Model",type="n")
+#  Now calculate the expected allele frequency changes and pltot them
+
+traj <-lapply(p,function(x) pmean+(1-m)^t*(x-pmean))
+lapply(traj,lines)
+```
+
+### Migration and Fst
+
+There are other important models we need to consider - notably isolation by distance and divergence - but for now, from these verhy basic calculations we've done, it should be clear that migration is a strong force to reduce allele frequency differentiation among subpopulations.  That suggests that we should be able to derive a relationship between migration rate and Fst.  Remember that Fst is a measure of the reduction of heterozygosity resulting from allele frequency variation, and is thus a measure of the probability of identity by descent resulting from subdivision.  
+
+In that context, therefore, we can consider the following relationship:
+
+* F <sub>t </sub> =(1/2N)(1-m)^2^ +(1 - 1/2N)(1-m^2^) F <sub>t-1 </sub>
+
+This is the same recursion relationship we've used before (in the context of mutation, for example), only now we are weighting both the probability of ibd arising as the result of the fusion of identical gametes and that resulting from fusions of gametes that are ibd by virtue of previous generation by the probability that the individuals involved are not migrants.  And, as we did previously, if we assume that N is large and m is small, we can drop terms containing m^2 or m/N, and when we do, we get the following at equilibrium:
+
+Fst = 1/(1+4Nem)
+
+Which looks exactly like what we saw for mutation.  But there is something else that is worth noting.  Remembering that m is the fraction of individuals that are  migrant, and N is the total number of individuals, then **Nm is simply the number of migrants per generation**.   So, with that in mind, we can now consider the relationship between Fst and number of migrants:
+
+```{r}
+M <-c(0:5)
+fst <-1/(1+4*M)
+plot(M,fst,xlab="Number of Migrants", ylab="Equilibrium Fst", main="Relationship between Fst and Migration",type="l")
+cbind(M,fst)
+```
+What we see os that, using Wright's benchmark of Fst < .05 as indicative of the lack of subdivision, it takes as few as 5 migrants per generation, **regardless of population size** to prevent the occurrence of detectable subdivision.
+
+But having come up with a migration parameter that is comparable in form to &theta;, is rather obvious that our next step should to look at the process in the coalescent framework.  This is where we are headed next.
+
+
+### Migration and the Coalescent
+
+#### A Simple Scenario
+
+Suppose we are working with three populations, and we want to consider the histories of  10 alleles for our gene of interest from each. Nielsen and Slatkin develop the theory involved; we will touch on it occasionally.  But let's start with a simple truism.  *If the populations have always been isolated, with no gene flow among them, then there  is no MRCA*.  So what we want to do to begin with is to look qualitatively at the effects of different migration rates, with those rates expressed in units of 4Nem.
+
+We will start by using the -T option of ms to generate trees; in addition, we will introduce the -I (island) option.  Its form in the ms command line (or in the opts= string in the phyclust function) is
+
+-I n N1 N2 ... Nn M
+
+Where n is the number of subpopulations, Ni is the number of samples from the ith population, and M is the migration rate, where 1=4Nem.
+
+We will start by writing a function that accepts a value of m as input and generates a single coalescent tree based on that value, as well as the other parameters of our scenario.  We have arbitrarily set &theta; to be 3.
+```{r}
+
+migtree <-function(x) {
+tr <-ms(nsam=30,nreps=1,opts=(paste("-t 3 -I 3 10 10 10", x,"-T",sep=" ")))
+tr.ph <-read.tree(text=tr)
+nms <-tr.ph$tip.label
+nm2 <-as.numeric(sapply (nms, function (x) substr(x,2,nchar(x))))
+nmcol=nm2
+
+nmcol[which(nm2<=10)]="red"
+nmcol[which(nm2>10&nm2<=20)]="green"
+nmcol[which(nm2>20&nm2<=30)]="blue"
+plot(tr.ph, tip.col=nmcol,main=paste("M =" ,x, sep=""))
+}
+```
+Now, we will look at a few values of M
+
+```{r,results='hide'}
+set.seed(456)
+#par(mfrow=c(2,2)) #create four panel display
+M <-c(.1,.5,1,5)
+sapply(M,migtree)
+```
+
+For visual effect, we've color-coded the samples from the three subpopulations.  A few things are evident:
+
+1.  At low migration (e. g. M=.1) the three supopulations largely form separate clades.  As M increases, this effect decreases, such that when M=5, there is no visually evident association between subpopulation and position on the geneology.
+2.  When migration rates are low, tip branches are typically short, which, based on what we've discussed previously, will results in higher values of π and thus higher values of D.
+
+#### Summary statistics for the neutral coalescent with migration
+
+We've already seen that we can use S and π as estimators of &theta; and that we can use the Tajima statistic as one means to test whether observed data fit the expectations of neutral coalescence.  We have also shown, using classical analysis of heterozygosity, that we have a measure of subdivision, Fst, and that Fst is dependent on a &theta; -like parameter, 4Nem.  It is a fairly simple process to demonstrate that in fact, the migration parameter functions very similarly to &theta; in affecting mean time to coalescence and so forth.  But what we'd like to do now is to put these things together to explore the effect of migration in more detail.
+
+To do so, we are going to turn to msABC to do our simulations, since it returns a much richer set of summary statistics, including, when the -I parameter is specified, values for Fst.  Note that msABC does not run on a Mac anymore; this was executed on the Redhawk cluster in Linux.    Let's do an example, with 4NeM equal to 1:
+
+```{r}
+#system("msABC 30 1000 -t 3 -I 3 10 10 10 2 >msabc.migout")
+
+sum.mig <-read.table("../msabc.migout",header=TRUE)
+names(sum.mig)
+```
+
+And what we see is we get a whole bunch of data.  Some of them (those whose name end with a number) are for the individual subpopulations; others are for the population as a whole.  For now, we can concentrate on them, in particular the two we have alluded to before, Fst and D.
+
+```{r}
+par(mfrow=c(2,1))
+fst.sim <-sum.mig$s_fst
+colhist(fst.sim,xlab="Fst",,ylab="Number",main = "Fst - Migration")
+mean(fst.sim)
+d.sim <-sum.mig$s_tajimasD
+mean(d.sim)
+colhist(d.sim, xlab="D",ylab= "Number",main="D - Migration")
+```
+
+So we see that Fst, based on the simulation approach, is significantly different from zero.  D, while positive, is not.
+
+### Another Scenario - Divergence
+
+#### Overview
+
+Up until now, we have considered a model of a subdivided population, in which migration is a constant over time (the island model).  But what about the case in which subpopulations result from a vicariance event, in which a single population was, at some point in history, split into two?  
+
+We will take the same approach we did with respect to migration.  First, we will build a model as follows.  We have taken 10 samples of 1000 bases from each of two populations; will assume an overall effective population size at time zero of 40,000 and a per locus mutation rate of 10^-5 .  Thus &theta; = 4X40000\*10^-5^ = `r 4*40000^10^-5`.   Then we will posit a vicariant split 30,000 generations ago, in which population two split from population one.  For events of this nature, ms scales time in terms of 4N generations, so we can calculate the time accordingly as 30,000/(4*40,000), or `r 30000/160000`.  We specify that with the ej parameter as in the statement below.  
+
+So let's look at two trees and see what we get
+
+```{r}
+set.seed(3234)
+#par(mfrow=c(2,1))
+for (i in 1:2) {
+ms.div <-ms(nsam=20, nreps=1,opts=("-t 4 -I 2 10 10 -ej .18375 2 1 -T"))
+
+tr.div <-read.tree(text=ms.div)
+nms <-tr.div$tip.label
+nm2 <-as.numeric(sapply (nms, function (x) substr(x,2,nchar(x))))
+nmcol=nm2
+
+nmcol[which(nm2<=10)]="red"
+nmcol[which(nm2>10&nm2<=20)]="darkgreen"
+plot(tr.div,tip.col=nmcol)
+}
+```
+
+And in general, what we see is something similar to what we saw with the migration model - nonrandom clustering of lineages with respect to subdivision, reflective of coalescence events that occurred subsequent to the population split.  But of course we need to quantitate this, so again, we'll use msABC simulations with the same parameters to look at the mean and distribution of Fst:
+
+```{r}
+#system("msABC 20 1000 -t 4 -I 2 10 10 -ej .1875 2 1 >msabc.div")
+msabc.div <-read.table("../msabc.div",header=TRUE)
+#names(msabc.div)
+```
+
+And we can look at what we see:
+
+```{r}
+colhist(msabc.div$s_fst,xlab="Fst",ylab="Number",main="Fst - Divergence")
+colhist(msabc.div$s_tajimasD,xlab="D",ylab="Number",main="D - Divergence")
+mean(msabc.div$s_fst)
+mean(msabc.div$s_tajimasD)
+```
+
+So if we compare results from the two models, we can see that Fst does not distinguish between them.  With respect to D, while the migration mean of the migration model is positive and that of the divergence one is negative, in fact neither value is significantly different from zero.
+
+### Conclusions
+
+We can wrap up our use of coalescent simulations up to now with a few broad statements:
+
+1.  The neutral coalescent provides us with an excellent way to model DNA sequence evolution in populations - we can compare observed data (π and S) to those expected under either simple (&theta; as the only parameter) or more complex models.
+2.  In the simple case of constant population size and mutation rate, with no subdivision, we can use Bayesian logic as a means of getting at least a rough estimate of the neutral parameter.
+3.  As we make the model more complex, adding demographics and/or population structure into the mix, our problems multiply.  
+4.  Using the statistics we have focused on to date, we find ourselves unable to distinguish between two very distinct models of population history.
+
+This last point is probably the most important.  We have devised two very different biological scenarios - an island model with migration and an historical divergence one without, and what we see is that the expectations for a  single-slice-in-time data sample are in fact minimally different.  So in a real-world situation, perhaps one involving species conservation or habitat protection, our ability up to this point to provide practical input is limited.
+
+But there is hope.  If we can develop the means to explore the parameter space more fully - starting not just with a prior distribution of &theta; but also with ones for factors such as population growth rate, migration, etc., we might be able to refine our explanatory hypotheses.  This is where we will be headed in the future.

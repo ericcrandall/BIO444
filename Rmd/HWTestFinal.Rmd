@@ -1,0 +1,173 @@
+---
+title: <center>Testing for Hardy Weinberg Equilibrium</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output:
+  html_document:
+    code_folding: show
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+    
+---
+```{r,echo=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+library(HardyWeinberg)
+library(knitr)
+library(gap)
+options(warn= -1)
+```
+
+## An Exact Test of Hardy-Weinberg
+
+We're going to start with a simple reality - *with the exception of populations with regular non-random mating schemes (which we will explore briefly soon), significant departures from Hardy-Weinberg are uncommon*.  Nevertheless, there is an extremely large literature on the subject - why?  One reason, which is relevant to some of the data we will be using, is that when sample sizes are small and/or the number of alleles is large.  The latter condition is one that is common for microsatellite data.  So some investigation of tests beyond the chi-squared approximation is worth the effort.
+
+### The Exact Test of HWE.
+
+Remember for a minute how we approached the binomial.  First, given our experiment in which we observed 17 out of 20 heads in the flip of a fair coin, we calculated the **exact** probability of getting that particular outcome.  We then used the alternative approach of simulating possibile outcomes of repeated testing and determining the frequency we observed a deviation as much or greater from the expected outcome that we observed.  In the case of the &chi;^2^ distribution, we did something similar - ask how many times the value of chi-square would be equal to or greater than that observed, given the appropriate number of degrees of freedom.
+
+We're going to do something similar here.  First, we are going to ask how we can calculate and interpret the **exact** probability that we would get a given distribution of genotypes, given some allele frequency and the assumption of Hardy Weinberg.  Then we will extend this to multiple allele situations, in which case, even with a good computer, the computataion becomes impractical.
+
+What follows is dervied from *Genetic Data Analysis II* (Weir, 1996), pp 99-105.  Note that Weir's algebraic nomenclature is somewhat iconoclastic; we will try to go through his arguments using more familiar terminology.
+
+First, let's start with some 2 allele data - frequencies of Pgm alleles in mosquitoes.  We have genotyped 50 individuals, 0 of which are AA, 19 of which is heterozygous (AB) and 21 of which are BB.  We can do our quick calculations
+
+```{r}
+pgm.geno <-c(0,19,21)
+n <-sum(pgm.geno)
+pgm.hw <-hw(pgm.geno)
+```
+
+And we can see that with an unadjusted chi-square test, we would reject the hypothesis of HWE.  However, note also that the expected number of AA homozygotes is small (2), so this result could be questioned.  So let's proceed as follows, focusing on calculating the probability of getting the observed number of heterozygotes..  First, let's determine the number of A alleles in the sample
+
+```{r}
+n.A <-2*pgm.geno[1]+pgm.geno[2]
+n.A
+```
+
+Next, let's calculate the exact probability of our data.  This is a complicated calculation, based on the binomial distribution, but rather than worry about it (see Weir if you are interested), we'll use the R function hwexact in the package HardyWeinberg:
+
+```{r}
+pgm.pr <-HWExact(pgm.geno)
+pgm.pr$pofthesample
+```
+
+So the exact probability of getting 1 heterozygote is .06.  But the question we want to get at (as always) is what is the probability of observing *as much or greater* deviation from the expectation.  To get at that we will do the following
+
+1.  We will calculate the probability of each possible set of genotypes, given our sample size and number of A alleles.
+2.  We will then rank them from the least likely to the most likely.
+3.  We will then calculate the *cumulative probability* associated with each.
+
+
+So with `r n.A` A alleles, how many hetergotes could we have?  Well, since `r n.A` is odd, there is no way we could have zero heterozygotes - if we had four homozygotes (a total of 8), we'd have a leftover allele which, since it can't be split, would have to be in a heterozygote.  The same holds for 2 heterozygotes - if we put two of the `r n.A` alleles into heterozygotes, that leaves `r n.A-2` alleles that would have to be in homozygotes, which is impossible.  Thus, the number of heterozygotes possible is 1,3,5, . . . up to 19.  Thus
+
+```{r}
+n.AB <-seq(1,19,2)
+n.AB
+```
+
+Now, what about AA homozygotes?  Well, since each of them has 2 A alleles, we simply have to subtract the number of A alleles in heterozygotes, subtract it from `r n.A` and divide by two
+
+```{r}
+n.AA <-(n.A-n.AB)/2
+n.AA
+```
+And finally the number of BB individuals is everyone left.  We'll calculate that and then make a small data frame out of the data.
+
+```{r}
+n.BB <-n-n.AA-n.AB
+pgm.df <-data.frame(n.AA,n.AB,n.BB)
+kable (pgm.df)
+```
+
+
+Now what is the exact probability associated with each?  In fact, the HWExact function has already calculated them - they are the first element in the list (pgm.pr$prob), so we can add them to our data base
+
+```{r}
+
+Prob <-format(pgm.pr$prob,scientific = FALSE,digits=1)
+Prob <-as.numeric(Prob)
+pgm.df <-cbind(pgm.df,Prob)
+kable(pgm.df)
+```
+
+If we do a quick plot of these, we get the following
+
+```{r}
+barplot(pgm.df$Prob,names.arg=pgm.df$n.AB, xlab="Number Heterozygotes",ylab="Probability")
+```
+
+Suppose we rearrange this, so that we go from the least likely to the most likely.  This takes a little r code munging:
+
+```{r}
+ord <-order(pgm.df$Prob)
+pgm.df.sort <-pgm.df[ord,]
+kable (pgm.df.sort)
+```
+
+Now the genotypes are sorted from least likely to most likely. And the last thing we will do is to calculate the cumulative probability - that is, the probability that that much or more deviation was observed by chance.
+
+```{r}
+Cumulative.Prob <-cumsum(pgm.df.sort$Prob)
+pgm.df.sort <-cbind(pgm.df.sort,Cumulative.Prob)
+kable( pgm.df.sort)
+```
+
+And we can visualize this as follows:
+
+```{r}
+barplot(pgm.df.sort$Cumulative.Prob,names.arg = pgm.df.sort$n.AB,xlab="Number Heterozygotes",ylab="Cumulative Probability")
+abline(h=.05,col="red")
+```
+The red line is drawn at p=0.05; the interpretation is that *given that there are `r n.A` A alleles, we would expect to see nine or fewer heterozygotes less than 5 percent of the time*.  Thus, if we did see that, we would reject HWE.  Note also that our simple chi-squared led to us rejecting HWE in the original case (19 heterozgotes); based on calculation of exact probabilities we do not.
+
+### As things get more complicated
+
+All of this is well and good, and we can use this approach quite easily for the biallelic case.  But think of what we are doing - we are *enumerating* every possible genotype distribution and calculating the exact probability of observing it.  In this case, that really only took `r nrow(pgm.df)` calculations.  And even if our sample size was much larger, the computational load is not too awful.
+
+The problem comes with multiple alleles.  With two alleles, there are 3 possible genotypes, with three there are 6 (3 homozgyotes, three heterozygotes), with four there are 10, etc.  In fact, with microsatellites, for example, the number of alleles and possible genotype distributions can be extremely large, so computation becomes impractical (indeed, most implementations of the exact test are limited to the biallelic case.
+
+Guo and Thompson (1992) proposed randomization, or Monte Carlo methods, to address this.  The basic idea is to take the alleles in a sample, mix them together, and then draw them out two by two to create a population that might be expected based on random mating.  The exact probability can then be calculated and the process repeated, until there is a distribution of possibilities against which observed data can be compared.  There is actually much more mathematical sophistication involved, but for now this description should suit our needs.
+
+So we're going to briefly use some real data - data for one locus (DQR1) from the human major histocampatibility locus for 271 samples, available in the R package gap.  It takes a bunch of manipulation to extract, and since we will be actually doing these procedures using other programs, the code for doing so is hidden (but can be found in the .Rmd file).
+
+```{r}
+data(hla)
+dqa <-hla[,3:4]
+head(dqa)
+nrow(dqa)
+```
+
+Each line corresponds to an individual (there are a total of `r nrow(dqa)`), and the two columns are allele identifiers, numbered 1 through n.  So how many different alleles are there?
+
+```{r}
+y <- pgc(dqa,handle.miss=0,with.id=1) #count individuals with identical genotypes
+n.alleles <-max(dqa,na.rm=TRUE) # works since alleles are numbered 1 to n
+n.alleles
+```
+
+And that gives an idea of the scope of the problem.  There are 25 possible homozgyous genotypes and `r (25*24)/2` heterozygous ones - there is simply no practical way to calculate the exact probability for each.  So we're going to use our sampling approach (after a little bit more munging) to determine whether or not we should accept HWE for this sample.
+
+```{r,results="hide"}
+z <- vector("numeric",n.alleles*(n.alleles+1)/2)
+z[y$idsave] <- y$wt
+out <- hwe.hardy(a=z,alleles=n.alleles)
+```
+
+And we can display some of the results:
+
+```{r}
+
+out$p.value
+out$p.value.se
+```
+
+And we see that, for these data, we do not reject HWE (although it is close, something unusual for human data)
+
+### Conclusions
+
+In many cases, especially biallelic ones, simple &chi;^2^ analysis is sufficient to test Hardy Weinberg, and we will resort to it often.  However, with multiallelic data (notably microsatellites, which we will use frequently), even carefully adjusted chi-sqaured tests can be misleading.  Hence, either the methods used above or similar ones are more desirable.
+
+And fortunately for us, this method has been implemented at [GenePop on the Web](http://genepop.curtin.edu.au/).  In our next laboratory exercise, we will explore that resource, [the Dryad Data Repository](http://www.datadryad.org) and Genalex as relatively easy tools to use to do these sorts of analysis.
+
+

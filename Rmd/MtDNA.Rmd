@@ -1,0 +1,130 @@
+---
+title: <center>Mitochondrial DNA and Haplotype Networks</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+```{r}
+library(knitr)
+library(rentrez)
+```
+
+
+##  Mitochondrial DNA and Haplotypes - A Special Case
+
+Organellar DNA has a rich history in population genetics.  In the late 1970's, John Avise, then starting his career, proposed that animal mitochondrial DNA has some unique properties that make it suitable for use in population genetic studies.  In particular
+
+1.  It is genetically haploid.
+1.  It does not recombine
+2.  It is uniparentally (usually maternally) inherited.
+3.  Experimental work (at the time involving restriction site analysis) showed it to be highly variable.
+
+Fast forward to the present, and if you a keyword search on "mitochondrial" in popset returns over 15,000 hits - in fact they far and away the most frequent class of sequence sets in that database.  Note, however, that they are by and large restricted to animals - in plants, chloroplast DNA has been used successfully for similar purposes, however its lower level of variation reduces its utility somewhat.
+
+While there is much we could say about the structure of mtDNA and its applicability to evolutionary questions, two features should be mentioned:
+
+1.  The *coi* gene, a relatively conserved sequence, has been widely employed as a "DNA Barcode" to identify samples at the species level.
+2.  The "D loop", the origin of replication, is a very A/T-rich region that is highly variable among individuals; this is an excellent sequence to use for population structure studies.
+
+The intent here is to introduce mtDNA manipulation, so that you can consider it for further explorations.  We will start by showing how we can use it to construct a network of haplotypes and ask whether it reveals meaningful relations among individuals in a population.  We will then use it to briefly introduce BEAST, a Bayesian inference approach to making inferences about past population structure.
+
+### An example with dogs
+
+The data we are going to look at are from popset [322367799](http://www.ncbi.nlm.nih.gov/popset/322367799), a collection of control region sequences from various dog breeds.  The data have previously been downlaoded as a FASTA file, so we can read it in as follows:
+
+```{r}
+dat.rnt <-entrez_search(db="popset",term="322367799")
+dat.raw <-entrez_fetch("popset",id=dat.rnt$ids,rettype="fasta")
+write(dat.raw,file="dog.fasta")
+dog.dat <-read.FASTA("dog.fasta")
+dog.dat
+```
+
+We need to edit the names of each sequence to something meaningful, in this case the breed.  We can use the following trick for this case (for others, another parsing method might have to be applied)
+
+```{r}
+nms <- names(dog.dat)
+nms<- sapply(nms, function(x) word(x,8,9))
+names(dog.dat) <- nms
+dog.dat
+```
+
+
+As always, it is important to ensure that the sequences are aligned, which we will do with muscle (remember that the binary file must be accessible by R).
+
+```{r}
+dat.aln <-muscle(dog.dat)
+```
+
+And with that, we can visualize the alignment:
+
+```{r}
+image.DNAbin(dat.aln,cex.lab=.5)
+```
+
+We see that there is a huge gap in the middle of it.  Here's where one of the great advantages of the matrix format comes in - we can readily select the first 600 nucleotides, which are free of gaps, and use them for our subsequent analysis:
+
+```{r}
+dat.aln.sub <-dat.aln[,1:600]
+image.DNAbin(dat.aln.sub,cex.lab=.5)
+```
+
+And that looks better.  Note that the names of the sequences were edited prior to loading the data as well - full original designations can be found in the popset link.
+
+Now we are going to identify how many distinct mtDNA haploytpes are present in the sample:
+
+```{r}
+dat.hap <-haplotype(dat.aln.sub)
+dat.hap
+```
+
+So among the 17 sequences in the data set, there are 12 different haplotypes.  We can now visualize them in two ways.
+
+#### Visualization 1.  A Tree
+
+One of the most familiar ways to visualize relationships among aligned sequences is as a phylogenetic tree.  In this case, what we will do is to use the number of differences between pairs of species as a measure of their divergence and use the resulting matrix to generate a tree.  Note that for this we are treating all differences equally and are not taking the position of the differences into account.
+
+
+```{r}
+dat.dist <-dist.dna(dat.aln.sub) #calculate the distance matrix
+plot(nj(dat.dist),type="phylo",cex=.8) # plot a "neighbor joining" tree
+```
+
+But in fact, while useful, tree visualization like this is not entirely appropriate for population data, as it implies ancestor-descendant relationships that may or may not exist. In fact, we should be thinking of this as a network of haplotypes, which differ by one or more bases.  
+
+#### Visualization 2.  A Network
+
+Another way of thinking about this is asking, given two haplotypes, how many substitutions would be required to go from one to the other.  We would then extend that logic to create a network of all 12 haplotypes that requires the fewest steps.  The code is a bit tricky, but it and the results are shown below:
+
+```{r}
+net <-haploNet(dat.hap)
+fq <-attr(net,"freq")
+plot(net,size=fq,threshold=0,cex=.5)
+```
+
+The size of the circles indicate the number of sequences for each haplotype (for example, the smallest circles like X indicate a haplotype that occurred only once in the sample, while the largest on - II - actually had three).  Note also that breeds are not shown - to do so would be a graphical nightmare.  Instead, we can do a little bit of munging and generate a table that provides that information
+
+
+
+
+
+
+```{r}
+sample.no <-attr(dat.hap,"index")
+
+
+breed.by.haplo <-sapply(sample.no, function(x) rownames(dat.aln.sub)[x])
+sorted <-sapply(breed.by.haplo,paste,collapse=" ")
+haplo <-as.roman(1:12)
+kable(data.frame(Haplotype=as.character(haplo),Breed=sorted))
+```
+
+###  Conclusion
+
+So looking at these results, we can't say that we've learned a lot about these dog breeds.  But after all, our sample size, both in terms of haplotypes and sequenced bases, is quite small.  Nevertheless, it illustrates the potential of the approach.  
+

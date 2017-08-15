@@ -1,0 +1,62 @@
+---
+title: "Rendering to Folder"
+author: "Bruce Cochrane"
+date: "February 19, 2015"
+output: html_document
+---
+We want to develop a function to render markdown-created html to a particular folder, and then perhaps develop an lapply function to do all of the conversions.
+```{r}
+library(rmarkdown)
+```
+Now see if we can render something without designating the package.
+
+render ("./Rmd/file",output_dir="../html")
+
+An example
+```{r}
+render("./Rmd/BasicR.Rmd",output_dir="../html")
+```
+So now a function to mass render everything (no doubt will have errors)
+
+### Functionalize the above
+```{r}
+rendHtml <-function(file){
+  f.name <-paste("./Rmd/",file,".Rmd",sep="")
+  rmarkdown::render(f.name,output_dir="../html")
+}
+```
+OK.  Now to extract a list of all of the .Rmd files in the folder
+```{r}
+fls <-list.files("./Rmd")
+fls
+```
+Now, we want to extract those that end with .Rmd  Looks like we can do this pretty easily.
+
+```{r}
+fls.rmd <-fls[grep("*.Rmd",fls)]
+fls.rmd
+```
+How cool.  Now let's test the function on an easy one first.
+
+```{r}
+rendHtml("TOC")
+```
+So now, can we use lapply safely?  We'll do it for a subset first
+```{r}
+length(fls.rmd)
+```
+OK.  44 files.  Let's try the first five.  But before we can do that, we have to remove the suffixes.  From nabble, the basic form is
+
+substr((myfile), 1, nchar((myfile)) - 4) 
+```{r}
+fls.rmd.nm <-sapply(fls.rmd, function (x) substr(x,1,nchar(x)-4))
+names(fls.rmd.nm)<-NULL
+fls.rmd.nm
+```
+OK.  Now do the first five
+```{r}
+sapply(fls.rmd.nm[22:25],rendHtml)
+```
+One nasty thing we learned - with .Rmd files in their own directory, path begins there (not with the working directory).  I wonder if we could fix that by setting the path initially in the file.
+
+Enough said.  We need to have absolute addresses to the data.  That's going to take more work than I want to do today.

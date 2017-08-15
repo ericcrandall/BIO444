@@ -1,0 +1,81 @@
+---
+title: 
+- <center>The Normal Distribution and </br>Continuous Variation</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r, echo=FALSE}
+library(TeachingPopGen)
+
+```
+
+
+## The Normal Distribution
+
+In the last unit, we used simulation to test whether a particular outcome (18 heads in 20 coin tosses) was consistent with the hypothesis that it is a fair coin.  We did so by simulating the experiment 1000 times and asking how often we got results comparable to the one reserved.  That we did so very infrequently led us to reject our null hypothesis.
+
+But note that in this case, what we were looking at  was a very simple case - two possible outcomes, each with equal probabilities. We also saw that we could calculate the exact probability of a a praticular outcome, in that case using the binomial equation.  Isn't that the preferred approach?
+
+Well, no, for at least 2 reasons.
+
+1.  While R had no problem with the algrebra, in fact it is computationally intense, espcially as N gets large.  In the days of manual calculations, this was particularly problematic.
+2.  This works for a binomial random variable (and can be extended to a multinomial one like the roll of a die), but it is not readily generalizable to random variables with other distributions.
+
+So we need to go one or two steps farther
+
+### Same approach, Different Distribution
+
+Let's move away from a situation in which there are a finite number of discrete possible outcomes to one in which the possibilities are continuously variable.  A good example is a physical trait like height.  We are all familiar with the "bell curve" distribution of such a trait - if we measure a sample of a population, we wouldn't be surprised to see a distribution something like this
+```{r}
+x <- seq(100,260,length=100)   #set a range of possible heights
+hx <-dnorm(x,180,30) # calculates the density function, or theoretical exact probability, for every value of x, assuming mean of 180 and standard deviation of 30
+plot(x,hx, type="l",xlab="Height (cm)", main="Hypothetical Distribution of Human Height",yaxt="n",ylab="Frequency")
+abline(v=180,col="red")
+```
+This is of course, a normal distribution, with some mean (180 cm in this case) and a standard deviation.  So, as we did with repect to the coin flip, we can work through a problem.
+
+####  The problem.
+
+We weigh a group of long-distance runners. and find that the mean weight is 163 pounds, and the standard deviation of those heights is 10.  An individual shows up who weighs 185 pounds.  Is he a runner?
+
+#### The Analysis
+
+So again, we can use our simulation approach.  We will create a some data that are what we might find by weighing 100 runners, look at the distribution, and see where our mystery person falls:
+```{r}
+set.seed(123)
+runners <-rnorm(100,163,10)
+hist(runners,xlab="Weight",freq=FALSE,ylab="Probability",main="Weight of Long-Distance Runners",breaks=20)
+curve(dnorm(x,163,10),col="blue",add=TRUE) # Add the theoretical distribution curve
+abline(v=185,col="red")
+```
+And what we see is a pretty good normal distribution.  The bars represent the distribution of actual measurements; the blue line is the theoretical distribution, given the mean and the standard deviation.  The red line shows where our mystery person weighs in - definitely in the upper extreme of it, but is this the result of chance variation (i. e. is he likely to be a runner or not?)
+
+We can do the same thing we did with the binary.  First we can numerically determine the upper and lower 2.5% limits
+```{r}
+as.integer(quantile(runners, c(.025,.975)))
+```
+And we can do this on a version of the plot
+```{r}
+
+colhist(runners,,tail=2,xr=c(140,190),xlab="Weight",ylab="Number",main="Is the Mystery Person a Runner?")
+abline(v=185,col="blue")
+```
+And we see that, based on this analysis, just as in the case of the coin flip with 8 of 10 heads, we would reject the hypothesis that the 185 pound individual is a runner.
+
+#### Conclusions
+
+So the simulation approach has worked again, and we we can reject our null hypothesis. While there were some runners whose weight deviated from the mean as much or more than did our subject, they comprise less than 5% of the total.  And, in fact, since we estimated the distribution from the data (that is, by actually measuring the runners), we are not necessarily constrained by the nature of that distribution.  But, as in the case of our coin flips, we are determining the probability that one particular sample is a member of a distribution.  More frequently, however, we have a sample of some size n; we would like to know if it is in fact drawn from a population with a distribution with some set of parameters, known or unknown.  This will be our next challenge.
+
+### Summary
+
+So we have seen that, given a particular distribution, it is in fact possible to calculate the exact probability of a particular outcome, however that can be computationally impractical.  In contrast, a numerical approach is much more generalizable, in that one can simply determine where that outcome falls relative to the overall distribution.  What we will do next is to see how we can determine if a sample of individuals is in fact drawn from  a population described by a particular null hypothesis. 
+
+And one final note.  At this point, we have looked at one case in which outcomes are discrete (the coin flip) and one where they are continuous (height or weight).  In fact, this is one of the major challenges in genetic analysis.  Alleles and genotypes are discrete, but phenotypes, on which natural selection acts, are often continuous.  In fact, when Mendel's paper first became widely recognized, this problem seemed intractable.  Indeed, vestiges of that apparent tension remain today - the study of the distribution of alleles and genotypes is usually referred to as "population genetics", while investigation of phenotypic variation is called "quantitative genetics".  We shall see that much progress has been made in reconciling the two, but much more remains to be done.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

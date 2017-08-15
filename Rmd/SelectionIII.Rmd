@@ -1,0 +1,161 @@
+---
+title: <center>Testing for Selection</center>
+author: <center>Bruce Cochrane</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+
+```{r,echo=FALSE}
+library(TeachingPopGen)
+```
+
+### Background
+
+So now we need to think more closely about what DNA does.  Historically, the definition of a gene was that portion of DNA that encodes a particular polypeptide, and since much of molecular population genetic theory developed in the era of protein polymorphism studies, many  of the classical tests of selection involve analysis of protein coding regions.  We will start by looking at a few of them; we will then move on to see how the comprehensive nucleotide polymorphism data that are available to us today allow us to broaden our scope to include all DNA sequences, coding or other.
+
+Before we explore this question, remember that we have already explored two for departure from neutral expecations  - Ewens-Watterson and the Tajima test.  However, these both suffer from two shortcomings.  First, they are relatively insensitive - only in the most extreme cases do the test statistics differ greatly from neutral expectations.  Second, if deviation is observed, there can be multiple explanations, and the role of selection (directional or balancing) is only one of them.
+
+### Remember the genetic code
+
+To quickly summarize, the genetic code has the following properties:
+
+1.  It's a triplet code - 3 nucleotides encode 1 amino acid
+2.  All 64 possible triplets used; 3 are terminators but 61 in fact code for amino acids
+3.  Thus, the code is generate - more than one codon encodes one amino acid.
+4.  With the exception of first position in leu, arg and ser, all of the degeneracy is in third (wobble) position.
+
+So let's think about evolutionary change in this context.  Suppose all mutations, (synonymous or nonsynonymous) are neutral, something that we assumed when we developed the Jukes and Cantor model for estimating rates of substitutions.  If so, then if we calculate d for both classes, the expectation is that they should be equal, or dN=dS.
+
+So what do we see?  First, in a sample of 16 eukaryotic genes, we find that  dN=.88 and dS = 4.65.  So if we compute the ratio, we get the following
+```{r}
+.88/4.65
+```
+
+So what this says is simply that the number of nonsynonymous substitutions is lower than that of synonymous.  Since there is no question that some substitutions will have detrimental effects on protein function, while the effect of the average syonymous one will be minimal, this result should not be suprising.  What we need to do, as always, is to look for those cases in which dN/dS for a particular gene or region differs from that of protein coding regions of the genome as a whole.
+
+To do so we can examine a case in which there is *a priori* reasons to believe that selection might be playing a role.  What about in a rapidly evolving pathogen like influenza?
+```{r}
+.0025/.01
+```
+And while the ratio is a bit higher than for the random sample of genes, the difference is not impressive.  
+
+There is, however, one classic case in which this simple approach was much more informative. [Hughes and Nei 1988](https://dl.dropbox.com/u/9752688/ZOO%20422P/Readings/Classics/Hughes%20and%20Nei%201988.pdf) looked at sequence variation in the  MHC loci in humans.  These are proteins in the immune system that are involved in antigen recognition, and much is known about their structure vis-a-vis that function.  So therefore, it was possible to examine both the antigen recognition domain, likely affected by selection, and compare it with other regions not involved in that function.  The basic design of the experiment was as follows:
+
+1.  Collect 12 sequences for Class 1 alleles at HLA-A,HLA-B, and HLA-C
+2.  Calculate mean dN and dS for all pairwise combinations by loci
+3.  Subdivide by Antigen recognition sites, remainder of coding region
+
+The results can be showed as follows:
+
+![MHC](https://dl.dropboxusercontent.com/u/9752688/QPopgen/figs/MHC.png)
+
+The high level of nonsynonymous substitution in the antigen-recognition region clearly suggests positive selection for amino acid substitutions, consistent with what would be expected - variation in this region provides the ability to recognize multiple antigens and thus adapt to a variable or changing pathogen environment.
+
+### Going one step further - incorporating interspecific comparison
+
+Up until this point, we have  restricted ourselves almost exclusively to analysis of data obtained from a single species.  But there is another aspect of the neutral theory we consider.  As Kimura suggested in his 1971 classic paper, one way of thinking of protein polymorphsims within species is as simply a step on the path to between species differentiation.  If that is the case, then if we compare dN/dS ratios among polymorphic sequences withiin a species, they should be comparable to what we observe when we make comparisons between closely related species (remembering, of course, to use a mutation model to correct for multiple hits on a single site).  We will look at two tests that have been developed based on this logic, one briefly and one in some detail.
+
+#### The HKA test
+
+[Hudson, Kreitmand and Aguade(1987)](https://dl.dropboxusercontent.com/u/9752688/ZOO%20422P/Readings/HKA%201987.pdf) took the following approach.  First, they asked what factors determine polymorphism and divergence.  In brief, they are
+
+1.  Time since divergence
+2.  Effective population size of two species
+3.  The mutation and substitution rates for the gene or genes in question 
+
+And we can also note regarding these, that
+
+1.  The first two factors are population/species parameters, so they will be the same for any gene comparison we choose to make.
+2.  The third factor certainly does vary among genes.  However, if indeed polymorphism is simply a transitional step in the divergence process, and the mutation rate is constant for a given gene, then *the ratio between variation and divergence should be the same for every gene*.
+
+Hudson et al applied the method to data from the Alcohol dehydrogenase locus (ADH), as well as what was thought to be a noncoding flanking region, using polymorphism data from *Drosophila melanogaster* and divergence data from *D. melanogaster* and *D. sechellia*.  To avoid the confounding effects of amino acid substitutions, they limited their treatment to noncoding sites.  Their results were are shown below:
+
+![HKA](https://dl.dropboxusercontent.com/u/9752688/QPopgen/figs/HKA.pdf)
+
+The statistical analysis of these results is not straightforward, however, the following points emerge:
+
+1.  Divergence between species is similar for the two genes.
+2.  Within-species variation (polymorphism) is much higher for Adh than for the flanking region - significant based on comparison to neutral expectations.
+
+Hudson et al concluded that these results were consistent with the hypothesis that the Adh locus is subject to balancing selection within *D. melanogaster*, resulting in the high level of within-species polymorphism that was observed.
+
+Note that we are assuming flanking region is neutral, and that may or may not be the case.  In addition, we have restricted our consideration to noncoding substitutions, thus ignoring what we would expect to be a very important part of the picture.  And finally, tests of significance involve fairly complicated simulations of neutral expectations.  How can we address these problems?
+
+#### [The McDonald-Kreitman Test](http://www.nature.com/nature/journal/v351/n6328/pdf/351652a0.pdf)
+
+The MK test is probably the most widely used for  evidence of selection in protein coding data.  In essence, it combines the logic of dNdS testing with that of the HKA test, and it does so in a simple and straightforward fashion.  It proceeds as follows:
+
+1.  Determine the number of silent and replacement polymorphisms within a gene and species of interest (Pn and Ps).  
+2.   Determine the average number of  substitutions (again silent and replacement) that have occurred  between the  species of interest and at least 1 sequence for one or more sibling species (applying JC or other correction as appropriate - Dn and Ds)  
+3.  If indeed, as per Kimura, polymorphism is simply a stage of neutral evolution, then
+
+  Dn/Ds = Pn/Ps  
+  
+The data that McDonald and Kreitman analyzed, once again for Adh, are as follows:
+
+
+
+Site Type|Divergent Between Species|Polymorphic Within Species
+---|---|---
+Nonsynonymous|7|2
+Synonymous|17|42
+
+Once again, polymorphism data were from *D. melanogaster*; substitution data ("fixed") are based on comparison with two sibling species - *D. simulans* and *D. yakuba*.
+
+So how do we go about analyzing this?  Remember that what we want to know is whether the relationship of silent to replacement substitutions is the same for polymorphism within species and fixed divergence among species.  In fact, we can do what is known as a contingency chi-square test to test this null hypothesis (note that McDonald and Kreitman used a G test, a more appropriate test, but which addresses the same question).  In addition, we can calculate the following quantity:
+
+FI = (Dn/Pn)/(Ds/Ps)
+
+or alternatively
+
+FI - (DnPs)/(DsPn)
+
+Note that this the numerator is the divergence to polymorphism ratio for nonsynonymous changes, while the denomintor is the same for synonymous ones.  We could thus imagine the following scenarios:
+
+1.  If mutation is selectively neutral, the type of mutation doesn't matter, and FI = 1
+2.  If substitutions between species are adaptive, then we would expect Dn/Pn >Ds/Ps, and thus FI >1
+3.  In the case of heterozygote advantage within species, then (based on the second formulation) Pn >Ps, making FI <1.
+4.  If most nonsynonymous mutations within species are detrimental, then again, we would expect to see Pn to be small and FI >1.  However, we would also expect to see an excess of low-frequency derived alleles within species, which could allow us to distinguish this from possibility 2.  We will return to this point in a bit.
+
+
+
+The function MK does the above analysis The input for it is two vectors, consisting of the rows from the  table above:
+
+```{r}
+MK(c(7,2),c(17,42))
+```
+And returns the result of the chi-square test, as well as the value of FI.  In this case we note:
+
+1.  The chi-square value (1 d. f) is significant, indicating that we can reject the null hypothesis that the dN/dS and pN/Ps ratios are the same.
+2.  FI is greater than 1, suggesting a deficiency of nonsynonymous polymorphisms (something that should be evident based on visual inspection of the data)
+
+But remember - there are two possible explanations for a value of FI greater than one - either directional selection occurring during speciation or purifying selection within species.  Which is the case here?  McDonald and Kreitman argued for the former - a number of adaptive mutations occurring in the lineages of the two species that lead to an excess of nonysnonymous substitutions.  They argued against the alternative hypothesis on essentially parsimony grounds, arguing that the only scenario that could lead to these results is overly complex:
+
+1.  The species was historically small, so that weakly deleterious mutations are effectively neutral and thus subject to random fixation and loss.  It would be those randomly fixed mutations that result in the observed value of Dn.
+2.  In *D.melanogaster* at least, subsequent to speciation, there was a population expansion, such that now those weakly deleterious alleles are subject to selection and thus reduced in frequency.
+
+To quote them, "This slightly deleterious model requires so many assumptions about selection coefficients, population sizes and times of population expansions that we prefer the simpler explanation of the occasional fixation of an adaptive mutation."
+
+Note that, using the G test with a correction for small sample size, a more conservative approach, McDonald and Kreitman obtained similar results.  Their conclusion, explained quite well in the paper, suggest that most of the replacements that have occurred are in fact adaptive, so that nonsynonymous polymorphisms, when they occur, have a short life time.
+
+The basic mathematics of the test is extremely simple.  In fact, if we look at the MK function
+
+```{r}
+MK
+```
+
+We see that it is little more than a call to the built-in function chisq.test.  In addition, there are web sites that will do the calculation interactively - for example see [this one](http://turner.faculty.swau.edu/mathematics/math241/materials/contablecalc/entry.php).
+
+
+### Summary
+
+So we've seen that we can take three different approaches to the detection of selection, all of which involve, one way or another, a comparison of substitution rates and levels of polymorphism.  Note, however, that, as described so far, we are, by and large, approaching the problem on a gene-by-gene basis.  Ideally, we'd like to take a broader view, using available data to assess patterns of selection in the genome as a whole.  In our next unit, we will begin to do that, using the MK statistic as a means to look for evidence of selection in the *Drosophila* genome.
+
+
+

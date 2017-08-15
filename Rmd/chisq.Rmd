@@ -1,0 +1,123 @@
+---
+title: <center>A More General Approach </br>The &chi;^2^ Distribution</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output:
+  html_document:
+    theme: paper
+    toc: yes
+    toc_depth: 5
+---
+
+## The Chi-squared Distribution
+
+```{r, echo=FALSE}
+
+library(TeachingPopGen)
+```
+### Background
+
+Our goal now will be to ask the question raised at the end of the last unit.  Given that we have performed some measures on a sample of individuals, how can we assess the null hypothesis that it is in fact a sample of a population with a distribution described by some set of parameters? Let's work from the following assumptions.
+
+1.  We are working with categorical data.  That is, we can place every individual we measure into one of a finite number of categories.
+2.  We have a null hypothesis that allows us to predict the expected numbers of individuals in the sample that should fall into each category
+
+What we want to do is to determine the extent to which the **numbers** of individuals **observed** in each category differ from those **expected** based upon our hypothesis.  And we need to take into account three other considerations
+
+1.  The sign of the deviation between observed and expected numbers is immaterial - we want to treat positive and negative differences between the two equivalently.
+2.  We need to weight the magnitude of the deviation between observed and expected in each category with respect to the number expected in the category.  The reason for doing so is actually fairly simple.  Suppose we expect to observe 100 and we actually observe 95.  Intuitively, we would say that such a deviation (observed-expected = 5) is of little consequence - likely due to chance.  However, if we expected 10 and we observed 5, while the absolute value of the deviation is the same (5) intuition tells us that in this case it may be much more significant.
+3.  The number of possible categories matters.  Put loosely, the more categories that exist, the greater the opportunity for deviation
+
+### The problem
+
+So the best to go at this is to work from a problem.  Since our interest is genetics, why don't we work from some of Gregor Mendel's data?  We'll use his original F2 data from a cross of true breeding strains of plants with round and yellow seeds with ones with wrinkled and green seeds.  We can set those up as a data frame in R.
+
+### The analysis
+
+#### Entering the data
+
+First, we need to create a data frame that contains Mendel's observations.  That can be done as follows:
+```{r}
+seeds <-c("Round Yellow","Round Green","Wrinkled Yellow", "Wrinkled Green") # The four phenotypes
+obs <-c(315,108,101,32) # The number observed
+dat <-data.frame(obs,row.names=seeds) # Place the observations into a dataframe, with one entry per phenotype
+dat
+```
+
+#### Calculating Expected Values
+
+So that's what was observed.  Now what was expected?  Remember, Mendel, with his insight, predicted that for a dihybrid cross, in which there is one dominant and one recessive allele at each locus, the four possible phebotypes should occur in a 9:3:3:1 ratio.  Here, the "vectorization" feature of r comes into play:
+```{r}
+ratio <-c(9/16,3/16,3/16,1/16) # make a vector of the expected ratio
+exp <-sum(obs)*ratio # calculate expected numbers by multiplying the total plants observed by the expected ratio
+dat <-cbind(dat,exp) # add those numbers to the data frame and view
+dat
+
+```
+#### Calculating the difference between observed and expected.
+
+So now we have observed and expected values - are the differences between them due to chance?  To assess that, we need a **summary statistic**, a value, computed from what we have, that we can compare to an expected distribution.  The simplest approach is to simply take the difference between the observed and expected numbers and do something with them.  However, remembering our first consideration above, that positive and negative deviations need to be treated equivalently, so we need to make all those differences positive.  Them most mathematically tractable way to do that is to square them:
+
+```{r}
+diff <-(dat$obs-dat$exp)^2 #again, we perform operations on each element of two vectors (observed and expected)
+dat <-cbind (dat,diff) #add the results to the data frame as a column
+dat
+```
+#### Account for the magnitude of the expected number
+
+To incorporate our second consideration, we'll just divide the difference we just calculated (the variable `diff`) by the approrpiate expected numbers, giving us the difference weighted by expected category number (`diff.w`).
+```{r}
+diff.w <-diff/dat$exp
+dat <-cbind(dat,diff.w)
+dat
+```
+#### Calculating the summary statistic
+
+And finally, we can take the sum of these, called &chi;^2^ to be our summary statistic - an over all measure of the weighted difference between observed and expected.
+```{r}
+chi <-sum(dat$diff.w)
+chi
+```
+So what does this mean?  What we want to do is to compare this result to the distribution of values we would expect to obtain if we did this experiment repeatedly.  Before doing so, however we have our third consideration.
+
+#### Accounting for the number of categories
+
+Remember that, again thinking intuitively, the more the possible categories, the larger a total deviation (and thus &chi;^2^ ) we would expect to observe.  So, we need to ask, how is that statistic distributed when we have k classes (in this case 4)?  Here's where the idea of **degrees of freedom** comes into play.  For now, let's think of it as follows.  Remember that the total frequency of all classes of outcomes must add up to 1.  Thus, in this case, if we look at a sample and determine it is *not* in class 1, 2, or 3, then we know it must be in class 4.  To a statistician, that means there are three degrees of freedom in the data.  For now, degrees of freedom (df) can be thought of as one less than the total number of categories; when we get to Hardy-Weinberg, we will see that there can be other factors involved as well.
+
+#### So is it chance deviation?
+
+To review, we've detedmined from Mendel's data that &chi;^2^ = 0.47; since there are four categories into which we've classified the data there are three degrees of freedom.  We can now use the simulation approach that we have previously.  First, we'll have r generate 100,000 values of chi-square based on 3 degrees of freedom
+```{r}
+set.seed(123)
+ch <- rchisq(100000,3)
+```
+Now, remember that, by squaring the difference between observed and expected, all deviation, regardless of its original direction, is now going to make a positive contribution to chi squared.  So we can ask which of the simulated values fall in the range that occurs 5% of the time, due simply to chance
+```{r}
+quantile(ch, .95)
+```
+So, as we have done before, we conclude that if we were to observe a value of &chi;^2^ of this value or higher, we would reject our null hypothesis that the observed numbers are consistent with those predicted based on our hypothesis.  But the value we actually observed it .47, which is less.  We can illustrate this below:
+```{r}
+
+colhist(ch,tail=1, xr=c(0,20),xlab+"Chi-squared",ylab="Number",main="Did Mendel's Data Fit?")
+abline(v=chi,col="blue")
+```
+So in this case we can accept the null hypothesis and conclude that Mendel's laws of segregation and assortment do indeed explain his results.
+
+Note that in this case, we calculated a one tail statistic, as opposed to the two-tailed approach we have used previously.  This is because of the fact that, as we described, we are looking at the square of the deviation from expectation, a number that will always be positive and will become larger as the deviation becomes greater.  Thus, we are only concerned with the upper 5% of the distribution, consisting of those values of &chi;^2^ that are least likely to be observed by chance.
+
+### Conclusions
+
+What have we accomplished here?
+
+1.  We have compared an experimental result with the distribution expected based on a biological hypothesis.
+2.  We have done so in a computationally straightforward fashion
+3.  We have done so without prior knowledge regarding the expected distribution of repeated samples drawn from the original population.
+
+We will come back to this repeatedly, and in doing so, we needn't go through this whole simulation process repeatedly.  In fact, the critical values of the &chi;^2^ distribution are widely available, and indeed they are built into R  The table below provides the .05 cutoffs for 1 to 10 degrees of freedom:  
+
+```{r,results="asis"}
+df <-c(1:10)
+chicrit.05 <-sapply(df, function(x) qchisq(.95,x))
+chicrit.01 <-sapply(df,function (x) qchisq(.99,x))
+printx(data.frame(cbind(chicrit.05,chicrit.01),row.names=df))
+```
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

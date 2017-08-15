@@ -1,0 +1,240 @@
+---
+title: "Testing for selection with MS-based approach"
+author: "Bruce Cochrane"
+date: "October 16, 2014"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+### Background
+
+The big problem with the Tajima statistic is, of course, that nonzero values (either positive or negative) can result from a variety of historical processes.  Perhaps most importantly, the stochastic effects of demographic history are inevitably confounded with the deterministic ones of selection.  So can the two be parsed out?
+
+In many cases, probably not.  However, we could imagine the following.  Suppose we have detected a positive value of D in data from a gene of interest, and we have some *a priori* expectation that it has been the target of balancing selection.  Perhaps what we could do would be to compare that locus with one or more other loci from the same species, with the thought that the latter would provide a demographic baseline against which the results from the gene of interest could be compared.
+
+[Tezuka et al (2014)](http://www.nature.com/hdy/journal/v113/n5/full/hdy201435a.html) used just this approach to consider polymorphism in an opsin gene in guppies.  The essence of their analytical approach was as follows:
+
+1.  Sequence opsin genes, as well as 6-7 reference genes
+2.  Calculate D for all of them
+3.  Now here's where it gets fun.  What we do is to assume each population actually consists of two subpopulations, with some unknown migration parameter, and then run ms for the same number of genes, with values for theta and M drawn from a distribution.  Those that have average values of &pi; and &theta;w for all loci simulated within 5% of the observed are accepted; others are rejected.  This is repeated until 10,000 simulations are accepted; the observed value of D can then be compared to the distribution of that from the accepted simulations.
+
+### Programming
+
+So what we need to do is something like the following.
+
+1.  Draw values of &theta; and M from some reasonable distribution
+2.  Do n simulations, where n is the number of genes (set the length and sample size to be comparable to the average length of the reference sequences and nsamp is comparable to 2 times the experimental sample size).
+3.  Compare calculate statistics with sumstats and do the acceptance test; if accepted save D.
+4.  continue this process until 10,000 (or for demo purposes, maybe 1000) are accepted.
+5.  Do the typical kind of distribution comparison
+```{r}
+library(TeachingPopGen)
+```
+First we'll create necessary variables.
+
+```{r}
+sim <-function(){
+M <-runif(1,0,10) # migration parameter
+th <-runif(1,0,.002)*500 #theta
+l <-500 #sequence length
+ms.r <-ms(nsam=16,nreps=7, opts=(paste("-t",th,"-r 0",l,"-I 2 8 8",M,sep=" ")))
+# ms.r
+
+ms.out <-ms.sumstats(ms.r)
+out <-c(theta=th,neM=M,apply(ms.out[,2:4],2,mean,na.rm=TRUE))
+return(out)
+}
+```
+OK.  A good start.  Now we need to automate this whole thing.
+```{r}
+D <-rep(NA,1000)
+sum(!is.na(D))
+```
+The above can be used to see if enough simulations have been run.
+
+So the paper lists S and pi on a per site basis.  That suggests that we should multiply the values reported by the sequence length.  
+```{r}
+dat.neutral <-read.csv("./Data/Guppies/dat.neutral.csv",row.names=1)
+dat.neutral
+```
+Now we can get the mean values; since these are effectively per 1000 bases, we can divide by 2 to get per 500, thus normalizing it to our simulation
+```{r}
+mean.dat <-apply(dat.neutral,2,mean)
+mean.dat
+```
+Now, let's do one simulation
+```{r}
+test <-sim()
+test
+```
+OK.  So here's a way to just do a whole bunch of replicates; not as nice as the paper but a place to start
+```{r}
+sim.multi <-t(replicate(10000,sim(),simplify="matrix"))
+
+head(sim.multi)
+```
+```{r}
+mean.sim <-apply(sim.multi,2,mean,na.rm=TRUE)
+mean.sim
+mean.dat
+```
+So this is looking pretty good. Now we have to select the ones that are within 20% of mean.dat$S and mean.dat$pi (note - actually want to use 5%, but setting a broader limit for testing purposes)
+```{r}
+ll.pi <-mean.dat[2]-.05*mean.dat[2]
+ul.pi <-mean.dat[2]+.05*mean.dat[2]
+ll.th <-mean.dat[1]-.05*mean.dat[1]
+ul.th <-mean.dat[1]+.05*mean.dat[1]
+ll.th; ul.th
+
+#ll.pi; ul.pi
+```
+Now let's see if we can subset sim.multi with those:
+```{r}
+post <-data.frame(sim.multi[which(sim.multi[,3]>ll.pi&sim.multi[,3]<ul.pi),])
+```
+OK.  The basic strategy works.  What we need to do now is 
+
+1.  Go back and build subdivision into the ms model.
+2.  Clean up the code to make things workable
+3.  Add in Thetaw as a second selection criterion
+4.  Figure out the way to do the conditional run.
+
+So the command we want is a while statement.  Work as follows - set an index, create a blank vector, do the test as an ifelse.  Well continue to do it with just pi for the time being; we'll work in S once we've cleaned up the limit setting code.
+
+```{r}
+D <-rep(0,100) # Create vector to store posterior
+k <-0 # index
+nsim <-0
+while(k<=100){
+  x <-sim() #run ms simulation
+  if (x[3]>ll.pi & x[3]<ul.pi){
+    k <-k+1
+    D[k] <-x[5]
+  }
+  nsim <-nsim+1 # counter for total number of simulations
+}
+```
+Let's do a test while loop to be sure we have the idea right
+```{r}
+k <-0
+nsim <-0
+while(k<=100){
+  x <-runif(1,0,1)
+  if(x<.5){
+    k <-k+1
+    D[k] <-x
+  }
+  nsim <-nsim+1
+}
+```
+OK.  The basic structure works fine.
+
+Now, rereading the paper carefully, we need to alter things a bit.  The simulation is fine, but what we need to do is to do the pi and Watterson comparisons, but return the input values of theta and M that gave rise to them (as opposed to D.).  
+
+So the code is adjusted to return all the necessary values, and we set up the replicate to return a dataframe.  But we still need to mess with the while looping.  
+
+A lot of cleanup still needed.  I'm out of here for now.
+
+#### November 5
+
+In thinking about this, it seems to me perfectly reasonable to do the theta and pi calculations simulataneously with calculating D and then using the posterior of D to test the observed data.  However, there is still the problem of getting enough replicates run.  Using only pi as a criterion, the acceptance rate is about 1.4%, so who knows what it would be if limits on theta are added in?  One indicator that it may not be so bad:
+
+```{r}
+hist(post$th.W)
+abline(v=mean(post$th.W, col="red"))
+mean(post$th.W)
+```
+With 10,000 simulations done and posteriors based on pi selected, we can now do a second selection on theta
+```{r}
+post2 <-data.frame(post[which(post$th.W>ll.th&post$th.W<ul.th),])
+```
+and that gave us 8/10000 - I hate to think how long it would take to do this for real.  I think some rethinking is in order.
+
+#### November 7
+
+So with some tweaking, we got this up to 52 accepted simulations out of 10,000.  This looks like something to do on RedHawk or AWS, but not just yet.  Let's play with the distribution we have and then go back and to the while loop.
+
+```{r}
+apply(post2,2,mean)
+```
+So our overall acceptance rate is
+```{r}
+ acc <-nrow(post2)/10000
+#And calculate number needed for 1000 acceptences
+n.needed=1000/acc
+n.needed
+```
+Something like 200,000 iterations.  definitely need to try to get this working on a faster machine.
+
+OK.  Now we had the redhawk cluster run 200,000 simulations.  We're going to try to do the same stuff we did previously after reading it in (ftp from redhawk is sftp://redhawk.hpc.muohio.edu)
+```{r}
+sim.multi <- read.csv("./Data/Guppies/sim.multi.csv")
+sim.multi <-sim.multi[,-1]
+head(sim.multi)
+```
+And that gave us 1027, which is what we were looking for.  
+```{r}
+colhist(post2$Tajima.D)
+```
+And to put numbers on that
+```{r}
+quantile(post2$Tajima.D,c(.025,.975))
+```
+Or as a one tail
+```{r}
+quantile(post2$Tajima.D,.95)
+```
+and let's look at all of the means
+```{r}
+apply(post2,2,mean)
+```
+So for our next trick, we will clean this stuff up into more linear code.  And it could probably be speeded up by a system call to msABC, but in the interest of class compatibility, we'll stick with the slow route.
+
+
+#### November 8
+
+So the speed problem is real; we want to try the simulations with msABC.  For starters we'll build the basic code:
+
+```{r}
+system("msABC 16 7 -t -U 0 1 -I 2 8 8 -U 0 10 -r 0 500  >guppytest.txt")
+test <-read.table("guppytest.txt",header=TRUE)
+test
+```
+Try with a command line from an example
+```{r}
+samptest <-system("msABC 12 10 -t 10 -r -U 10 20 1000 -I 2 7 5 0.5 -eN 0.01 0.3 --frag-begin --finp fragments2.txt --frag-end --verbose -seeds 1 2 3  >smpout.txt")
+smpout <-read.table("smpout.txt",header=TRUE)
+smpout
+```
+So I'm not figuring out the use of a fragment file.  As an alternative, we can keep with the nrep=7 approach and take the mean.  But we need to extract the stuff we want, which are (in order), theta, neM,pi, th.W and D.
+```{r}
+str(test)
+```
+And we can write it this way
+```{r}
+ms.out <-data.frame(theta=test$p_theta,NeM=test$p_isl_totmig,th.pi=test$s_theta_pi,th.s=test$s_theta_w,Tajima.D=test$s_tajimasD)
+ms.out
+```
+And take the mean
+```{r}
+out <-apply(ms.out,2,mean,na.rm=TRUE)
+out
+```
+OK, now rewrite sim
+```{r}
+sim2 <-function(){
+  system("msABC 16 7 -t -U 0 1 -I 2 8 8 -U 0 10 -r 0 500  >guppytest.txt")
+test <-read.table("guppytest.txt",header=TRUE)
+ms.out <-data.frame(theta=test$p_theta,NeM=test$p_isl_totmig,th.pi=test$s_theta_pi,th.s=test$s_theta_w,Tajima.D=test$s_tajimasD)
+out <-apply(ms.out,2,mean,na.rm=TRUE)
+return(out)
+}
+```
+It seems to work.  Now let's try a replicate
+```{r}
+system.time(sim.multi2 <-t(replicate(100,sim(),simplify="matrix")))
+```
+So for all of that, our original one works faster and seems to be cleaner.  If we can figure out the fragment file nonsense, then we'd be ok, but that's for another day.

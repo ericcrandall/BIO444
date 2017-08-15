@@ -1,0 +1,349 @@
+---
+title: 
+- <center>More on Hardy Weinberg</center>
+output:
+  html_document:
+    css: Chapter.css
+    number_sections: yes
+    toc: yes
+    toc_depth: 5
+---
+
+```{r, echo=FALSE}
+library(TeachingPopGen)
+library(knitr)
+```
+
+### Exploring in More Depth
+
+So at this point, we've seen how we can calculate allele frequencies, and we've also seen that in an ideal population, those frequencies do not change - the population does not evolve.  And it is worth it at this point to briefly summarize the properties of an ideal population:
+
+1.  It is infinitely large
+2.  Mating is random
+3.  There is no mutation
+4.  There is no migration
+5.  There is no selection
+
+Much of the rest of our time will be focused on understanding the consequences departures from one or more of these conditions - how do we detect them and what are their consequences?  Before that, however, we need to delve into the Hardy Weinberg Equilibrium a bit more deeply.
+
+### Testing for departures from Hardy Weinberg
+
+This is a subject we will be exploring in more depth in a later unit, but for starters, let's keep it simple.  Assume we can observe some genotypes:
+
+Genotype| N
+---|---
+AA | 56
+Aa | 78
+aa | 22
+
+We can calculate the frequencies of the two alleles as we did before:
+
+```{r}
+obs <-c(56,78,22)
+N <-sum(obs)
+p <-(2*obs[1]+obs[2])/(2*N)
+q <- 1-p
+p; q
+```
+And from those, we can calculate our expected genotype *numbers*
+```{r}
+exp <-N*c(p^2,2*p*q,q^2)
+exp
+```
+So now we have observed and expected numbers; it would seem a logical step to apply the chi-square test to see if the difference between the two is significant. For more details, see [the unit on the chi-squared distribution](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/chisq.html); at this point, remember that what we are doing is quantitating the departure from the expectations of an hypothesis for categorical data.  In our case, the categories are genotypes; the hypothesis is that the population is in Hardy-Weinberg equilibrium, and the data are the observed genotype *numbers*, which are compared to those expected based on HWE.
+
+We've done the calculations above, so &chi;^2^ can be calculated easily by
+
+
+```{r}
+chi <-sum((obs-exp)^2/exp)
+chi
+```
+
+But how many degrees of freedom?  Our rule of thumb previously was that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case.  However there is another wrinkle.  In this case we used the actual data to estimate a parameter used in determining our expected values - p.  That costs us another degree of freedom.  So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.  
+
+So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)?  One way to do that is what we did with coin flips - generate a bunch of &chi;^2^ distributed random variables and see where the 5% cutoff falls.  In this case, we will do a *one tail test*, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)
+
+```{r}
+set.seed(123)
+ch <- rchisq(100000,1)
+colhist(ch,tail=1, xr=c(0,20),xlab="chi-square",ylab="Number",main="Are the Data Consistent with HWE?")
+abline(v=chi,col="blue")
+quantile(ch,.95)
+```
+
+And we see that the data in fact fall within the range expected be observed as a result of chance.
+
+We can also calculate the probability of this particular &chi;^2^ value as follows:
+
+```{r}
+pr <-qchisq(chi,.95)
+pr
+```
+
+And we see that the probability of observing this much or more deviation from Hardy-Weinberg expectations is 22%, far higher than our normal standard of 5% for rejecting the null hypothesis.  So we can conclude in this case that the hypothesis cannot be rejected.
+
+#### The more conventional approach
+
+When you've done &chi;^2^ testing in the past, you've probably used a table that lists degrees of freedom and cutoff values that have been determined analytically.  For example, for one degree of freedom, that value is 3.84; we see that it is very similar to the number we obtained from our simulation above.  A small version of the table is in [the unit on the &chi;^2^ distribution](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/html/chisq.html); it is also shown below:
+
+```{r}
+df <-c(1:10)
+chicrit.05 <-sapply(df, function(x) qchisq(.95,x))
+chicrit.01 <-sapply(df,function (x) qchisq(.99,x))
+kable(data.frame(df,p.05 = chicrit.05,p.01=chicrit.01))
+```
+
+#### A coding note
+
+the hw() function in TeachingPopGen will accomplish much of what we have done so far.  Given some set of single locus, biallelic genotypes, it will return all the basic information.  For example
+
+```{r}
+dat.obs <-c(55,75,12) #observed numbers of AA, Aa, and aa
+dat.hw <-hw(dat.obs)
+```
+Note that it will print the results to the console; it also returns a list, in this case to the variable dat.hw:
+
+```{r}
+str(dat.hw)
+```
+
+
+### Homozyogsity, Heterozygosity, and F
+
+
+So by now we've looked at the chi-squared approach to testing whether observed genotype **numbers** are consistent with the prediction of Hardy-Weinberg.  There is, however, another way we can make this comparison - one that is less statistical, but which (as we shall see) is very relevant biologically.
+
+#### A couple of definitions
+
+We will use the following terms extensively in what follows:
+
+* *Homozygosity* - the frequency of homozygotes (of any sort, e. g. AA and aa in the biallelic case) in a sample or population
+* *Heterozygosity*  the total frequency of heterozygotes in the population
+
+#### Expected Values
+
+As is the case with any such measure, we need to have expectations.  These are pretty straightforward, especially:
+
+1.  Expected homozygosity is simply ∑p<sub>i</sub>^2^, where the p's are the frequencies of the k alleles in the population
+2.  Expected heterozygosity is easy for the biallelic case - it is simply 2p(1-p).  That could be extended to the case of multiple alleles, but remembering that every individual is either a homozygote or a heterozygote, a simpler calculation is
+
+E(heterozygosity)=1-E(homozygosity) = 1- ∑p<sub>i</sub>^2^
+
+#### Comparing some observations.
+
+Now that we have our expectations, we can turn to some data.  These come from real data and are a staple of chapter-end problems in Genetics and Evolution texts.  The organisms are brown bears, the phenotypes are brown (dominant) vs. white(recessive) and the genotypes of a single base in the melanocortin receptor gene which is responsible for the difference are as follows:
+
+Genotype | Phenotype | N
+---|---|---
+AA|Brown|42
+AG|Brown|24
+GG|White|21
+
+So we can do some basic calculations
+
+```{r}
+genos <-c(AA=42,AG=24,GG=21)
+genos
+```
+And we can do our basic Hardy-Weinberg calculations as we have before
+```{r}
+hw.genos <-hw(genos)
+```
+And we see that this is not an ideal population.  In fact, by inspection, we see that the observed number of heterozygotes, `r genos[2]`, is less than the expected one, `r hw.genos$Expected[2]`.  But we want to make this more quantitative, comparing the observed and expected homozygosity and heterozygosity.  But since these must add up to one, and for reasons that will become clear down the road, we'll focus on heterozygosity.  Furthermore, from here on out, we'll work with frequencies rather than numbers (although  the latter would work equally well).
+
+So first, what are the observed frequencies?
+```{r}
+genos.f.obs <-genos/sum(genos)
+genos.f.obs
+```
+The observed heterozygosity is thus `r round(genos.f.obs[2],3)`; to make the notation easier, we'll assign that a name
+```{r}
+Hobs <-genos.f.obs[2]
+```
+Now, what about the expected?  Remembering that that is 2pq, we calculate it as
+```{r}
+allele.freqs <-hw.genos$Allele_freqs
+Hexp <-2*allele.freqs[1]*allele.freqs[2]
+unname(Hexp)
+```
+Note that an alternate way of calculating this would simply be
+```{r}
+homo.exp <-(allele.freqs)^2
+homo.exp <-sum(homo.exp)
+unname(1-homo.exp)
+```
+Which gives us the same value.
+
+### The F statistic
+
+So what we want to do now is to come up with a numerical value to compare observed and expected heterozygosity.  Obviously, if they are equal (that is, we have a Hardy-Weinberg population), then the ratio will be 1.  Similarly, if there are no heterozygotes observed, then the ratio would be zero.  Thus, by subtracting the ratio from 1, we get a statistic that increases from zero to one, proportionate with increasing departure from HW.  Thus for our bear case here, we find that
+```{r}
+f.bears <-1-Hobs/Hexp
+unname(f.bears)
+```
+This statistic has a variety of names - Wright's F Statistic and the Fixation Index are two common ones.  We won't say more about it at this point, however we will be using it extensively in the future.  But the key points to realize are
+
+1.  If a population is in HWE, then Hobs=Hexp so F= 1-1 = 0
+2.  If there are *fewer* heterozygotes observed than expected, then F will be positive (as in the bear case)
+3.  If there are *more* heterozygotes observed than expected, then F is negative
+
+So what is a significant value of F?  At this point, we will leave that question open, but we will come back to it.
+
+Finally, as an aside, the explanation for the bear data is that bears preferentially mate with ones of their own color.  Thus, brown X white matings occur less frequently than they would in a random mating population, thus reducing the frequency of heterozygotes.
+
+### A Few Wrinkles
+
+#### Dominance
+
+Until now, we'eve assumed we can identify all genoytpes and then count alleles, divide by the total and have estimate of p.  However, what if we can't? For example, consider a typical general genetics problem - the frequency of cystic fibrosis in Caucasians is 1/3000; what is frequency of allele?  One approach (the only one in this case) - **if we assume HW, then**  
+
+```{r}
+freq <-1/3000
+q <-sqrt(freq)
+q
+```
+But note that we have *assumed* that the genotypes are in Hardy-Weinberg proportion by estimating q as the square root of the frequency of recessive homozygotes.  Hence, no statistical test for departure from HW is possible.
+
+#### Multiple Alleles
+
+Much of what we will work with this semester will involve biallelic data (for example, most SNPs are polymorphisms of two bases - sites with three are quite rare).  However, there will be some cases in which there are multiple alleles - in fact this is the norm for microsatellite loci.  In those cases, calculating allele frequencies is a fairly straightforward extension of the biallelic one; probably the easiest way is to work from genotype frequencies, in which case, for the frequency of allele i
+
+p<sub>i</sub> = f(homozygotes)+ 1/2∑ f(heterozygotes)
+
+And also, by extension, from an observed set of genotypes, we can estimate n allele frequencies and then estimate expected genotype frequencies and numbers, noting that if
+
+f(A1) = p  
+f(A2) = q  
+f(A3) = r  
+
+then 
+
+f(A1A1)<sub>exp</sub> = p^2^  
+f(A1A2)<sub>exp</sub> = 2pq  
+f(A1A3)<sub>exp</sub> = 2pr  
+etc. for six total genotypes  
+
+And of course, we can again do a chi square test, with degrees of freedom; since we estimate both p and q from the data, we lose a total of three degrees of freedom (one for each parameter estimated and one for the number of categories) giving us a total of 6-3=3.
+
+But be forewarned, however - as i increases, the number of possible genotypes increases, and thus the expected numbers of particular genotypes can become very small (approaching zero in the case of homozygotes for low frequency alleles,) so &chi;^2^ testing becomes problematic. In fact the number of genotypes can be calculated as follows.
+
+Given k alleles, there are obviously k possible homozygotes.  The number of possible heterozygotes is (k(k-1))/2.  So we can plot this as
+
+```{r}
+k <-1:8
+ngenos <-k+(k*(k-1))/2
+plot(k,ngenos, xlab="number of alleles", ylab="number of genotypes")
+```
+
+
+#### Do we have the best estimator of p?
+
+This may seem a bit nitpicky, but it is a nice illustration of the principle of likelihood maximization.  Consider the following biallelic data
+
+```{r}
+genos <-c(11,41,53)
+```
+Using a TPG function, we can calculate all of the above
+```{r}
+ hw.out <-hw(genos)
+```
+And we see that, *based on our estimate of p*, we cannot reject Hardy-Weinberg.  But is this the best estmator?  We could consider a couple of other possibilities
+
+1.  use the square root of the frequency of AA 
+```{r}
+sqrt(genos[1]/sum(genos))
+```
+Or one minus the square root of the number of aa
+```{r}
+1-sqrt(genos[3]/sum(genos))
+```
+So we have three estimates - .3, .32, and ,29.  Which is the best? Intuitively, since  we used the most information to get .3, so it seems best, but is it?
+
+R. A. Fisher investigated this problem; [Felsenstein](http://evolution.gs.washington.edu/pgbook/pgbook.pdf) provides the necessary mathematical information.  In essence, what we can do is the following:
+
+1.  For a range of parameters (p in this case) estimate P(X|p), the likelihood of X given p,  where X is the data.  Note that heretofore we have been estimating P(p|X), the probability of a particular value of p given observed data X.
+2.  Intuitively, this likelihood is going to cover a wide range.  In the example above, it we know that p cannot equal zero or 1; furthermore it is highly unlikely that it would be, say .05 or .9.
+3.  So what we can then do, for the range p=.01 to .99, calculate the exact probability (just like we did when we introduced the binomial distribution) that we would get the data if p were in fact truly that value, and take the logarithm of it to scale it appropriately
+4.  Finally, we can plot the log likelihood against p, and look for the point at which it is maximized.  The function maxp will do that for us.
+
+
+```{r}
+maxp(genos)
+```
+And we see that, in fact, the value of P that has the maximum likelihood associated with it is .3, the same as what we calculated initially.
+
+Again, this may seem like a somewhat meaningless exercise, but it does introduce the concept of maximum likelihood estimation, something that can be extremely useful in more complex situations.  And, as we did in Bayesian analysis, we are using the data to actually estimate p, not ask (as the frequentist does) whether the deviation from a previously determined paramter is likely to be due to chance
+
+#### ABO Blood Types - When Multiple alleles and Dominance Collide.
+
+We are all familiar with the ABO blood type system.  There are typically three alleles, A, B and i.  A and B are codominant, so that an AB heterozygote has the AB blood type.  However, i is recessive to both A and B so, for example, an Ai individual has type A blood, as does an AA one.  These relationships are summarized as follows:
+
+Genotypes|Blood Type|Number|Phenotype Frequency
+---|---|---|---|---
+AA, AO|A|\(n_{A}\)|\(p^2_{A}+2p_{A}p_{O}\)
+BB, BO|B|\(n_{B}\)|\(p^2_{B}+2p_{B}p_{O}\)
+AB|AB|\(n_{AB}\)|\(2p_{A}p_{B}\)
+OO|O|\(n_{0}\)|\(p^2_{O}\)
+
+And using our multiple allele logic, we should be able to calculate the frequency of the A allele as 
+
+\(P_{A} = \frac{2n_{AA}+n_{AO}+n_{AB}}{2n}\)
+
+But there's a problem - we can't distinguish between AA and AO individuals, so how do we plug in the numbers?
+
+Again, @FelsensteinBook suggests an approach (see also @weir1996genetic) known as "expectation maximization" to get at this problem. Look again at the  equation above.  Our problem is that, while we can get n and n<sub>AB</sub> directly from the data, AA and AO individuals both have type A blood.  The similar problem would exist for the frequency of B as well.  
+
+Felsenstein(page 31 and 32) shows the three values we wish to estimate, p <sub>A </sub>, p <sub>B </sub> and p <sub>i </sub>, can be expressed as follows:
+
+\(P_{A}=\frac{2(\frac{p_{A}+p_{O}}{p_{A}+2p_{O}})n_{A}+n_{AB}}{2n}\)
+
+\(P_{B}=\frac{2(\frac{p_{B}+p_{O}}{p_{B}+2p_{O}})n_{A}+n_{AB}}{2n}\)
+
+\(P_{O}=\frac{\frac{p_{O}}{p_{A}+2p_{O}}n_{A}+\frac{p_{O}}{p_{B}+2p_{O}}n_{B}+n_{O}}{n}\)
+
+We also know that the three frequencies must sum to one.
+
+But wait a minute!  In each case, calculation of the frequency is dependent on knowing that frequency, that is, the quantity we are trying to estimate is necessary in order to make the estimate.  So how to proceed?
+
+Look again at these equations.  If we plug some set of frequencies into the right sides, we will get some values on the left - no problem. And if we happened to have guessed the right ones, we would be done.  But of course that is almost never going to occur, rather we'll get a new set of p's.  We could then use those as our new values on the right and repeat the process.  Eventually (we hope) we would reach some equilibrium value, in which the numbers we calculate on the left are the same as the ones we plug in on the right.
+
+So we can work through an example.  Suppose we have the following data from and actual sample
+```{r}
+ABO <-c(212,103,39,148) # vector of counts of A, B, AB and O
+```
+We've written a simple function to carry out the expectation maximization process, starting with an initial estimate that all three frequencies are .3  We can apply that function to these data:
+
+```{r}
+p <-p.em(ABO)
+p
+```
+These plots show the first 10 iterations of the estimation maximization process, and we see that the estimates of the three allele frequencies quickly stabilize at the equilibrium values of .29,.12, and .55.  We can now calculate expected genotype numbers, assuming Hardy Weinberg holds
+```{r}
+OExp <- p[3]^2
+
+ABExp <-2*(p[1]*p[2])
+
+Aexp <-p[1]^2+2*p[1]*p[3]
+
+Bexp <-p[2]^2+2*p[2]*p[3]
+
+exp <-c(Aexp,Bexp,ABExp,OExp)*sum(ABO)
+
+exp
+```
+And we can then use our function for a quick chi square with 1 df (remembering that 2 parameters are estimated and one df lost for the data)
+
+```{r}
+chixw(ABO,exp)
+```
+And we see that in fact we have done a pretty good job of explaining the data.
+
+So what have we done?  As Felsenstein points out, at first glance, it may seem to be an "exercise in ad-hockery".  However, he then goes on to point out that what we have done  is to find the maximum likelihood estimates of the allele frequencies, and we have done so in a way that is relatively quick and insensitive to the starting values used.
+
+
+
+
+
+
+

@@ -1,0 +1,91 @@
+---
+title: 
+- <center>Isolation by Distance</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+```{r,echo=FALSE}
+library(TeachingPopGen)
+```
+
+##Isolation By Distance
+
+Heretofore, we have not let geographic distance into the picture.  In our island model, for example, we assumed equal rates of migration among all islands, regardless of location.  A more realistic model, particularly for a series of continental populations, would involve migration rate as an inverse function of the distance between pairs of populations.  The question we thus have is to accomplish this.
+
+Rather than use the modeling approach we have previously, we will instead apply a model developed by [Rousset (1997)](http://www.genetics.org/content/145/4/1219.short) to some original data.  What he showed was that, if we consider distance to be one dimension, then in fact,  Fst(1-Fst) would be expected to be a linear function of geographic distance.  More sophisticated models could be developed for three dimensions, but they go beyond what we need to consider
+
+### Some data
+
+[Jensen et al (2013)](http://onlinelibrary.wiley.com/doi/10.1111/mec.12226/full) reported a survey of microsatellite variation in sparrows along the Atlantic coast of Norway.  14 populations were genotyped at 15 microsatellite loci. The locations are shown here:
+
+![Sparrows in Norway](http://dl.dropboxusercontent.com/u/9752688/PopGenWithR/images/SparrowPops.png)
+
+The genotype data were deposited in Dryad; in addition, spatial coordinates of the population sites were reported in the paper.  I have used Genalex to calculate pairwise Fst values; in addition, the coordinates were converted to distances (km), and both data sets were saved as triangular matrices.  We will read both of them in and convert them to vectors, in order that we can plot the Rousset relationship
+
+Load the distance matrices:
+```{r}
+data(Sparrow)
+attach(sparrow.dat)
+```
+
+```{r}
+
+dist.km.vec <-dist.km[!is.na(dist.km)]
+dist.km.vec
+```
+And then the Fst one
+```{r}
+
+dist.fst.vec <-dist.fst[!is.na(dist.fst)]
+dist.fst.vec
+```
+Now we will calculate Fst/1-Fst and plot it against distance.  We will then calculate the regression line and add it to the plot
+```{r}
+Fsthat <-dist.fst.vec/(1-dist.fst.vec)
+
+plot(dist.km.vec,Fsthat, xlab="Distance(km)", ylab="Fst/(1-Fst)", pch=16)
+
+reg <-lm(Fsthat~(dist.km.vec))
+summary(reg)
+abline(reg,col="red")
+```
+Note that there is trend, but it is not significant. we also see that there is a collection of outliers that do not appear to be consistent with the rest.  we can see this more clearly if we make a histogram of the pairwise Fst values:  
+
+```{r}
+hist(dist.fst.vec, main="Distribution of Pairwise Fst Values", xlab="Fst")
+```
+In fact, Jensen et al. explain this in their paper by noting that in fact the populations sampled included ones from both the islands and the mainland.  When they performed the same analysis  with mainland-mainland, mainland-island, or island-island comparisons, they observed the following:
+
+![Data](http://dl.dropboxusercontent.com/u/9752688/QPopgen/figs/SparrowFst.png)
+
+The strongest relationship was observed in the mainland-mainland comparisons (filled circles; solid line); Fst values in general were higher for island-island comparisons.  From these results, the concluded the following:
+
+1.  Within population variation on islands is overall lower than on the mainland, while pairwise Fst values tended to be higher, suggesting repeated independent bottlenecks and/or founder effects on the islands.
+2.  In contrast, the lower differentiation among mainland populations and patterns of Fst suggest a larger overall population, with differentiation mediated by weak isolation-by-distance population structuring.
+
+### Another approach - Mantel's test
+
+Think for a moment about what we have - two matrices, one of genetic differences and one of geographic ones.  If indeed isolation by distance exists, then we would expect the two matrices to be correlated, right?  But a simple correlation coefficient will not suffice, since the elements of the matrix are not independent of one another.  If for example, site one is moved, then its distance to all other n-1 sites is also changed.  Thus, we need another method.  
+
+The Mantel Test is one of those, and involves a randomization process similar to what we have done in other cases.  The process is conceptually simple:
+
+1.  Calculate the correlation between the two matrices
+2.  Randomize the rows and columns of one of the two (usually the genetic distance matrix)
+3.  Calculate the correlation between the fixed and randomized values
+4.  Repeat, and look at the distributions
+
+
+```{r}
+m <-mantel.rtest(as.dist(sparrow.dat$dist.km),as.dist(sparrow.dat$dist.fst),nrepet=1000)
+plot(m)
+m
+```
+
+Here, we see that the probability of obseerving as large or larger a correlation is 0.15.  That this is not significant should not be surprising - after all, we did not see a significant overall correlation between Fst and geographic distance.
+
+### Conclusions
+
+What we have done here is a very preliminary analysis; in real life we would have coded the data in such a way that we could, perhaps, look at nested F statistics or broken them out as shown above.  But this is an excellent example of how, combining theory, geography, and genetic data, we can obtain real insights into population differentiation.

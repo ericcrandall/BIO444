@@ -1,0 +1,242 @@
+---
+title: 
+- <center>Basic R</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center>
+output:
+  html_document:
+    css: ~/Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+### Overview
+
+It's not much of an exaggeration to say that if it can be done on a computer, it can be done in R.  But that statement presupposes that one is an experienced programmer, fluent in R and likely in other languages as well.  But what does it take to get started?  In this section, we will go over some basic R commands.  And do reload this often - it will grow and change.
+
+In the [previous chapter](https://dl.dropboxusercontent.com/u/9752688/QPopgen/Intro2R.html) we did a bit of a "show and tell", highlighting some features of R and R Studio without much in the way of explanation.  Now, we're going to get into a few nuts and bolts, starting with installation and then looking at some basic data types and manipulations.  Most of them are available in Base R; a few use functions from TeachingPopGen or one of its dependecies.
+
+### Installation
+
+The first step is to install  R and R Studio on your computer.  Fortunately, for both Mac and Windows machines, this is fairly easy
+
+#### Installing R
+
+The most recent distribution of R can be obtained from the Comprehensive R Archive Network (CRAN).  Go to [http://cran.r-project.org/](http://cran.r-project.org/), click on the link to install on your particular operating system, and follow the instructions that follow.  Note that you will likely be asked what repository you wish to download from; choose one that is geographically close to you. Depending on your operating system, either a .exe (Windows) or .dmg (Mac) file will be downloaded; you can then perform an installation as you would for any such file. 
+
+#### Installing RStudio
+
+RStudio, the front end (or more technically integrated development environment, or IDE) we use, can be obtained from [http://www.rstudio.org](http://www.rstudio.org). Click on the Download link, then select the Desktop version, and choose your operating system from the list that is provided.  Again, either a .dmg or a .exe file will be downloaded; installation is then straightforward.
+
+#### Getting up and running.
+
+For a video demonstration of what follows, [click here](https://dl.dropboxusercontent.com/u/9752688/qpopgen/demo/mp4/InstallTPG.mp4) and follow the steps described. Once you have gotten everything installed, clicking on the RStudio icon on your computer will bring up a window something like this:
+
+![Rstudio1](https://dl.dropboxusercontent.com/u/9752688/qpopgen/TutorialFigs/Rstudio1.png)
+
+The pane on the left is referred to as the console - it is where line-by-line interactions can take place.  So as a simple exercise, scroll down to the prompt in it and type in 2+2, followed by a carriage return.  What you should see is this:
+
+![Rstudio2](https://dl.dropboxusercontent.com/u/9752688/QPopgen/TutorialFigs/Rstudio2.png)
+
+Congratulations!  You've just written your first program.
+
+However, working in the console window is not really the best way to go.  Remembering that we always want to be able to edit and/or reproduce what we've done, we'd like to have an editor we could enter code into, run it, save it, etc.  Here is where we take advantage of the true power of R.  That is where we will be spending most of our time.
+
+#### Packages
+
+There are literally thousands of add-on packages that have been created - essentially collections (some quite sophisticated) of specialized functions.  To use them, they first must be installed on the local computer.  This is best done in R Studio by doing so from the lower right window of the interface. Click on packages, followed by Install Packages.  Enter each of the following in the box that appears; when it comes up, click "install".  
+
+In the steps that follow, we will be following a slightly different procedure to install the package TeachingPopGen; when we do so, the following packages will be installed as well: 
+  
+1.  pegas  - performs many basic population genetics calculations
+2.  ape - a motherlode of phylogenetic routines
+2.  phyclust  - another phylogenetic package; source of the R implementation of ms
+4.  stringr, XML, RCurl - some housekeeping packages 
+
+Other packages we will be installing separately down the road include
+
+1.  HardyWeinberg - A package devoted to manipulating genotypes and allele frequencies
+2.  hierfstat - useful in the analysis of population subdivision
+3.  rehh - a routine for performing Extended Homozygosity analysis
+
+Note that a package only ineeds to be installed on a particular computer once.  However, when you open anew R session and wnat to use it, it will hve to be loaded with  the command (for example)
+
+```{r,eval=FALSE}
+library(pegas)
+```
+
+
+
+#### Projects
+
+R Studio uses the "project" as a means of file organization. In essence, a project consists of all of the files - scripts, data, etc - that are found in a given folder.  This works really well in most instances, so the first thing you should do is to get one established:
+
+1.  Prior to opening RStudio, create a folder for your work in a convenient location 
+2.  When you open RStudio, go to Project -> new project and select "Existing Directory"  
+3.  In the window that opens, navigate to the directory you created and select it.  Now everything you create will be in that directory.  
+
+#### Some Housekeeping.  
+
+ you through the key steps; in brief they are:
+
+1.  Create a project on your flash drive.
+2.  Start a new Rmarkdown document - call it "Installation"
+3.  Create a new chunk by clicking on Chunk -> Insert Chunk.  
+4.  Put the following commands into the chunk (only **don't** include the eval=FALSE option in the first line - it shoudld just read ```{r}):
+
+```{r,eval=FALSE}
+install.packages("devtools")
+library(devtools)
+install_github("bjcochrane/TeachingPopGen")
+```
+Now run the chunk,  This will probably take a while, but when it is done you will have the latest version of TeachingPopGen installed on your machine.  To then make it available for your current session, create anther chunk and enter
+```{r}
+library(TeachingPopGen)
+```
+
+
+Finally, save your file; give it a name you will remember.  In the likely event that TeachingPopGen is updated, you will need to rerun the last two lines of the chunk you created (you should not need to reinstall devtools.)
+
+### Some Basics
+
+Some of the important things you will need to be able to do are given below.  You will need to be able to use these commands regularly, so you should try them yourself.  And type them out - do not cut and paste!  There will be times for that, but now you want to be able to do it from scratch.  Also, in the following, I have used the results='hide' option on each chunk; you will need to run the commands yourself in order to see the results.
+
+
+#### Basic vector manipulation
+```{r,results='hide'}
+vec <-c(2,3,5,7,9) #create a vector
+vec # display it on the console.
+```
+
+```{r,results='hide'}
+vec <-2*vec #multiply each element of the vector by 2
+vec
+```
+Vectors can also contain character data.  **Character data must always be surrounded by either single or double quotes**.
+
+```{r}
+vec2 <-c("I","have","too","many","cats")
+vec2
+```
+And the can be concatenated:
+```{r}
+snt <-paste(vec2,sep=" ")
+snt
+```
+And this can be made prettier by 
+```{r}
+snt <-paste(vec2,collapse=" ")
+snt
+```
+**subsetting** involves selection of elements of an object.  Here's an example in which we subset a vector in a number of ways (described in the comments that follow each command in the code)
+
+```{r}
+vec <-c(1,5,7,9) #create a vector
+vec # output the entire vector
+vec[2] #output the second element of the vector
+vec[1:3] #output the first three elements
+vec[c(1,4)] #output the first and fourth elements
+```
+
+##### A couple of tricks
+
+There are other ways to create vectors, for example
+  
+```{r}  
+nseq <-seq(1,10,2) #numbers from 1 to ten, incremented by 2
+nseq
+rseq <-rep(5,20) #create a vector of 20 5's
+
+rseq
+```  
+#### Functions
+
+All of the things we have been doing (e. g. seq, rep, runif, etc) are builtin functions.  It is also an easy matter for the user to write her or his own.  For example, suppose we wanted to write a function to add 3 to every element of a vector
+
+```{r}
+th <-function(x){
+  x+3
+}
+```
+Pretty trivial, but in fact any code can be placed between the brackets; the function will return the last object determined (in this case the vector containing x+3), for example
+```{r}
+th(vec)
+```
+
+#### Simple plotting
+
+R has a very powerful builtin graphics program.  Here are some simple things to try:
+```{r}
+x1 <-c(2,4,6,8)
+y1 <-c(5.5,7.3,9.1,12.2)
+plot(x1) #create a plot with x1 values on the y and their order on the left
+```
+```{r,results='hide'}
+plot(x1,y1)
+```
+We could connect the dots:
+```{r,results='hide'}
+plot(x1,y1,type="l")
+```
+We did so by adding the type="l" parameter to our plot function call.  
+
+Or (for our first statistical application) we can plot the points and a best-fit line:
+
+```{r,results='hide'}
+plot(x1,y1)
+reg <-lm(y1~x1)
+abline(reg,col="red")
+```
+This last chunk requires a bit of explanation, in that it involves 3 important concepts.
+
+1.  once a plot has been created, a line can be added to it by use of the abline function.
+2.  The lm function performs a linear regression of a y value (in this case y1) on x.  It returns a list of data (you should see it in the environment window; click on the blue arrow to see what's in it).  By then including it in the call to abline, the fitted linear regression line is plotted.
+3.  The col="red" parameter specifies the color of the line.  
+
+And finally, try a few more graphical parameters:
+```{r}
+plot(x1,y1,xlab="X Values",ylab="Y Values",main="Fitted Regression")
+abline(reg,col="red")
+```
+
+If you want to see more about graphical options, type ?plot on the console prompt.
+
+#### Distributions and histograms
+
+Let's start by creating some normally distributed data, 1000 numbers  with mean of 200 and a standard deviation of 40
+```{r}
+dat.norm <-rnorm(1000,200,40)
+```
+And some basic things we can do with that:
+
+```{r}
+l <-length(dat.norm) #how many points are there?
+m <-mean (dat.norm) #mean of points generated
+sd <-sd(dat.norm) #and the standard deviation
+qu <-quantile(dat.norm,c(.025,.975))
+l;m;sd;qu
+```
+And a couple of ways to plot - first with base R:
+```{r}
+hist(dat.norm,xlab="Value",ylab="Number",main="Mean=200,sd=40")
+abline(v=qu,col="red")
+```
+This can be made prettier with the colhist function from TPG:
+```{r}
+colhist(dat.norm,labs=c("Value","Number","mean=200,sd=40"))
+```
+Notice the difference in the format for specifying axis labels and title.
+
+#### Ending the session
+
+When you are done and exit out of R studio, you will be asked if you want to save the workspace.  If you do, then the next time you open the project, all of your files, variables, etc. will be restored.  If you do not, your files will be opened, however you will need to rerun your code to generate objects, functions, etc.  
+
+### Conclusions
+
+So at this point, you should have
+
+1.  Set up your project
+2.  Installed the latest version of TPG
+3.  Learned a bit about vectors, functions and plotting.
+
+Our next step will be to look more closely at how real data are accessed, organized and manipulated in R.  With that in place, we can then start exploring some real problems in population genetics.
+

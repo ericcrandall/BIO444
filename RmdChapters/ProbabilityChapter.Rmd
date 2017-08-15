@@ -1,0 +1,29 @@
+---
+title: <center>Introduction to Probability</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography:  ~/Dropbox/TPG.bib
+output: 
+    html_document:
+       theme: paper
+       toc: yes
+       toc_depth: 5
+---
+
+```{r child="../Rmd/CoinFlip1.Rmd"}
+
+```
+
+```{r child="../Rmd/Normal.Rmd"}
+
+```
+
+```{r child="../Rmd/chisq.Rmd"}
+
+```
+
+
+```{r child="../Rmd/BayesIntro.Rmd"}
+
+```
+

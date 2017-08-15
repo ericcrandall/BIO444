@@ -1,0 +1,178 @@
+---
+title: 
+- <center>Equilibria I </br>Hardy Weinberg</center>
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+
+```{r, echo=FALSE}
+library(TeachingPopGen)
+```
+
+
+## What is it?
+
+The starting point for in population genetics is the  Hardy Weinberg equilibrium.  It is the basis on which everything is built, so a thorough understanding of what it says and what it assumes is critical.  In this unit, we will briefly go through the basics of it ( the familiar p and q approach).  We will then examine it in more detail.
+
+
+### A Sample Problem
+
+So let's approach this as a problem in data analysis.  The following are the data that were part of the opening day "quiz" - frequencies of Single Nucleotide Polymorphism (SNP) number rs3739020 from the 1000 Genomes Project.
+
+Genotype | Number
+---|---  
+G G | 6
+G T | 28
+T T | 66
+
+We want to ask two questions:
+
+1.  What are the allele frequencies (i. e. how many G's and how many T's are there)?
+2.  Most importantly, if these individuals were to mate at random, what would be the allele frequencies in the F1 generation?
+
+#### Determining Allele Frequencies
+
+So for question 1 let's proceed as follows.  First of all, we will create a vector with of the observed data.
+```{r}
+obs <- c(6,28,66)
+```
+Note that c() is a function that concatenates a number of values, in this case integers, in order to create a vector.
+
+Now, let's ask how many G's there are.  Recognizing that every GG homozygote  has two and every GT heterozygote has one, we can calculate that by
+```{r}
+nA <-2*obs[1]+obs[2]
+nA
+```
+And to make that a frequency, we need to divide it by the total number of *alleles*, which, since these are diploid individuals, is simply two times the number of individuals genotyped (N).
+```{r}
+N <-sum(obs)
+p <-nA/(2*N)
+p
+
+```
+Now, we could repeat that process to determine the frequency of T, but here one of the simplest but most important relationships comes in to play.  Note that this is a biallelic locus, so if a particular allele is not G, it has to be T.  Thus, if we set the frequency of T to be q, then p+q must equal 1, or
+```{r}
+q <-1-p
+q
+```
+#### Random Mating
+
+Now, suppose we turn the question around.  Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see?  There are two ways we can approach this, one fairly simple and one a bit more involved.  First, the simple one.  Think of the population as orginating from a pool of alleles with frequencies p and q.  If that is the case, then we can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as
+
+p{GG} = p{G}*p{G} = p^2^  
+p{TT} = p{T}*p{T} = q^2^  
+p{GT} =p{GT} or p{TG}   
+= P{G} * P{T} + P{T} *P{G}  
+= pq + qp   
+= 2pq
+
+We can can make a vector of those frequencies as follows
+```{r}
+fexp <-c(p^2,2*p*q,q^2)
+fexp
+```
+And finally, given those frequencies, what numbers of genotypes would we expect to see in a sample size of N?  Here, R makes it very easy to multiply the frequency vector by N
+
+```{r}
+Nexp <-fexp*N # multiplies each element of fexp by N
+as.integer(Nexp) # get rid of decimal positions
+```
+Contrast that with our observed numbers
+```{r}
+obs
+```
+And they look pretty close.  Of course we need to test that statistically (which we will in a bit), but before we do so, let's see what's happened to p and q as a result of random mating:
+```{r}
+p1 <-(2*Nexp[1]+Nexp[2])/(2*N)
+q1 <- 1-p1
+p1;q1
+```    
+And again, contrast those values with what we determined from the original data:
+
+```{r}
+p;q
+```
+And note.  **p and q have not changed**.
+
+
+#### A Sample problem:
+
+Below are some (completely made-up) data.  Use them to 
+
+1.  Calculate p and q.
+2.  calculate expected genotype frequencies
+3.  Calculate expected genotype numbers
+
+Genotype | Number
+---|---
+AA|69
+Aa|101
+aa|30
+
+```{r}
+obs <-c(69,101,30)
+p <-(2*obs[1]+obs[2])/(2*sum(obs))
+p
+```
+```{r}
+q <-1-p
+```
+```{r}
+genos <-c(p^2,2*p*q,q^2)
+genos
+gebis2 <-genos*sum(obs)
+```
+
+### And Why is This Important?
+
+So what have we shown?  We can summarize as follows:
+
+1.  Given a random mating population, with allele frequencies p and q, the expected genotype frequencies are p^2^, 2pq, and q^2^.
+2.  In an ideal population, allele frequencies do not change.
+3.  One generation of random mating is sufficient to restore HWE to autosomal loci (X linked are a bit different)
+3.  And what is an "ideal" population?  It is one with the following properties  
+
+>* Infinite size  
+>* Random mating  
+>* No Mutation  
+>* No Migration  
+>* No selection
+
+In other words, *A population that is in Hardy Weinberg Equilibrium is not evolving*.  Thus, it becomes the null hypothesis from which we work; hence a deep understanding of its properties is essential if we are to thoroughly understand the genetics of the evolutionary process.
+
+##### A more detailed derivation
+
+In the above, we simply treated mating as involving every individual contributing equally to a pool of gametes and then those gametes being drawn two at a time to create zygotes.  In fact, of course, more typically, individuals are mating with one another and it is their gametes that are combining.  Felsenstein (2016 version, pg.6)  Works this up by first, showing the expected frequencies of all possible random matings:
+
+![](../images/RandomMating.png)
+
+From this, the following can be calculated:
+
+![](../images/RandomMating2.png)
+</br></br>
+
+And inspection of the right side should show you that the expected genotype frequencies are indeed p^2^, 2pq, and q^2^.  
+
+### Calculations Based on Genotype Frequencies
+
+I personally like the above approach, in that it starts with the rawest of raw data - a count of genotypes.  However, at times problems are formulated in terms of genotype *frequencies* rather than numbers.  In those cases, the typical formula given is
+
+p = f(AA) + 1/2(f(Aa))
+
+But let's look at this a little more closely - Suppose we multiply it by 2N/2N.  Then we get
+
+P =(2N*f(AA))+2N*(1/2(f(Aa)))/2N
+
+But what is this?  N * f(AA) is simply the number of AA genotypes counted, and N *F(Aa) is the number of Aa, so this whole equation can be rewritten as
+
+p=(2 * #(AA) + # (Aa))/2N
+
+Which is exactly the same formula as above.  
+
+So to wrap it up, when you start a Hardy-Weinberg problem, the first question to ask is whether you are given genotype *Numbers* or *frequencies* and go from there.  What you do **not** want to do is to treat the numbers as frequencies or vice versa.
+

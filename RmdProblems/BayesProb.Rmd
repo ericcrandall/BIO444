@@ -1,0 +1,82 @@
+---
+title: <center>A Discrete Bayesian Problem</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: no
+       toc_depth: 5
+---
+```{r,echo=FALSE,warning=FALSE}
+library(knitr)
+library(dplyr)
+```
+
+### Background
+
+The following (made up) problem involves the use of the Hardy-Weinberg principle, the calculations of likelihoods (conditional probabilities), and finally Bayes' theorem to answer the question being posed.  If you can work through this, you have a good handle on the basics of all of these areas.
+
+### 1.  The Data
+
+The data below were collected by a time traveler who back to Ohio in the 1700s, collected samples from Native Americans from three tribes, and genotyped them at two SNP loci.  Pct_Population is the percent of the total population consisting of each tribe.  Allele frequencies for the A and B alleles at the two loci are designated as p1 and p2
+
+```{r,echo=FALSE}
+dat <-data.frame(Tribe=c("Shawnee","Myaamia","Delaware"),Pct_Population=c(20,70,10),p1=c(.8,.6,.3),p2=c(.1,.2,.6))
+kable(dat)
+```
+
+### 2.  Expected Genotype frequencies
+
+Now, suppose that in fact individuals of these three tribes do not intermarry but do marry randomly among themselves.  Calculate the expected genotype frequencies in each population for each locus.
+
+```{r,results='hide',echo=FALSE}
+
+### This function simply does HW calculations given some allele frequency x
+
+genocalc <-function(x){
+  c(x^2,2*x*(1-x),(1-x)^2)
+}
+
+### We then apply that function to p1 and p2 for each tribe and display the results.
+
+genos.A <-data.frame(sapply(dat$p1,genocalc),row.names = dat$Tribe)
+colnames(genos.A) <-c("AA","Aa","aa")
+genos.B <-data.frame(sapply(dat$p2, genocalc),row.names=dat$Tribe)
+colnames(genos.B) <-c("BB","Bb","bb")
+kable(genos.A)
+kable(genos.B)
+```
+
+### 3.  Likelihood calculations
+
+Now our time traveler, having returned to the present, discovers she has one sample for which there is no tribal identity.  She genotypes it, and finds that it is AaBB.  Calculate the likelihood that this sample came from an invididual of each of the three tribes.
+
+```{r,echo=FALSE,results='hide'}
+## For this genotype, the probabiliory is the product of genos.A[,2] and genos.B[,1]
+lik <-genos.A[,2]*genos.B[,1]
+dat <-cbind(dat,Lk.AaBB=lik)
+kable(dat)
+```
+
+### 4.  Estimating the probability of origin.
+
+Now, based on what you have calculated, determine the posterior probability that, given the data and the available information (the tribal composition and the allele frequencies), the unknown sample came from an invidual of each of the three tribes.
+
+```{r,echo=FALSE,results="hide"}
+## Calculate weighted likelihoods, giving three values, one for each tribe
+
+dst <-(dat$Pct_Population*dat$Lk.AaBB)
+
+## Now calculate the probability for each population by dividing by the total; add the results to the table
+
+pr <-dst/sum(dst)
+dat <-cbind(dat,Probability=pr)
+kable(dat)
+```
+
+### 5.  Interpretation
+
+1.  Explain in your own words the difference between the likelihood of the genotype that you calculated for each tribe in part 3 and the probabilities you calculated in part 4.  What data did you use in the latter calculation that you didn't in the former?  
+2.  Based on your calculations, what would you conclude about the origin of this particular sample?  As an experimenter, what might you do to strengthen your conclusion?
+

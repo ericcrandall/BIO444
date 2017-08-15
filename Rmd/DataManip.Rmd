@@ -1,0 +1,123 @@
+---
+title: <center>Data in R</center>
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+========================================================
+
+### Background
+
+We said that one of the justifications for using R is its power in data manipulation.  In this unit, we are going to explore just a few of them, using the same example that we used as an illustration in the last unit.  Remember that it is information about frequencies of a single nucleotide polymorphism in the gene HYAL2, which we were able to obtain directly from the web.  We are going to do so again, however this time we will look at how the data is structured and how it can be manipulated more closely.
+
+### Obtaining the Data
+
+First, we need to load out web-scraping package
+```{r}
+library (XML)
+#source("printx.R")
+```
+Next, remember that we used the following command to retrieve the frequency data table.  We will repeat that here, and then look more closely at how we do it and what we get when we do.
+
+We are going to use the function read.HTMLTable, part of the XML package, to get our data.  However, we are going to add a little bit of flexibility to how we do it.
+```{r}
+url <-"http://alfred.med.yale.edu/alfred/SiteTable1A_working.asp?siteuid=" #create a variable with the base URL for all ALFRED data
+siteid <-"SI087775I" #and one for the ALFRED ID of the SNP we are interested in
+dat <-readHTMLTable(paste(url,siteid,sep=""),which=3)
+
+```
+So what did we do?  We can walk through the steps.
+
+1.  We created a variable containing everything in the URL of the page we want to access *except* the ALFRED site ID for the particular snp.  Thus, if we decide subsequently to look for a different site, we can reuse that portion of the url.
+2.  We created another variable (siteid) that is a character string of the site id for the SNP we are interested in.
+3.  In the readHTMLTable command, we used the function paste to concatenate the base url with the site id, creating the complete url for the data we want to retrieve.  Note that the sep="" specification means that no space is inserted between url and siteid.
+4.  The which=3 specifies that what we want is the third table on the web page.  Had we not specified this, readHTMLTable would have returned a "list" of all of the tables it found, and we would need to extract the one we want from it.  We will deal with lists later on; for now, we will avoid that problem for this particular data set.
+
+### Cleaning it up.
+
+Look in the upper right panel.  If all has worked appropriately, the variable dat should be described as 55 observations of 7 variables.  It is, in fact, what is called a "data frame" in R, one of the most widely used data structures.  Think of it as a set of measurements (seven in this case) made on a number of cases (55 here).  Each measurement can be of a different type - a number, a character string, a factor (a classification variable - for example specifying whether individuals in a survey or male or female).  
+
+The easiest way to start looking at the data is simply to display some of it.  The function head(dat) will display the first five lines of the data
+```{r results='asis'}
+printx(head(dat))
+```
+#### Removing the First Two Rows
+
+Remember from last time that we want to remove the first two lines - they contain header information that is, for our purposes, extraneous.  We do that by
+```{r,results="asis"}
+dat <-dat[-c(1:2),]
+printx(head(dat))
+```
+And breaking this down:
+
+1.  since there are two dimensions to dat (observations, or rows, and variables, or columns), we can use matrix notation to specify parts of the data.  In the notation above, the brackets include numbers for [rows,columns]
+2.  We want to delete the first two rows.  To do so, we use the notation dat[-c(1,2),], which says 
+
+>* Create a vector with the numbers -1 and -2 and use it to specify rows
+>* do not specify anything with respect to columns, meaning that they should be left as is
+>* replace dat with the modified version (the function of the <- operator)
+
+Now, when we look in the worspace panel, we see that there are now only 53 observations.  The rest have been deleted.
+
+#### Looking at the Data Structure
+
+One of the most useful functions in R is the str command.  It will provide information on the structure of any object currently in memory.  Let's use it
+```{r}
+str(dat)
+```
+This will look confusing at first.  However, we can make some inferences about it.
+
+1.  There are seven variables, specified as dat$V1 to dat$V7. All have been saved as factors  These can also be specified as dat[,1] to dat[,7]
+2.  A few of these look important - continent(V1), populatio(V2) Sample size and date (V3), and the allele frequencies(V6 and V7)  The other columns however, don't say much of anything - V4 is blank and V5 is full of N.A. entries.  So let's get rid of those two.
+```{r,results="asis"}
+dat <-dat[,-c(4,5)]
+printx(head(dat))
+```
+
+#### Making it a bit more intelligible.
+
+So the extraneous material is gone, but we still have some issues.  For one, the names of the variables are pretty meaningless - what does V1 refer to, for example.  We can fix this by specifying column names as follows:
+
+```{r,results="asis"}
+colnames(dat) <-c("Continent","Population","N", "p","q")
+printx(head(dat))
+```
+And what we have is much cleaner, but we still have some problems.  For one, do we really need the population numbers?  Wouldn't just the descriptive stuf (San, Biaka, etc) suffice?  Second, notice that the sample size column (now labeled with N) includes dates as well as nunmbers; all we want are numbers.
+
+### Avoiding All of This - Use of a Custom Function
+
+To fix all of this, we could do a bunch more manipulations.  However, for our current purposes, the goal of this unit is to get data we can work with, not to explore the vagaries of data munging.  So let's use the read.alfred function to get some data from the web
+
+```{r}
+
+dat <-read.alfred(siteid)
+```
+And we can look at dat:
+```{r createtable2, results="asis"}
+printx(head(dat))
+```
+And bingo!  We have what we want - five variables, each one of which is the appropriate type.  We can now redo our barplot quite simply by
+```{r}
+barplot(dat$P,names.arg=dat$Population, las=2, main="Allele Frequencies by Population",ylab="p", cex.names=.8)
+```
+And breaking that command down, 
+
+1.  We are plotting the allele frequencies P (dat$P)
+2.  We specify that the axes should be labeled by population (names.arg=dat$Population)
+3.  We want to rotate the labels of the bars so they fit; hence the las=2 specification
+4.  We give the plot a title (main=)
+5.  We label the y axis (ylab=)
+6.  For appearances sake, we make specify that the names should be printed at 80% of the default size (cex.names=.8)
+
+### Summary
+
+So what is the takehome lesson here?  We've seen that data can be obtained fairly easily, however we've also seen that it often needs a bunch of processing in order to be useful.  It is with respect to the latter that the use of custom functions becomes valuable.  In this case, we used one, read.alfred, to do the work for us, and if we wanted to, we could run it again to get data for a different SNP.  
+
+From here on out, we will use add-on functions like this extensively.  In some cases they will come from publicly available packages; in other cases they will be "home-grown" and accessed as above with the source command.  In either case, should you wish, you can look at the content of the function to better understand its operation:
+
+```{r}
+read.alfred
+```
+
