@@ -4825,3 +4825,68 @@ The file `participants_DIPnet_SA.csv` contains information about all of the part
  
  Where `domain` is the first item that comes after the @ sign in the email address. Write a regular expression search and replace command that will rearrange the data to this format.
  
+# Using remote servers
+
+#### Questions:
+- "How can I control remote computers?"
+- "How can I copy files to and from remote computers?"
+
+Another powerful feature of linux/unix is that, once you know how it works, you can use it to control computers on other parts of campus or other parts of the world! This is especially important in today's world, where big data requires that we crunch numbers on multiple computational servers at one time.
+
+There are two main commands that you'll need to access a remote server: `ssh` (for secure shell) and `scp` (for secure copy). `ssh` is used to connect to the remote server, and `scp` is used to copy files to and from the server.
+
+## Secure Shell (ssh)
+SSH provides a secure channel over an unsecured network in a client-server architecture, connecting an SSH client application with an SSH server. It was designed in 1995 as a more secure replacement for telnet. On Unix-like systems, the list of authorized public keys is typically stored in the home directory of the user that is allowed to log in remotely, in the file ~/.ssh/authorized_keys.[7] This file is respected by SSH only if it is not writable by anything apart from the owner and root. SSH also supports password-based authentication that is encrypted by automatically generated keys. We typically use this latter method to access ssh servers. SSH is typically regarded as a secure method of transferring information, although Wikileaks has revealed that the US Government has developed hacks to intercept ssh and scp transfers.
+
+To connect to a remote server:
+~~~
+$ ssh cran5048@treebeard.csumb.edu
+
+The authenticity of host 'treebeard.csumb.edu (172.16.21.113)' can't be established.
+RSA key fingerprint is SHA256:UnYIKvtdldhl8uX271Jlro0pmak+UYx9bNL6JmiWWVc.
+
+Are you sure you want to continue connecting (yes/no)? yes
+
+Warning: Permanently added 'treebeard.csumb.edu' (RSA) to the list of known hosts.
+Warning - unauthorized access, attempted access, or use of any State computing system is a violation of Section 502 of the California Penal Code and/or applicable Federal Laws.
+
+cran5048@treebeard.csumb.edu's password: XXXXXXXX
+Last login: Wed Aug 30 13:04:53 2017 from 10.11.86.185
+[cran5048@treebeard ~]$ 
+~~~
+(or if you are in the same domain as the server you can just include the server name)
+
+Now you can control this computer (to the extent that your permissions allow you) in exactly the same way as you use unix to interact with your own computer! To end an ssh session simply type: 
+
+~~~
+[cran5048@treebeard ~]$ logout
+Connection to treebeard.csumb.edu closed.
+~~~
+
+## Secure Copy (scp)
+
+The other thing you need to able to do with a remote server is to copy files between your computer and the remote location. `scp` fits the bill here, with syntax that is basically the same as `cp`. So where you might use the following cp command:
+
+~~~
+cp /home/eric/images/image*.jpg /home/eric/archive
+~~~
+
+You would use this equivalent command for scp
+
+~~~
+scp /home/eric/images/image*.jpg eric@myhost.com:/home/eric/archive
+~~~
+
+Or, you could specify a remote location as the source location if you want to download files. For example,
+
+~~~
+scp eric@myhost.com:/home/eric/archive/image*.jpg /home/eric/downloads
+~~~
+ 
+ ...would download all the files in the remote directory /home/eric/archive on myhost.com whose name starts with "image" and ends in .jpg, into the local directory /home/eric/downloads.
+
+#### Challenge 1
+Try the following:
+
+Create a file with some text in it, and copy it to your account on the CSUMB computational server Treebeard. Login (with ssh) to Treebeard to check that the file was copied properly.
+

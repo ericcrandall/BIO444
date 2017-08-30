@@ -174,6 +174,10 @@ $(document).ready(function () {
 <li><a href="#writing-replacement-patterns">Writing Replacement Patterns</a></li>
 </ul></li>
 </ul></li>
+<li><a href="#using-remote-servers">Using remote servers</a><ul>
+<li><a href="#secure-shell-ssh">Secure Shell (ssh)</a></li>
+<li><a href="#secure-copy-scp">Secure Copy (scp)</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -2562,6 +2566,45 @@ cut -d , -f 1,3  </code></pre>
 </ul>
 <p>Where <code>domain</code> is the first item that comes after the @ sign in the email address. Write a regular expression search and replace command that will rearrange the data to this format.</p>
 </div>
+</div>
+</div>
+</div>
+<div id="using-remote-servers" class="section level1">
+<h1>Using remote servers</h1>
+<div id="questions-6" class="section level4">
+<h4>Questions:</h4>
+<ul>
+<li>“How can I control remote computers?”</li>
+<li>“How can I copy files to and from remote computers?”</li>
+</ul>
+<p>Another powerful feature of linux/unix is that, once you know how it works, you can use it to control computers on other parts of campus or other parts of the world! This is especially important in today’s world, where big data requires that we crunch numbers on multiple computational servers at one time.</p>
+<p>There are two main commands that you’ll need to access a remote server: <code>ssh</code> (for secure shell) and <code>scp</code> (for secure copy). <code>ssh</code> is used to connect to the remote server, and <code>scp</code> is used to copy files to and from the server.</p>
+</div>
+<div id="secure-shell-ssh" class="section level2">
+<h2>Secure Shell (ssh)</h2>
+<p>SSH provides a secure channel over an unsecured network in a client-server architecture, connecting an SSH client application with an SSH server. It was designed in 1995 as a more secure replacement for telnet. On Unix-like systems, the list of authorized public keys is typically stored in the home directory of the user that is allowed to log in remotely, in the file ~/.ssh/authorized_keys.[7] This file is respected by SSH only if it is not writable by anything apart from the owner and root. SSH also supports password-based authentication that is encrypted by automatically generated keys. We typically use this latter method to access ssh servers. SSH is typically regarded as a secure method of transferring information, although Wikileaks has revealed that the US Government has developed hacks to intercept ssh and scp transfers.</p>
+<p>To connect to a remote server: <sub>~</sub> $ ssh <a href="mailto:cran5048@treebeard.csumb.edu">cran5048@treebeard.csumb.edu</a></p>
+<p>The authenticity of host ‘treebeard.csumb.edu (172.16.21.113)’ can’t be established. RSA key fingerprint is SHA256:UnYIKvtdldhl8uX271Jlro0pmak+UYx9bNL6JmiWWVc.</p>
+<p>Are you sure you want to continue connecting (yes/no)? yes</p>
+<p>Warning: Permanently added ‘treebeard.csumb.edu’ (RSA) to the list of known hosts. Warning - unauthorized access, attempted access, or use of any State computing system is a violation of Section 502 of the California Penal Code and/or applicable Federal Laws.</p>
+<p><a href="mailto:cran5048@treebeard.csumb.edu's">cran5048@treebeard.csumb.edu's</a> password: XXXXXXXX Last login: Wed Aug 30 13:04:53 2017 from 10.11.86.185 [<a href="mailto:cran5048@treebeard">cran5048@treebeard</a> ~]$ <sub>~</sub> (or if you are in the same domain as the server you can just include the server name)</p>
+<p>Now you can control this computer (to the extent that your permissions allow you) in exactly the same way as you use unix to interact with your own computer! To end an ssh session simply type:</p>
+<pre><code>[cran5048@treebeard ~]$ logout
+Connection to treebeard.csumb.edu closed.</code></pre>
+</div>
+<div id="secure-copy-scp" class="section level2">
+<h2>Secure Copy (scp)</h2>
+<p>The other thing you need to able to do with a remote server is to copy files between your computer and the remote location. <code>scp</code> fits the bill here, with syntax that is basically the same as <code>cp</code>. So where you might use the following cp command:</p>
+<pre><code>cp /home/eric/images/image*.jpg /home/eric/archive</code></pre>
+<p>You would use this equivalent command for scp</p>
+<pre><code>scp /home/eric/images/image*.jpg eric@myhost.com:/home/eric/archive</code></pre>
+<p>Or, you could specify a remote location as the source location if you want to download files. For example,</p>
+<pre><code>scp eric@myhost.com:/home/eric/archive/image*.jpg /home/eric/downloads</code></pre>
+<p>…would download all the files in the remote directory /home/eric/archive on myhost.com whose name starts with “image” and ends in .jpg, into the local directory /home/eric/downloads.</p>
+<div id="challenge-1-1" class="section level4">
+<h4>Challenge 1</h4>
+<p>Try the following:</p>
+<p>Create a file with some text in it, and copy it to your account on the CSUMB computational server Treebeard. Login (with ssh) to Treebeard to check that the file was copied properly.</p>
 </div>
 </div>
 </div>
