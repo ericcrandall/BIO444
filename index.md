@@ -8,13 +8,7 @@ author: Dr. Eric Crandall
 
 
 - [Introduction to Unix](pages/introduction_to_unix.html)
-- [Overview](pages/overview.html)
-- [Making an independent website](pages/independent_site.html)
-- [Making a personal site](pages/user_site.html)
-- [Making a site for a project](pages/project_site.html)
-- [Making a jekyll-free site](pages/nojekyll.html)
-- [Testing your site locally](pages/local_test.html)
-- [Resources](pages/resources.html)
+
 
 
 This site is authored on [Github Pages](https://pages.github.com), the sites uses [Jekyll](https://jekyllrb.com/), a
