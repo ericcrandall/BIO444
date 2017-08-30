@@ -1,21 +1,19 @@
 ---
 title: "Introduction to Linux/Unix"
 author: "Software Carpentry & Eric D. Crandall"
-date: '`r Sys.Date()`'
+date: "6/12/2017"
 output:
   html_document:
     keep_md: yes
     toc: yes
     toc_depth: 3
-  md_document:
-    toc: yes
-    variant: markdown_github
+  md_document: default
   pdf_document:
     toc: yes
     toc_depth: 3
 ---
 
-```{r setup, include=T}
+```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -25,16 +23,28 @@ knitr::opts_chunk$set(echo = TRUE)
 #### Datasets that we will use in this lesson:
   - Nelle's Filesystem 
     - [*Google Drive*](https://drive.google.com/open?id=0B04rMcAYCuEdV3pEUU00SG4tSlU)
-    - [*Webserver*](https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip)
-
+    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/filesystem)
+  - Pelagic Fishes Metadata
+    - [*Google Drive*](https://drive.google.com/open?id=0BxvcQQYg3-HadEExRlhpa1NwcXM)
+    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/pelagics_metadata.txt)
+  - Pelagic Fishes Coordinates
+    - [*Google Drive*](https://drive.google.com/open?id=0BxvcQQYg3-HadEExRlhpa1NwcXM)
+    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/lat_longs.txt)
+  - DIPnet South Africa Participant List
+    - [*Google Drive*](https://drive.google.com/open?id=0BxvcQQYg3-HadEExRlhpa1NwcXM)
+    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/participants_DIPnet_SA.csv)
+    
 ##### Downloading Nelle's Filesystem
 
-If you are having difficulty in downloading from Google Drive, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:
+If you are having difficulty in downloading, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:
 
 ~~~
-$ curl https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip > filesystem.zip
+$ curl http://ericcrandall.org/DIPnet_SA/filesystem.zip > filesystem.zip
 $ unzip filesystem.zip
 ~~~
+
+  
+
 ---
 title: "Introducing the Shell"
 teaching: 5
@@ -319,7 +329,7 @@ which will be constructed in a similar way, but not be exactly identical.
 
 On Nelle's computer, the filesystem looks like this:
 
-![The File System](./unix_figures/fig/filesystem.jpg)
+![The File System](./figures/fig/filesystem.jpg)
 
 At the top is the **root directory**
 that holds everything else.
@@ -351,7 +361,7 @@ Underneath `/Users`,
 we find one directory for each user with an account on Nelle's machine,
 her colleagues the Mummy and Wolfman.  
 
-![Home Directories](./unix_figures/fig/home-directories.jpg)
+![Home Directories](./figures/fig/home-directories.jpg)
 
 The Mummy's files are stored in `/Users/imhotep`,
 Wolfman's in `/Users/larry`,
@@ -826,8 +836,8 @@ and we will see it in many other tools as we go on.
 > 8. `cd`
 > 9. `cd ..`
 >
-```{r, eval=F,include=T}
- #### Solution
+```{r, eval=F,include=F}
+ #### Note:Solution
  1. No: `.` stands for the current directory.
  2. No: `/` stands for the root directory.
  3. No: Amanda's home directory is `/Users/amanda`.
@@ -850,11 +860,10 @@ and we will see it in many other tools as we go on.
 > 3.  `2012-12-01/ 2013-01-08/ 2013-01-27/`
 > 4.  `original pnas_final pnas_sub`
 >
-![File System for Challenge Questions](./unix_figures/fig/filesystem-challenge.jpg)
-
-
-```{r, eval=F,include=T}
- #### Solution
+> ![File System for Challenge Questions](./figures/fig/filesystem-challenge.jpg)
+>
+```{r, eval=F,include=F}
+ #### Note:Solution
  1. No: there *is* a directory `backup` in `/Users`.
  2. No: this is the content of `Users/thing/backup`,
     but with `..` we asked for one level further up.
@@ -885,8 +894,8 @@ and we will see it in many other tools as we go on.
 > 3.  `ls -r -F /Users/backup`
 > 4.  Either #2 or #3 above, but not #1.
 
-```{r, eval=F,include=T}
- #### Solution
+```{r, eval=F,include=F}
+ #### Note:Solution
   1. No: `pwd` is not the name of a directory.
   2. Yes: `ls` without directory argument lists files and directories
      in the current directory.
@@ -903,8 +912,8 @@ and we will see it in many other tools as we go on.
 > as file permissions and ownership), but the rest should be useful
 > nevertheless.
 >
-```{r, include=T, eval=F}
- #### Solution
+```{r, include=F, eval=F}
+ #### Note:Solution
  The `-l` arguments makes `ls` use a **l**ong listing format, showing not only
  the file/directory names but also additional information such as the file size
  and the time of its last modification. The `-h` argument makes the file size
@@ -921,8 +930,8 @@ and we will see it in many other tools as we go on.
 > In what order does `ls -R -t` display things? Hint: `ls -l` uses a long listing
 > format to view timestamps.
 
-```{r, eval=F, include=T}
- #### Solution
+```{r, eval=F, include=F}
+ #### Note:Solution
  The directories are listed alphabetical at each level, the files/directories
  in each directory are sorted by time of last change.
 > 
@@ -1100,12 +1109,12 @@ holding it down, press the O key) to write our data to disk
 (we'll be asked what file we want to save this to:
 press Return to accept the suggested default of `draft.txt`).
 
-![Nano in Action](./unix_figures/fig/nano-screenshot.png)
+![Nano in Action](./Figures/fig/nano-screenshot.png)
 
 Once our file is saved, we can use `Ctrl-X` to quit the editor and
 return to the shell.
 
-> #### Note:Control, Ctrl, or ^ Key
+> #### Note: Control, Ctrl, or ^ Key
 >
 > The Control key is also called the "Ctrl" key. There are various ways
 > in which using the Control key may be described. For example, you may
@@ -1296,7 +1305,7 @@ lead to data loss. An additional flag, `mv -i` (or `mv --interactive`),
 can be used to make `mv` ask you for confirmation before overwriting.
 
 Just for the sake of consistency,
-`mv` also works on directories
+`mv` also works on directories *without* a recursive flag ;-)
 
 Let's move `quotes.txt` into the current working directory.
 We use `mv` once again,
@@ -1408,8 +1417,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > 3. `mv statstics.txt .`
 > 4. `cp statstics.txt .`
 
-```{r, eval=F,include=T}
- #### Solution
+```{r, eval=F,include=F}
+ #### Note:Solution
  1. No.  While this would create a file with the correct name, the incorrectly named file still exists in the directory
  and would need to be deleted.
  2. Yes, this would work to rename the file.
@@ -1453,8 +1462,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > 3.   `proteins.dat recombine`
 > 4.   `proteins-saved.dat`
 >
-```{r, eval=F,include=T}
- #### Solution
+```{r, eval=F,include=F}
+ #### Note:Solution
  We start in the `/Users/jamie/data` directory, and create a new folder called `recombine`.
  The second line moves (`mv`) the file `proteins.dat` to the new folder (`recombine`).
  The third line makes a copy of the file we just moved.  The tricky part here is where the file was
@@ -1504,8 +1513,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > fructose.dat    sucrose.dat
 > ~~~
 > 
-```{r, eval=F, include=T}
- #### Solution
+```{r, eval=F, include=F}
+ #### Note:Solution
 
  mv *.dat analyzed
  
@@ -1542,8 +1551,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > $ cp amino-acids.txt animals.txt morse.txt 
 > ~~~
 > 
-```{r, eval=F, include=T}
- #### Solution
+```{r, eval=F, include=F}
+ #### Note:Solution
  If given more than one file name followed by a directory name (i.e. the destination directory must 
  be the last argument), `cp` copies the files to the named directory.
 
@@ -1584,7 +1593,7 @@ but it does find the copy in `thesis` that we didn't delete.
 >
 > 3.  When might you want to create a file this way?
 ```{r, eval=F, include=T}
- #### Solution
+ #### Note:Solution
  1.  The touch command generates a new file called 'my_file.txt' in
      your home directory.  If you are in your home directory, you
      can observe this newly generated file by typing 'ls' at the 
@@ -1624,7 +1633,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > ~~~
 > $ mv ___/sucrose.dat  ___/maltose.dat ___
 > ~~~
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solution
  
  $ mv ../analyzed/sucrose.dat ../analyzed/maltose.dat .
@@ -1640,8 +1649,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > What happens when we type `rm -i thesis/quotations.txt`?
 > Why would we want this protection when using `rm`?
 
-```{r, eval=F, include=T}
- #### Solution
+```{r, eval=F, include=F}
+ #### Note:Solution
 
  $ rm: remove regular file 'thesis/quotations.txt'?
  
@@ -1684,8 +1693,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > $ rm -r -i 2016-05-20-data/
 > ~~~
 > 
-```{r, eval=F, include=T}
- #### Solution
+```{r, eval=F, include=F}
+ #### Note:Solution
  The first set of commands achieves this objective.
  First we have a recursive copy of a data folder.
  Then two `rm` commands which remove all files in the specified directories.
@@ -1830,9 +1839,9 @@ $ wc *.pdb
 > 3. `ls *t??ne.pdb`
 > 4. `ls ethane.*`
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 # Solution:
-# Number 3
+  Number 3
 ```
 
 If we run `wc -l` instead of just `wc`,
@@ -2084,7 +2093,7 @@ we get three processes with data flowing from the files,
 through `wc` to `sort`,
 and from `sort` through `head` to the screen.
 
-![Redirects and Pipes](./unix_figures/fig/redirects-and-pipes.png)
+![Redirects and Pipes](./Figures/fig/redirects-and-pipes.png)
 
 This simple idea is why Unix has been so successful.
 Instead of creating enormous programs that try to do many different things,
@@ -2246,7 +2255,7 @@ so this matches all the valid data files she has.
 > 
 >
 > Explain why `-n` has this effect.
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
  #### Solution
 The `-n` flag specifies a numeric sort, rather than alphabetical.
 > 
@@ -2269,7 +2278,7 @@ The `-n` flag specifies a numeric sort, rather than alphabetical.
 > $ wc -l < notes.txt
 > ~~~
 > 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > #### Solution
 `<` is used to redirect input to a command. 
 
@@ -2317,7 +2326,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 >
 > Hint: Try executing each command twice in a row and then examining the output files.
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 # >> appends, > overwrites
 ```
 
@@ -2356,7 +2365,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 >
 > Help Sam by filling in the blanks.
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 > > #### Solution
 > > ~~~
 > > $ cp *calibration.txt /backup/calibration
@@ -2376,7 +2385,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > 2. `wc -l * | sort -n | head -n 1-3`
 > 3. `wc -l * | head -n 3 | sort -n`
 > 4. `wc -l * | sort -n | head -n 3`
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > > #### Solution
 > > Option 4 is the solution.
 > > The pipe character `|` is used to feed the standard output from one process to
@@ -2415,7 +2424,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > (Hint: think about very large data sets.) What other command could
 > you combine with it in a pipe to remove all duplicated lines?
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > > #### Solution
 > > ~~~
 > > $ sort salmon.txt | uniq
@@ -2448,7 +2457,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > 
 > Hint: build the pipeline up one command at a time to test your understanding
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 Solution
  #2012-11-06,rabbit
  #2012-11-06,deer
@@ -2481,7 +2490,7 @@ Solution
 > out what animals the file contains (without any duplicates in their
 > names)?
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 
  #### Solution
 
@@ -2502,7 +2511,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 3. `rm * .txt`
 > 4. `rm *.*`
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > > #### Solution
 > > 1. This would remove `.txt` files with one-character names
 > > 2. This is correct answer
@@ -2535,7 +2544,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 3.  Under what circumstances would your new expression produce an error message
 >     where the original one would not?
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > > #### Solution
 > > 1. 
 > > $ ls *A.txt
@@ -2550,7 +2559,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 
 > #### Challenge: Which Pipe?
 >
-> The file `filesystem/Users/nelle/data/animals.txt` contains 586 lines of data formatted as follows:
+> The file `filesystem/Users/nelle/data/animals.txt` contains lines of data formatted as follows:
 >
 > ~~~
 > 2012-11-05,deer
@@ -2572,7 +2581,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 5.  `cut -d, -f 2 animals.txt | sort | uniq -c`
 > 6.  `cut -d, -f 2 animals.txt | sort | uniq -c | wc -l`
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 
 #### Solution
 Option 5. is the correct answer.
@@ -2598,7 +2607,7 @@ the pipelines (make sure you are in the `filesystem/data` directory).
 > 3. The first three lines and the last two lines of `animals.txt`
 > 4. The second and third lines of `animals.txt`
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 #### Solution
  3.
 
@@ -2912,7 +2921,7 @@ it is possible to see each command as it _would_ be executed. The following diag
 shows what happens when the modified script is executed, and demonstrates how the 
 judicious use of `echo` is a good debugging technique.
 
-![For Loop in Action](./unix_figures/fig/shell_script_for_loop_flow_chart.jpg)
+![For Loop in Action](./Figures/fig/shell_script_for_loop_flow_chart.jpg)
 
 ## Nelle's Pipeline: Processing Files
 
@@ -3104,7 +3113,7 @@ so she decides to get some coffee and catch up on her reading.
 >
 > Why do these two loops give different outputs?
 >
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 #### Solution
 The first code block gives the same output on each iteration through
 the loop.
@@ -3166,7 +3175,7 @@ propane.pdb
 >     from `propane.pdb` will be saved to a file called `alkanes.pdb`.
 > 4.  None of the above.
 >
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > #### Solution
 1. The text from each file in turn gets written to the `alkanes.pdb` file.
 However, the file gets overwritten on each loop interation, so the final content of `alkanes.pdb`
@@ -3194,7 +3203,7 @@ is the text from the `propane.pdb` file.
 > 4.  All of the text from `cubane.pdb`, `ethane.pdb`, `methane.pdb`, `octane.pdb`, `pentane.pdb`
 >     and `propane.pdb` would be printed to the screen and saved to a file called `all.pdb`.
 >
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 #### Solution
 3 is the correct answer. `>>` appends to a file, rather than overwriting it with the redirected
 output from a command.
@@ -3219,7 +3228,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > 3.  Only `cubane.pdb`, `octane.pdb` and `pentane.pdb` are listed.
 > 4.  Only `cubane.pdb` is listed.
 >
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 #### Solution
 > > 4 is the correct answer. `*` matches zero or more characters, so any file name starting with 
 > > the letter c, followed by zero or more other characters will be matched.
@@ -3241,7 +3250,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > 4.  The files `cubane.pdb` and `octane.pdb` will be listed.
 > 5.  Only the file `octane.pdb` will be listed.
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > > #### Solution
 > > 4 is the correct answer. `*` matches zero or more characters, so a file name with zero or more
 > > characters before a letter c and zero or more characters after the letter c will be matched.
@@ -3286,7 +3295,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > ~~~
 > 
 >
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 #### Solution
 The second version is the one we want to run.
 This prints to screen everything enclosed in the quote marks, expanding the
@@ -3317,7 +3326,7 @@ Try both versions for yourself to see the output! Be sure to open the
 > done
 > ~~~
 > 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 #### Solution
 We have a nested loop, i.e. contained within another loop, so for each species
 in the outer loop, the inner loop (the nested loop) iterates over the list of
@@ -3769,7 +3778,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > 3. The first and the last line of each file in the `molecules` directory
 > 4. An error because of the quotes around `*.pdb`
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solution
  The correct answer is 2. 
 
@@ -3810,7 +3819,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > `uniq` to print a list of the unique species appearing in each of
 > those files separately.
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solution
 
  ~~~
@@ -3843,7 +3852,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > would print the name of the `.pdb` file in `/tmp/data` that has
 > the most lines.
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solution
 
  
@@ -3873,7 +3882,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > running it. In fact, the shell *always* adds commands to the log
 > before running them. Why do you think it does this?
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solution
  If a command causes something to crash or hang, it might be useful
  to know what that command was, in order to investigate the problem.
@@ -3912,7 +3921,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > ~~~
 > 
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
  #### Solutions
  Script 1 would print out a list of all files containing a dot in their name.
 
@@ -3957,7 +3966,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > What is the output showing you?
 > Which line is responsible for the error?
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > Solution:
 > The `-x` flag causes `bash` to run in debug mode.
 > This prints out each command as it is run, which will help you to locate errors.
@@ -4249,7 +4258,7 @@ Again,
 it has a lot of options;
 to show how the simplest ones work, we'll use the directory tree in Figure 6.
 
-![File Tree for Find Example](./unix_figures/fig/find-file-tree.jpg)
+![File Tree for Find Example](./figures/fig/find-file-tree.jpg)
 
 Nelle's `writing` directory contains one file called `haiku.txt` and four subdirectories:
 `thesis` (which contains a sadly empty file, `empty-draft.md`),
@@ -4492,7 +4501,7 @@ about them."
 > 3. `grep -w "of" haiku.txt`
 > 4. `grep -i "of" haiku.txt`
 
-```{r, eval=F, include=T}
+```{r, eval=F, include=F}
 > #### Solution
 > The correct answer is 3, because the `-w` flag looks only for whole-word matches.
 > The other options will all match "of" when part of another word.
@@ -4508,7 +4517,7 @@ about them."
 > ~~~
 > 
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 > #### Solution
 > 1. Find all files with a `.dat` extension in the current directory
 > 2. Count the number of lines each of these files contains
@@ -4531,7 +4540,7 @@ about them."
 > 3.  `grep -v "temp" $(find data -name '*s.txt')`
 > 4.  None of the above.
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
  #### Solution
  The correct answer is 1. Putting the match expression in quotes prevents the shell
  expanding it, so it gets passed to the `find` command.
@@ -4587,7 +4596,7 @@ about them."
 >
 > An example of such a file is provided in `/data/animal-counts/animals.txt`
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 > > #### Solution
 > >
 > > ~~~
@@ -4622,7 +4631,7 @@ about them."
 > particular solution is usually chosen based on a combination of
 > yielding the correct result, elegance, readability, and speed.
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 > > #### Solutions
 > > ~~~
 > > for sis in Jo Meg Beth Amy
@@ -4661,7 +4670,7 @@ about them."
 >
 > Hint 2: The value for `-mtime` will need to be negative---why?
 
-```{r, eval=F,include=T}
+```{r, eval=F,include=F}
 > > #### Solution
 > > Assuming that Nelle’s home is our working directory we type:
 > >
