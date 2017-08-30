@@ -7,7 +7,7 @@ author: Dr. Eric Crandall
 ---
 
 
-- [Introduction to Unix](pages/intro_to_unix.html)
+- [Introduction to Unix](pages/introduction_to_unix.html)
 - [Overview](pages/overview.html)
 - [Making an independent website](pages/independent_site.html)
 - [Making a personal site](pages/user_site.html)
