@@ -1,9 +1,3 @@
----
-layout: page
-title: Introduction to Linux/Unix
-description: Unix lesson for BIO444
----
-
 # Introduction to Linux/Unix
 Software Carpentry & Eric D. Crandall  
 `r Sys.Date()`  
@@ -18,18 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 #### Datasets that we will use in this lesson:
   - Nelle's Filesystem 
     - [*Google Drive*](https://drive.google.com/open?id=0B04rMcAYCuEdV3pEUU00SG4tSlU)
-    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/filesystem)
-  - Pelagic Fishes Metadata
-    - [*Google Drive*](https://drive.google.com/open?id=0BxvcQQYg3-HadEExRlhpa1NwcXM)
-    - [*Webserver*](http://ericcrandall.org/DIPnet_SA/pelagics_metadata.txt)
-  
-  
+    - [*Webserver*](https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip)
+
 ##### Downloading Nelle's Filesystem
 
-If you are having difficulty in downloading, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:
+If you are having difficulty in downloading from Google Drive, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:
 
 ~~~
-$ curl http://ericcrandall.org/DIPnet_SA/filesystem.zip > filesystem.zip
+$ curl https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip > filesystem.zip
 $ unzip filesystem.zip
 ~~~
 ---

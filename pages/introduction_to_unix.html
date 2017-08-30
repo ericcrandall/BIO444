@@ -177,8 +177,6 @@ $(document).ready(function () {
 </ul>
 </div>
 
-<pre class="r"><code>library(knitr)
-knitr::opts_chunk$set(echo = TRUE)</code></pre>
 <div id="datasets-that-we-will-use-in-this-lesson" class="section level4">
 <h4>Datasets that we will use in this lesson:</h4>
 <ul>
@@ -190,7 +188,7 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
 </ul>
 <div id="downloading-nelles-filesystem" class="section level5">
 <h5>Downloading Nelle’s Filesystem</h5>
-<p>If you are having difficulty in downloading from Google Drive, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:</p>
+<p>If you are having difficulty in downloading, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:</p>
 <pre><code>$ curl https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip &gt; filesystem.zip
 $ unzip filesystem.zip</code></pre>
 </div>
@@ -440,17 +438,6 @@ animals.txt       morse.txt     planets.txt     sunspot.txt</code></pre>
 <li><code>cd ..</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
- 1. No: `.` stands for the current directory.
- 2. No: `/` stands for the root directory.
- 3. No: Amanda's home directory is `/Users/amanda`.
- 4. No: this goes up two levels, i.e. ends in `/Users`.
- 5. Yes: `~` stands for the user's home directory, in this case `/Users/amanda`.
- 6. No: this would navigate into a directory `home` in the current directory if it exists.
- 7. Yes: unnecessarily complicated, but correct.
- 8. Yes: shortcut to go back to the user's home directory.
- 9. Yes: goes up one level.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challengerelative-path-resolution">Challenge:Relative Path Resolution</h4>
 <p>Using the filesystem diagram below, if <code>pwd</code> displays <code>/Users/thing</code>, what will <code>ls ../backup</code> display?</p>
@@ -465,14 +452,6 @@ animals.txt       morse.txt     planets.txt     sunspot.txt</code></pre>
 <p class="caption">File System for Challenge Questions</p>
 </div>
 </blockquote>
-<pre class="r"><code> #### Solution
- 1. No: there *is* a directory `backup` in `/Users`.
- 2. No: this is the content of `Users/thing/backup`,
-    but with `..` we asked for one level further up.
- 3. No: see previous explanation.
-    Also, we did not specify `-F` to display `/` at the end of the directory names.
- 4. Yes: `../backup` refers to `/Users/backup`.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-ls-reading-comprehension">Challenge: <code>ls</code> Reading Comprehension</h4>
 <p>Assuming a directory structure as in the above Figure (File System for Challenge Questions), if <code>pwd</code> displays <code>/Users/backup</code>, and <code>-r</code> tells <code>ls</code> to display things in reverse order, what command will display:</p>
@@ -484,31 +463,15 @@ animals.txt       morse.txt     planets.txt     sunspot.txt</code></pre>
 <li>Either #2 or #3 above, but not #1.</li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
-  1. No: `pwd` is not the name of a directory.
-  2. Yes: `ls` without directory argument lists files and directories
-     in the current directory.
-  3. Yes: uses the absolute path explicitly.
-  4. Correct: see explanations above.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challengeexploring-more-ls-arguments">Challenge:Exploring More <code>ls</code> Arguments</h4>
 <p>What does the command <code>ls</code> do when used with the <code>-l</code> and <code>-h</code> arguments?</p>
 <p>Some of its output is about properties that we do not cover in this lesson (such as file permissions and ownership), but the rest should be useful nevertheless.</p>
 </blockquote>
-<pre class="r"><code> #### Solution
- The `-l` arguments makes `ls` use a **l**ong listing format, showing not only
- the file/directory names but also additional information such as the file size
- and the time of its last modification. The `-h` argument makes the file size
- &quot;**h**uman readable&quot;, i.e. display something like `5.3K` instead of `5369`.</code></pre>
 <blockquote>
 <h4 id="challengelisting-recursively-and-by-time">Challenge:Listing Recursively and By Time</h4>
 <p>The command <code>ls -R</code> lists the contents of directories recursively, i.e., lists their sub-directories, sub-sub-directories, and so on in alphabetical order at each level. The command <code>ls -t</code> lists things by time of last change, with most recently changed files or directories first. In what order does <code>ls -R -t</code> display things? Hint: <code>ls -l</code> uses a long listing format to view timestamps.</p>
 </blockquote>
-<pre class="r"><code> #### Solution
- The directories are listed alphabetical at each level, the files/directories
- in each directory are sorted by time of last change.
-&gt; </code></pre>
 </div>
 </div>
 <div id="working-with-files-and-directories" class="section level1">
@@ -584,7 +547,7 @@ $ nano draft.txt</code></pre>
 </div>
 <p>Once our file is saved, we can use <code>Ctrl-X</code> to quit the editor and return to the shell.</p>
 <blockquote>
-<h4 id="notecontrol-ctrl-or-key">Note:Control, Ctrl, or ^ Key</h4>
+<h4 id="note-control-ctrl-or-key">Note: Control, Ctrl, or ^ Key</h4>
 <p>The Control key is also called the “Ctrl” key. There are various ways in which using the Control key may be described. For example, you may see an instruction to press the Control key and, while holding it down, press the X key, described as any of:</p>
 <ul>
 <li><code>Control-X</code></li>
@@ -645,7 +608,7 @@ $ ls thesis</code></pre>
 <pre><code>$ ls thesis</code></pre>
 <pre><code>quotes.txt</code></pre>
 <p>One has to be careful when specifying the target file name, since <code>mv</code> will silently overwrite any existing file with the same name, which could lead to data loss. An additional flag, <code>mv -i</code> (or <code>mv --interactive</code>), can be used to make <code>mv</code> ask you for confirmation before overwriting.</p>
-<p>Just for the sake of consistency, <code>mv</code> also works on directories</p>
+<p>Just for the sake of consistency, <code>mv</code> also works on directories <em>without</em> a recursive flag ;-)</p>
 <p>Let’s move <code>quotes.txt</code> into the current working directory. We use <code>mv</code> once again, but this time we’ll just use the name of a directory as the second parameter to tell <code>mv</code> that we want to keep the filename, but put the file somewhere new. (This is why the command is called “move”.) In this case, the directory name we use is the special directory name <code>.</code> that we mentioned earlier.</p>
 <pre><code>$ mv thesis/quotes.txt .</code></pre>
 <p>The effect is to move the file from the directory it was in to the current working directory. <code>ls</code> now shows us that <code>thesis</code> is empty:</p>
@@ -683,15 +646,6 @@ thesis/quotations.txt</code></pre>
 <li><code>cp statstics.txt .</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
- 1. No.  While this would create a file with the correct name, the incorrectly named file still exists in the directory
- and would need to be deleted.
- 2. Yes, this would work to rename the file.
- 3. No, the period(.) indicates where to move the file, but does not provide a new file name; identical file names
- cannot be created.
- 4. No, the period(.) indicates where to copy the file, but does not provide a new file name; identical file names
- cannot be created.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-moving-and-copying">Challenge: Moving and Copying</h4>
 <p>What is the output of the closing <code>ls</code> command in the sequence shown below?</p>
@@ -710,20 +664,6 @@ $ ls</code></pre>
 <li><code>proteins-saved.dat</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
- We start in the `/Users/jamie/data` directory, and create a new folder called `recombine`.
- The second line moves (`mv`) the file `proteins.dat` to the new folder (`recombine`).
- The third line makes a copy of the file we just moved.  The tricky part here is where the file was
- copied to.  Recall that `..` means &quot;go up a level&quot;, so the copied file is now in `/Users/jamie`.
- Notice that `..` is interpreted with respect to the current working
- directory, **not** with respect to the location of the file being copied.
- So, the only thing that will show using ls (in `/Users/jamie/data`) is the recombine folder.
-
- 1. No, see explanation above.  `proteins-saved.dat` is located at `/Users/jamie`
- 2. Yes
- 3. No, see explanation above.  `proteins.dat` is located at `/Users/jamie/data/recombine`
- 4. No, see explanation above.  `proteins-saved.dat` is located at `/Users/jamie`
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-organizing-directories-and-files">Challenge: Organizing Directories and Files</h4>
 <p>Jamie is working on a project and she sees that her files aren’t very well organized:</p>
@@ -735,15 +675,6 @@ $ ls</code></pre>
 <pre><code>$ ls analyzed</code></pre>
 <pre><code>fructose.dat    sucrose.dat</code></pre>
 </blockquote>
-<pre class="r"><code> #### Solution
-
- mv *.dat analyzed
- 
- 
- Jamie needs to move her files `fructose.dat` and `sucrose.dat` to the `analyzed` directory.
- The shell will expand *.dat to match all .dat files in the current directory.
- The `mv` command then moves the list of .dat files to the &quot;analyzed&quot; directory.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-copy-with-multiple-filenames">Challenge: Copy with Multiple Filenames</h4>
 <p>For this exercise, you can test the commands in the <code>filesystem/data directory</code>.</p>
@@ -755,16 +686,6 @@ $ cp amino-acids.txt animals.txt backup/</code></pre>
 <pre><code>amino-acids.txt  animals.txt  backup/  elements/  morse.txt  pdb/  planets.txt  salmon.txt  sunspot.txt</code></pre>
 <pre><code>$ cp amino-acids.txt animals.txt morse.txt </code></pre>
 </blockquote>
-<pre class="r"><code> #### Solution
- If given more than one file name followed by a directory name (i.e. the destination directory must 
- be the last argument), `cp` copies the files to the named directory.
-
- If given three file names, `cp` throws an error because it is expecting a directory
- name as the last argument.
-
-~~~
- cp: target ‘morse.txt’ is not a directory
-~~~</code></pre>
 <blockquote>
 <h4 id="challenge-listing-recursively-and-by-time">Challenge: Listing Recursively and By Time</h4>
 <p>The command <code>ls -R</code> lists the contents of directories recursively, i.e., lists their sub-directories, sub-sub-directories, and so on in alphabetical order at each level. The command <code>ls -t</code> lists things by time of last change, with most recently changed files or directories first. In what order does <code>ls -R -t</code> display things?</p>
@@ -780,7 +701,7 @@ $ touch my_file.txt</code></pre>
 <li><p>When might you want to create a file this way?</p></li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
+<pre class="r"><code> #### Note:Solution
  1.  The touch command generates a new file called 'my_file.txt' in
      your home directory.  If you are in your home directory, you
      can observe this newly generated file by typing 'ls' at the 
@@ -806,30 +727,12 @@ raw/ analyzed/
 $ ls -F analyzed
 fructose.dat glucose.dat maltose.dat sucrose.dat
 $ cd raw/</code></pre>
-<p>Fill in the blanks to move these files to the current folder (i.e., the one she is currently in):</p>
-<pre><code>$ mv ___/sucrose.dat  ___/maltose.dat ___</code></pre>
+<p>What commands could she use to move these files to the current folder? (i.e., the one she is currently in):</p>
 </blockquote>
-<pre class="r"><code> #### Solution
- 
- $ mv ../analyzed/sucrose.dat ../analyzed/maltose.dat .
- 
- 
- Recall that `..` refers to the parent directory (i.e. one above the current directory)
- and that `.` refers to the current directory.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-using-rm-safely">Challenge: Using <code>rm</code> Safely</h4>
 <p>What happens when we type <code>rm -i thesis/quotations.txt</code>? Why would we want this protection when using <code>rm</code>?</p>
 </blockquote>
-<pre class="r"><code> #### Solution
-
- $ rm: remove regular file 'thesis/quotations.txt'?
- 
-  
- The -i option will prompt before every removal. 
- The Unix shell doesn't have a trash bin, so all the files removed will disappear forever. 
- By using the -i flag, we have the chance to check that we are deleting only the files that we want to remove.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-copy-a-folder-structure-sans-files">Challenge: Copy a folder structure sans files</h4>
 <p>You’re starting a new experiment, and would like to duplicate the file structure from your previous experiment without the data files so you can add new data.</p>
@@ -844,20 +747,6 @@ $ cp -r 2016-05-18-data/ 2016-5-20-data/</code></pre>
 <pre><code>$ cp -r 2016-05-18-data/ 2016-05-20-data/
 $ rm -r -i 2016-05-20-data/</code></pre>
 </blockquote>
-<pre class="r"><code> #### Solution
- The first set of commands achieves this objective.
- First we have a recursive copy of a data folder.
- Then two `rm` commands which remove all files in the specified directories.
- The shell expands the '*' wild card to match all files and subdirectories.
-
- The second set of commands have the wrong order: 
- attempting to delete files which haven't yet been copied,
- followed by the recursive copy command which would copy them.
-
- The third set of commands would achieve the objective, but in a time-consuming way:
- the first command copies the directory recursively, but the second command deletes
- interactively, prompting for confirmation for each file and directory.
-&gt; </code></pre>
 </div>
 </div>
 <div id="pipes-and-filters" class="section level1">
@@ -910,8 +799,6 @@ $ wc *.pdb</code></pre>
 <li><code>ls ethane.*</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code># Solution:
-# Number 3</code></pre>
 <p>If we run <code>wc -l</code> instead of just <code>wc</code>, the output shows only the number of lines per file:</p>
 <pre><code>$ wc -l *.pdb</code></pre>
 <pre><code>  20  cubane.pdb
@@ -1045,9 +932,6 @@ $ wc -l *.txt</code></pre>
 22</code></pre>
 <p>Explain why <code>-n</code> has this effect.</p>
 </blockquote>
-<pre class="r"><code> #### Solution
-The `-n` flag specifies a numeric sort, rather than alphabetical.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-what-does-mean">Challenge: What Does <code>&lt;</code> Mean?</h4>
 <p>Change directory to <code>filesystem</code> (the top level of our downloaded example data).</p>
@@ -1056,33 +940,6 @@ The `-n` flag specifies a numeric sort, rather than alphabetical.
 <p>and:</p>
 <pre><code>$ wc -l &lt; notes.txt</code></pre>
 </blockquote>
-<pre class="r"><code>&gt; #### Solution
-`&lt;` is used to redirect input to a command. 
-
-In both examples, the shell returns the number of lines from the input to
-the `wc` command.
-In the first example, the input is the file `notes.txt` and the file name is
-given in the output from the `wc` command.
-In the second example, the contents of the file `notes.txt` are redirected to
-standard input.
-It is as if we have entered the contents of the file by typing at the prompt.
-Hence the file name is not given in the output - just the number of lines.
-Try this for yourself:
-
-
-$ wc -l
-this
-is
-a test
-Ctrl-D # This lets the shell know you have finished typing the input
-
-
-&gt; &gt;
-&gt; &gt; ~~~
-&gt; &gt; 3
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-what-does-mean-1">Challenge: What Does <code>&gt;&gt;</code> Mean?</h4>
 <p>What is the difference between:</p>
@@ -1091,7 +948,6 @@ Ctrl-D # This lets the shell know you have finished typing the input
 <pre><code>$ echo hello &gt;&gt; testfile02.txt</code></pre>
 <p>Hint: Try executing each command twice in a row and then examining the output files.</p>
 </blockquote>
-<pre class="r"><code># &gt;&gt; appends, &gt; overwrites</code></pre>
 <blockquote>
 <h4 id="challenge-more-on-wildcards">Challenge: More on Wildcards</h4>
 <p>Sam has a directory containing calibration data, datasets, and descriptions of the datasets:</p>
@@ -1114,14 +970,6 @@ $ cp 2015-____-____ ~/send_to_bob/all_november_files/
 $ cp ____ ~/send_to_bob/all_datasets_created_on_a_23rd/</code></pre>
 <p>Help Sam by filling in the blanks.</p>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; ~~~
-&gt; &gt; $ cp *calibration.txt /backup/calibration
-&gt; &gt; $ cp 2015-11-* ~/send_to_bob/all_november_files/
-&gt; &gt; $ cp *-23-dataset* ~send_to_bob/all_datasets_created_on_a_23rd/
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-piping-commands-together">Challenge: Piping Commands Together</h4>
 <p>In our current directory, we want to find the 3 files which have the least number of lines. Which command listed below would work?</p>
@@ -1132,13 +980,6 @@ $ cp ____ ~/send_to_bob/all_datasets_created_on_a_23rd/</code></pre>
 <li><code>wc -l * | sort -n | head -n 3</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; Option 4 is the solution.
-&gt; &gt; The pipe character `|` is used to feed the standard output from one process to
-&gt; &gt; the standard input of another.
-&gt; &gt; `&gt;` is used to redirect standard output to a file.
-&gt; &gt; Try it in the `filesystem/molecules` directory!
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-why-does-uniq-only-remove-adjacent-duplicates">Challenge: Why Does <code>uniq</code> Only Remove Adjacent Duplicates?</h4>
 <p>The command <code>uniq</code> removes adjacent duplicated lines from its input. For example, the file <code>filesystem/data/salmon.txt</code> contains:</p>
@@ -1155,12 +996,6 @@ coho
 steelhead</code></pre>
 <p>Why do you think <code>uniq</code> only removes <em>adjacent</em> duplicated lines? (Hint: think about very large data sets.) What other command could you combine with it in a pipe to remove all duplicated lines?</p>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; ~~~
-&gt; &gt; $ sort salmon.txt | uniq
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-pipe-reading-comprehension">Challenge: Pipe Reading Comprehension</h4>
 </blockquote>
@@ -1178,10 +1013,6 @@ steelhead</code></pre>
 <pre><code>$ cat animals.txt | head -n 5 | tail -n 3 | sort -r &gt; final.txt</code></pre>
 <p>Hint: build the pipeline up one command at a time to test your understanding</p>
 </blockquote>
-<pre class="r"><code>Solution
- #2012-11-06,rabbit
- #2012-11-06,deer
- # 2012-11-05,raccoon</code></pre>
 <blockquote>
 <h4 id="challenge-pipe-construction">Challenge: Pipe Construction</h4>
 <p>For the file <code>animals.txt</code> from the previous exercise, the command:</p>
@@ -1197,9 +1028,6 @@ rabbit
 bear</code></pre>
 <p>What other command(s) could be added to this in a pipeline to find out what animals the file contains (without any duplicates in their names)?</p>
 </blockquote>
-<pre class="r"><code> #### Solution
-
-$ cut -d , -f 2 animals.txt | sort | uniq</code></pre>
 <blockquote>
 <h4 id="challenge-removing-unneeded-files">Challenge: Removing Unneeded Files</h4>
 </blockquote>
@@ -1212,15 +1040,6 @@ $ cut -d , -f 2 animals.txt | sort | uniq</code></pre>
 <li><code>rm *.*</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; 1. This would remove `.txt` files with one-character names
-&gt; &gt; 2. This is correct answer
-&gt; &gt; 3. The shell would expand `*` to match everything in the current directory,
-&gt; &gt; so the command would try to remove all matched files and an additional
-&gt; &gt; file called `.txt`
-&gt; &gt; 4. The shell would expand `*.*` to match all files with any extension,
-&gt; &gt; so this command would delete all files
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-wildcard-expressions">Challenge: Wildcard Expressions</h4>
 </blockquote>
@@ -1233,19 +1052,9 @@ Consider the directory <code>filesystem/north-pacific-gyre/2012-07-03</code> : t
 <li><p>Under what circumstances would your new expression produce an error message where the original one would not?</p></li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; 1. 
-&gt; &gt; $ ls *A.txt
-&gt; &gt; $ ls *B.txt
-&gt; &gt; 
-&gt; &gt; 
-&gt; &gt; 2. The output from the new commands is separated because there are two commands.
-&gt; &gt; 3. When there are no files ending in `A.txt`, or there are no files ending in
-&gt; &gt; `B.txt`.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-which-pipe">Challenge: Which Pipe?</h4>
-<p>The file <code>filesystem/Users/nelle/data/animals.txt</code> contains 586 lines of data formatted as follows:</p>
+<p>The file <code>filesystem/Users/nelle/data/animals.txt</code> contains lines of data formatted as follows:</p>
 <pre><code>2012-11-05,deer
 2012-11-05,rabbit
 2012-11-05,raccoon
@@ -1261,10 +1070,6 @@ Consider the directory <code>filesystem/north-pacific-gyre/2012-07-03</code> : t
 <li><code>cut -d, -f 2 animals.txt | sort | uniq -c | wc -l</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code>#### Solution
-Option 5. is the correct answer.
-If you have difficulty understanding why, try running the commands, or sub-sections of
-the pipelines (make sure you are in the `filesystem/data` directory).</code></pre>
 <blockquote>
 <h4 id="challenge-appending-data">Challenge: Appending Data</h4>
 <p>Consider the file <code>animals.txt</code>, used in previous exercise. After these commands, select the answer that corresponds to the file <code>animalsUpd.txt</code>:</p>
@@ -1277,8 +1082,6 @@ $ tail -2 animals.txt &gt;&gt; animalsUpd.txt</code></pre>
 <li>The second and third lines of <code>animals.txt</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code>#### Solution
- 3.</code></pre>
 </div>
 </div>
 <div id="loops" class="section level1">
@@ -1477,42 +1280,6 @@ do
 done</code></pre>
 <p>Why do these two loops give different outputs?</p>
 </blockquote>
-<pre class="r"><code>#### Solution
-The first code block gives the same output on each iteration through
-the loop.
-Bash expands the wildcard `*.pdb` within the loop body (as well as
-before the loop starts) to match all files ending in `.pdb`
-and then lists them using `ls`.
-The expanded loop would look like this:
-~~~~
-for datafile in cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-do
-    ls cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-done
-~~~
-
-
-~~~
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-~~~
-
-
-The second code block lists a different file on each loop iteration.
-The value of the `datafile` variable is evaluated using `$datafile`,
-and then listed using `ls`.
-
-~~~~
-cubane.pdb
-ethane.pdb
-methane.pdb
-octane.pdb
-pentane.pdb
-propane.pdb</code></pre>
 <blockquote>
 <h4 id="challenge-saving-to-a-file-in-a-loop---part-one">Challenge: Saving to a File in a Loop - Part One</h4>
 <p>In the same directory, what is the effect of this loop?</p>
@@ -1528,10 +1295,6 @@ done</code></pre>
 <li>None of the above.</li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; #### Solution
-1. The text from each file in turn gets written to the `alkanes.pdb` file.
-However, the file gets overwritten on each loop interation, so the final content of `alkanes.pdb`
-is the text from the `propane.pdb` file.</code></pre>
 <blockquote>
 <h4 id="challenge-saving-to-a-file-in-a-loop---part-two">Challenge: Saving to a File in a Loop - Part Two</h4>
 <p>In the same directory, what would be the output of the following loop?</p>
@@ -1546,11 +1309,6 @@ done</code></pre>
 <li>All of the text from <code>cubane.pdb</code>, <code>ethane.pdb</code>, <code>methane.pdb</code>, <code>octane.pdb</code>, <code>pentane.pdb</code> and <code>propane.pdb</code> would be printed to the screen and saved to a file called <code>all.pdb</code>.</li>
 </ol>
 </blockquote>
-<pre class="r"><code>#### Solution
-3 is the correct answer. `&gt;&gt;` appends to a file, rather than overwriting it with the redirected
-output from a command.
-Given the output from the `cat` command has been redirected, nothing is printed to the screen.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-limiting-sets-of-files">Challenge: Limiting Sets of Files</h4>
 <p>In the same directory, what would be the output of the following loop?</p>
@@ -1565,9 +1323,6 @@ done</code></pre>
 <li>Only <code>cubane.pdb</code> is listed.</li>
 </ol>
 </blockquote>
-<pre class="r"><code>#### Solution
-&gt; &gt; 4 is the correct answer. `*` matches zero or more characters, so any file name starting with 
-&gt; &gt; the letter c, followed by zero or more other characters will be matched.</code></pre>
 <blockquote>
 <p>How would the output differ from using this command instead?</p>
 <pre><code>for filename in *c*
@@ -1582,10 +1337,6 @@ done</code></pre>
 <li>Only the file <code>octane.pdb</code> will be listed.</li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; 4 is the correct answer. `*` matches zero or more characters, so a file name with zero or more
-&gt; &gt; characters before a letter c and zero or more characters after the letter c will be matched.
-&gt; </code></pre>
 <blockquote>
 <h4 id="note-and-challenge-doing-a-dry-run">Note and Challenge: Doing a Dry Run</h4>
 <p>A loop is a way to do many things at once — or to make many mistakes at once if it does the wrong thing. One way to check what a loop <em>would</em> do is to <code>echo</code> the commands it would run instead of actually running them.</p>
@@ -1606,17 +1357,6 @@ do
   echo &quot;analyze $file &gt; analyzed-$file&quot;
 done</code></pre>
 </blockquote>
-<pre class="r"><code>#### Solution
-The second version is the one we want to run.
-This prints to screen everything enclosed in the quote marks, expanding the
-loop variable name because we have prefixed it with a dollar sign.
-
-The first version redirects the output from the command `echo analyze $file` to
-a file, `analyzed-$file`. A series of files is generated: `cubane.pdb`,
-`ethane.pdb` etc.
-
-Try both versions for yourself to see the output! Be sure to open the 
-`analyzed-*.pdb` files to view their contents.</code></pre>
 <blockquote>
 <h4 id="challenge-nested-loops">Challenge: Nested Loops</h4>
 <p>Suppose we want to set up up a directory structure to organize some experiments measuring reaction rate constants with different compounds <em>and</em> different temperatures. What would be the result of the following code:</p>
@@ -1628,13 +1368,6 @@ do
     done
 done</code></pre>
 </blockquote>
-<pre class="r"><code>#### Solution
-We have a nested loop, i.e. contained within another loop, so for each species
-in the outer loop, the inner loop (the nested loop) iterates over the list of
-temperatures, and creates a new directory for each combination.
-
-Try running the code for yourself to see which directories are created!
-&gt; </code></pre>
 </div>
 </div>
 <div id="shell-scripts" class="section level1">
@@ -1803,20 +1536,6 @@ tail -n $3 $1</code></pre>
 <li>An error because of the quotes around <code>*.pdb</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
- The correct answer is 2. 
-
- The special variables $1, $2 and $3 represent the command line arguments given to the
- script, such that the commands run are:
-
-~~~
- $ head -n 1 cubane.pdb ethane.pdb octane.pdb pentane.pdb propane.pdb
- $ tail -n 1 cubane.pdb ethane.pdb octane.pdb pentane.pdb propane.pdb
-~~~
- 
- The shell does not expand `'*.pdb'` because it is enclosed by quote marks.
- As such, the first argument to the script is `'*.pdb'` which gets expanded within the
- script by `head` and `tail`.</code></pre>
 <blockquote>
 <h4 id="challenge-list-unique-species">Challenge: List Unique Species</h4>
 <p>Leah has several hundred data files, each of which is formatted like this:</p>
@@ -1831,48 +1550,18 @@ tail -n $3 $1</code></pre>
 <p>An example of this type of file is given in <code>filesystem/data/animals.txt</code>.</p>
 <p>Write a shell script called <code>species.sh</code> that takes any number of filenames as command-line parameters, and uses <code>cut</code>, <code>sort</code>, and <code>uniq</code> to print a list of the unique species appearing in each of those files separately.</p>
 </blockquote>
-<pre class="r"><code> #### Solution
-
- ~~~
- # Script to find unique species in csv files where species is the second data field
- # This script accepts any number of file names as command line arguments
-
- # Loop over all files
- for file in $@ 
- do
-    echo &quot;Unique species in $file:&quot;
-    # Extract species names
-    cut -d , -f 2 $file | sort | uniq
- done
- ~~~</code></pre>
 <blockquote>
 <h4 id="challenge-find-the-longest-file-with-a-given-extension">Challenge: Find the Longest File With a Given Extension</h4>
 <p>Write a shell script called <code>longest.sh</code> that takes the name of a directory and a filename extension as its parameters, and prints out the name of the file with the most lines in that directory with that extension. For example:</p>
 <pre><code>$ bash longest.sh /tmp/data pdb</code></pre>
 <p>would print the name of the <code>.pdb</code> file in <code>/tmp/data</code> that has the most lines.</p>
 </blockquote>
-<pre class="r"><code> #### Solution
-
- 
- # Shell script which takes two arguments: 
- #    1. a directory name
- #    2. a file extension
- # and prints the name of the file in that directory
- # with the most lines which matches the file extension.
- 
- wc -l $1/*.$2 | sort -n | tail -n 2 | head -n 1</code></pre>
 <blockquote>
 <h4 id="challenge-why-record-commands-in-the-history-before-running-them">Challenge: Why Record Commands in the History Before Running Them?</h4>
 <p>If you run the command:</p>
 <pre><code>$ history | tail -n 5 &gt; recent.sh</code></pre>
 <p>the last command in the file is the <code>history</code> command itself, i.e., the shell has added <code>history</code> to the command log before actually running it. In fact, the shell <em>always</em> adds commands to the log before running them. Why do you think it does this?</p>
 </blockquote>
-<pre class="r"><code> #### Solution
- If a command causes something to crash or hang, it might be useful
- to know what that command was, in order to investigate the problem.
- Were the command only be recorded after running it, we would not
- have a record of the last command run in the event of a crash.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-script-reading-comprehension">Challenge: Script Reading Comprehension</h4>
 <p>For this question, consider the <code>filesystem/molecules</code> directory once again. This contains a number of <code>.pdb</code> files in addition to any other files you may have created. Explain what a script called <code>example.sh</code> would do when run as <code>bash example.sh *.pdb</code> if it contained the following lines:</p>
@@ -1886,15 +1575,6 @@ done</code></pre>
 <pre><code># Script 3
 echo $@.pdb</code></pre>
 </blockquote>
-<pre class="r"><code> #### Solutions
- Script 1 would print out a list of all files containing a dot in their name.
-
- Script 2 would print the contents of the first 3 files matching the file extension.
- The shell expands the wildcard before passing the arguments to the `example.sh` script.
- 
- Script 3 would print all the arguments to the script (i.e. all the `.pdb` files),
- followed by `.pdb`.
- cubane.pdb ethane.pdb methane.pdb octane.pdb pentane.pdb propane.pdb.pdb</code></pre>
 <blockquote>
 <h4 id="note-and-challenge-debugging-scripts">Note and Challenge: Debugging Scripts</h4>
 <p>Suppose you have saved the following script in a file called <code>do-errors.sh</code> in Nelle’s <code>north-pacific-gyre/2012-07-03</code> directory:</p>
@@ -1910,12 +1590,6 @@ done</code></pre>
 <pre><code>bash -x do-errors.sh *[AB].txt</code></pre>
 <p>What is the output showing you? Which line is responsible for the error?</p>
 </blockquote>
-<pre class="r"><code>&gt; Solution:
-&gt; The `-x` flag causes `bash` to run in debug mode.
-&gt; This prints out each command as it is run, which will help you to locate errors.
-&gt; In this example, we can see that `echo` isn't printing anything. We have made a typo
-&gt; in the loop variable name, and the variable `datfile` doesn't exist, hence returning
-&gt; an empty string.</code></pre>
 </div>
 </div>
 <div id="grepping-and-finding-things" class="section level1">
@@ -2125,18 +1799,11 @@ Software is like that.</code></pre>
 <li><code>grep -i &quot;of&quot; haiku.txt</code></li>
 </ol>
 </blockquote>
-<pre class="r"><code>&gt; #### Solution
-&gt; The correct answer is 3, because the `-w` flag looks only for whole-word matches.
-&gt; The other options will all match &quot;of&quot; when part of another word.</code></pre>
 <blockquote>
 <h4 id="challenge-find-pipeline-reading-comprehension">Challenge: <code>find</code> Pipeline Reading Comprehension</h4>
 <p>Write a short explanatory comment for the following shell script:</p>
 <pre><code>wc -l $(find . -name '*.dat') | sort -n</code></pre>
 </blockquote>
-<pre class="r"><code>&gt; #### Solution
-&gt; 1. Find all files with a `.dat` extension in the current directory
-&gt; 2. Count the number of lines each of these files contains
-&gt; 3. Sort the output from step 2. numerically</code></pre>
 <blockquote>
 <h4 id="challenge-matching-and-subtracting">Challenge: Matching and Subtracting</h4>
 <p>The <code>-v</code> flag to <code>grep</code> inverts pattern matching, so that only lines which do <em>not</em> match the pattern are printed. Given that, which of the following commands will find all files in <code>/data</code> whose names end in <code>s.txt</code> (e.g., <code>animals.txt</code> or <code>planets.txt</code>), but do <em>not</em> contain the word <code>net</code>? Once you have thought about your answer, you can test the commands in the `` directory.</p>
@@ -2147,16 +1814,6 @@ Software is like that.</code></pre>
 <li>None of the above.</li>
 </ol>
 </blockquote>
-<pre class="r"><code> #### Solution
- The correct answer is 1. Putting the match expression in quotes prevents the shell
- expanding it, so it gets passed to the `find` command.
-
- Option 2 is incorrect because the shell expands `*s.txt` instead of passing the wildcard
- expression to `find`.
-
- Option 3 is incorrect because it searches the contents of the files for lines which
- do not match &quot;temp&quot;, rather than searching the file names.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-tracking-a-species">Challenge: Tracking a Species</h4>
 </blockquote>
@@ -2181,63 +1838,17 @@ cut -d , -f 1,3  </code></pre>
 <p>Hint: use <code>man grep</code> to look for how to grep text recursively in a directory and <code>man cut</code> to select more than one field in a line.</p>
 <p>An example of such a file is provided in <code>/data/animal-counts/animals.txt</code></p>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt;
-&gt; &gt; ~~~
-&gt; &gt; grep -w $1 -r $2 | cut -d : -f 2 | cut -d , -f 1,3  &gt; $1.txt
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; &gt;
-&gt; &gt; You would call the script above like this:
-&gt; &gt;
-&gt; &gt; ~~~
-&gt; &gt; $ bash count-species.sh bear .
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-little-women">Challenge: Little Women</h4>
 <p>You and your friend, having just finished reading <em>Little Women</em> by Louisa May Alcott, are in an argument. Of the four sisters in the book, Jo, Meg, Beth, and Amy, your friend thinks that Jo was the most mentioned. You, however, are certain it was Amy. Luckily, you have a file <code>LittleWomen.txt</code> containing the full text of the novel (<code>/writing/data/LittleWomen.txt</code>). Using a <code>for</code> loop, how would you tabulate the number of times each of the four sisters is mentioned?</p>
 <p>Hint: one solution might employ the commands <code>grep</code> and <code>wc</code> and a <code>|</code>, while another might utilize <code>grep</code> options. There is often more than one way to solve a programming task, so a particular solution is usually chosen based on a combination of yielding the correct result, elegance, readability, and speed.</p>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solutions
-&gt; &gt; ~~~
-&gt; &gt; for sis in Jo Meg Beth Amy
-&gt; &gt; do
-&gt; &gt;     echo $sis:
-&gt; &gt; grep -ow $sis littlewomen.txt | wc -l
-&gt; &gt; done
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; &gt;
-&gt; &gt; Alternative, slightly inferior solution:
-&gt; &gt; ~~~
-&gt; &gt; for sis in Jo Meg Beth Amy
-&gt; &gt; do
-&gt; &gt;     echo $sis:
-&gt; &gt; grep -ocw $sis LittleWomen.txt
-&gt; &gt; done
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; &gt;
-&gt; &gt; This solution is inferior because `grep -c` only reports the number of lines matched.
-&gt; &gt; The total number of matches reported by this method will be lower if there is more
-&gt; &gt; than one match per line.
-&gt; </code></pre>
 <blockquote>
 <h4 id="challenge-finding-files-with-different-properties">Challenge: Finding Files With Different Properties</h4>
 <p>The <code>find</code> command can be given several other criteria known as “tests” to locate files with specific attributes, such as creation time, size, permissions, or ownership. Use <code>man find</code> to explore these, and then write a single command to find all files in or below the current directory that were modified by the user <code>ahmed</code> in the last 24 hours.</p>
 <p>Hint 1: you will need to use three tests: <code>-type</code>, <code>-mtime</code>, and <code>-user</code>.</p>
 <p>Hint 2: The value for <code>-mtime</code> will need to be negative—why?</p>
 </blockquote>
-<pre class="r"><code>&gt; &gt; #### Solution
-&gt; &gt; Assuming that Nelle’s home is our working directory we type:
-&gt; &gt;
-&gt; &gt; ~~~
-&gt; &gt; $ find ./ -type f -mtime -1 -user ahmed
-&gt; &gt; ~~~
-&gt; &gt; 
-&gt; </code></pre>
 </div>
 </div>
 <div id="introduction-to-regular-expressions" class="section level1">

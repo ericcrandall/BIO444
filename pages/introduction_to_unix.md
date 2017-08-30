@@ -1,25 +1,8 @@
----
-title: "Introduction to Linux/Unix"
-author: "Software Carpentry & Eric D. Crandall"
-date: '`r Sys.Date()`'
-output:
-  html_document:
-    keep_md: yes
-    toc: yes
-    toc_depth: 3
-  md_document:
-    toc: yes
-    variant: markdown_github
-  pdf_document:
-    toc: yes
-    toc_depth: 3
----
+# Introduction to Linux/Unix
+Software Carpentry & Eric D. Crandall  
+`r Sys.Date()`  
 
-```{r setup, include=FALSE}
-library(knitr)
-knitr::opts_chunk$set(echo = TRUE)
 
-```
 
 
 #### Datasets that we will use in this lesson:
@@ -829,19 +812,7 @@ and we will see it in many other tools as we go on.
 > 8. `cd`
 > 9. `cd ..`
 >
-```{r, eval=F,include=F}
- #### Note:Solution
- 1. No: `.` stands for the current directory.
- 2. No: `/` stands for the root directory.
- 3. No: Amanda's home directory is `/Users/amanda`.
- 4. No: this goes up two levels, i.e. ends in `/Users`.
- 5. Yes: `~` stands for the user's home directory, in this case `/Users/amanda`.
- 6. No: this would navigate into a directory `home` in the current directory if it exists.
- 7. Yes: unnecessarily complicated, but correct.
- 8. Yes: shortcut to go back to the user's home directory.
- 9. Yes: goes up one level.
-> 
-```
+
 
 > #### Challenge:Relative Path Resolution
 >
@@ -855,16 +826,7 @@ and we will see it in many other tools as we go on.
 >
 ![File System for Challenge Questions](./unix_figures/fig/filesystem-challenge.jpg)
 
-```{r, eval=F,include=F}
- #### Note:Solution
- 1. No: there *is* a directory `backup` in `/Users`.
- 2. No: this is the content of `Users/thing/backup`,
-    but with `..` we asked for one level further up.
- 3. No: see previous explanation.
-    Also, we did not specify `-F` to display `/` at the end of the directory names.
- 4. Yes: `../backup` refers to `/Users/backup`.
-> 
-```
+
 
 
 
@@ -887,15 +849,7 @@ and we will see it in many other tools as we go on.
 > 3.  `ls -r -F /Users/backup`
 > 4.  Either #2 or #3 above, but not #1.
 
-```{r, eval=F,include=F}
- #### Note:Solution
-  1. No: `pwd` is not the name of a directory.
-  2. Yes: `ls` without directory argument lists files and directories
-     in the current directory.
-  3. Yes: uses the absolute path explicitly.
-  4. Correct: see explanations above.
-> 
-```
+
 
 > #### Challenge:Exploring More `ls` Arguments
 >
@@ -905,13 +859,7 @@ and we will see it in many other tools as we go on.
 > as file permissions and ownership), but the rest should be useful
 > nevertheless.
 >
-```{r, include=F, eval=F}
- #### Note:Solution
- The `-l` arguments makes `ls` use a **l**ong listing format, showing not only
- the file/directory names but also additional information such as the file size
- and the time of its last modification. The `-h` argument makes the file size
- "**h**uman readable", i.e. display something like `5.3K` instead of `5369`.
-```
+
 
 
 > #### Challenge:Listing Recursively and By Time
@@ -923,12 +871,7 @@ and we will see it in many other tools as we go on.
 > In what order does `ls -R -t` display things? Hint: `ls -l` uses a long listing
 > format to view timestamps.
 
-```{r, eval=F, include=F}
- #### Note:Solution
- The directories are listed alphabetical at each level, the files/directories
- in each directory are sorted by time of last change.
-> 
-```
+
 
 
 ---
@@ -1410,17 +1353,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > 3. `mv statstics.txt .`
 > 4. `cp statstics.txt .`
 
-```{r, eval=F,include=F}
- #### Note:Solution
- 1. No.  While this would create a file with the correct name, the incorrectly named file still exists in the directory
- and would need to be deleted.
- 2. Yes, this would work to rename the file.
- 3. No, the period(.) indicates where to move the file, but does not provide a new file name; identical file names
- cannot be created.
- 4. No, the period(.) indicates where to copy the file, but does not provide a new file name; identical file names
- cannot be created.
-> 
-```
+
 
 > #### Challenge: Moving and Copying
 >
@@ -1455,22 +1388,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > 3.   `proteins.dat recombine`
 > 4.   `proteins-saved.dat`
 >
-```{r, eval=F,include=F}
- #### Note:Solution
- We start in the `/Users/jamie/data` directory, and create a new folder called `recombine`.
- The second line moves (`mv`) the file `proteins.dat` to the new folder (`recombine`).
- The third line makes a copy of the file we just moved.  The tricky part here is where the file was
- copied to.  Recall that `..` means "go up a level", so the copied file is now in `/Users/jamie`.
- Notice that `..` is interpreted with respect to the current working
- directory, **not** with respect to the location of the file being copied.
- So, the only thing that will show using ls (in `/Users/jamie/data`) is the recombine folder.
 
- 1. No, see explanation above.  `proteins-saved.dat` is located at `/Users/jamie`
- 2. Yes
- 3. No, see explanation above.  `proteins.dat` is located at `/Users/jamie/data/recombine`
- 4. No, see explanation above.  `proteins-saved.dat` is located at `/Users/jamie`
-> 
-```
 
 > #### Challenge: Organizing Directories and Files
 >
@@ -1506,17 +1424,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > fructose.dat    sucrose.dat
 > ~~~
 > 
-```{r, eval=F, include=F}
- #### Note:Solution
 
- mv *.dat analyzed
- 
- 
- Jamie needs to move her files `fructose.dat` and `sucrose.dat` to the `analyzed` directory.
- The shell will expand *.dat to match all .dat files in the current directory.
- The `mv` command then moves the list of .dat files to the "analyzed" directory.
-> 
-```
 
 > #### Challenge: Copy with Multiple Filenames
 >
@@ -1544,18 +1452,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > $ cp amino-acids.txt animals.txt morse.txt 
 > ~~~
 > 
-```{r, eval=F, include=F}
- #### Note:Solution
- If given more than one file name followed by a directory name (i.e. the destination directory must 
- be the last argument), `cp` copies the files to the named directory.
 
- If given three file names, `cp` throws an error because it is expecting a directory
- name as the last argument.
-
-~~~
- cp: target ‘morse.txt’ is not a directory
-~~~
-```
 
 > #### Challenge: Listing Recursively and By Time
 >
@@ -1585,7 +1482,8 @@ but it does find the copy in `thesis` that we didn't delete.
 > 2.  Use `ls -l` to inspect the files.  How large is `my_file.txt`?
 >
 > 3.  When might you want to create a file this way?
-```{r, eval=F, include=T}
+
+```r
  #### Note:Solution
  1.  The touch command generates a new file called 'my_file.txt' in
      your home directory.  If you are in your home directory, you
@@ -1624,33 +1522,14 @@ but it does find the copy in `thesis` that we didn't delete.
 > (i.e., the one she is currently in):
 >
 
-```{r, eval=F, include=F}
- #### Solution
- 
- $ mv ../analyzed/sucrose.dat ../analyzed/maltose.dat .
- 
- 
- Recall that `..` refers to the parent directory (i.e. one above the current directory)
- and that `.` refers to the current directory.
-> 
-```
+
 
 > #### Challenge: Using `rm` Safely
 >
 > What happens when we type `rm -i thesis/quotations.txt`?
 > Why would we want this protection when using `rm`?
 
-```{r, eval=F, include=F}
- #### Note:Solution
 
- $ rm: remove regular file 'thesis/quotations.txt'?
- 
-  
- The -i option will prompt before every removal. 
- The Unix shell doesn't have a trash bin, so all the files removed will disappear forever. 
- By using the -i flag, we have the chance to check that we are deleting only the files that we want to remove.
-> 
-```
 
 > #### Challenge: Copy a folder structure sans files
 >
@@ -1684,22 +1563,7 @@ but it does find the copy in `thesis` that we didn't delete.
 > $ rm -r -i 2016-05-20-data/
 > ~~~
 > 
-```{r, eval=F, include=F}
- #### Note:Solution
- The first set of commands achieves this objective.
- First we have a recursive copy of a data folder.
- Then two `rm` commands which remove all files in the specified directories.
- The shell expands the '*' wild card to match all files and subdirectories.
 
- The second set of commands have the wrong order: 
- attempting to delete files which haven't yet been copied,
- followed by the recursive copy command which would copy them.
-
- The third set of commands would achieve the objective, but in a time-consuming way:
- the first command copies the directory recursively, but the second command deletes
- interactively, prompting for confirmation for each file and directory.
-> 
-```
 
 ---
 title: "Pipes and Filters"
@@ -1830,10 +1694,7 @@ $ wc *.pdb
 > 3. `ls *t??ne.pdb`
 > 4. `ls ethane.*`
 
-```{r, eval=F,include=F}
-# Solution:
-  Number 3
-```
+
 
 If we run `wc -l` instead of just `wc`,
 the output shows only the number of lines per file:
@@ -2246,11 +2107,7 @@ so this matches all the valid data files she has.
 > 
 >
 > Explain why `-n` has this effect.
-```{r, eval=F,include=F}
- #### Solution
-The `-n` flag specifies a numeric sort, rather than alphabetical.
-> 
-```
+
 
 > #### Challenge: What Does `<` Mean?
 >
@@ -2269,35 +2126,7 @@ The `-n` flag specifies a numeric sort, rather than alphabetical.
 > $ wc -l < notes.txt
 > ~~~
 > 
-```{r, eval=F, include=F}
-> #### Solution
-`<` is used to redirect input to a command. 
 
-In both examples, the shell returns the number of lines from the input to
-the `wc` command.
-In the first example, the input is the file `notes.txt` and the file name is
-given in the output from the `wc` command.
-In the second example, the contents of the file `notes.txt` are redirected to
-standard input.
-It is as if we have entered the contents of the file by typing at the prompt.
-Hence the file name is not given in the output - just the number of lines.
-Try this for yourself:
-
-
-$ wc -l
-this
-is
-a test
-Ctrl-D # This lets the shell know you have finished typing the input
-
-
-> >
-> > ~~~
-> > 3
-> > ~~~
-> > 
-> 
-```
 
 
 > #### Challenge: What Does `>>` Mean?
@@ -2317,9 +2146,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 >
 > Hint: Try executing each command twice in a row and then examining the output files.
 
-```{r, eval=F, include=F}
-# >> appends, > overwrites
-```
+
 
 > #### Challenge: More on Wildcards
 >
@@ -2356,16 +2183,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 >
 > Help Sam by filling in the blanks.
 
-```{r, eval=F,include=F}
-> > #### Solution
-> > ~~~
-> > $ cp *calibration.txt /backup/calibration
-> > $ cp 2015-11-* ~/send_to_bob/all_november_files/
-> > $ cp *-23-dataset* ~send_to_bob/all_datasets_created_on_a_23rd/
-> > ~~~
-> > 
-> 
-```
+
 
 > #### Challenge: Piping Commands Together
 >
@@ -2376,15 +2194,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > 2. `wc -l * | sort -n | head -n 1-3`
 > 3. `wc -l * | head -n 3 | sort -n`
 > 4. `wc -l * | sort -n | head -n 3`
-```{r, eval=F, include=F}
-> > #### Solution
-> > Option 4 is the solution.
-> > The pipe character `|` is used to feed the standard output from one process to
-> > the standard input of another.
-> > `>` is used to redirect standard output to a file.
-> > Try it in the `filesystem/molecules` directory!
-> 
-```
+
 
 > #### Challenge: Why Does `uniq` Only Remove Adjacent Duplicates?
 >
@@ -2415,14 +2225,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > (Hint: think about very large data sets.) What other command could
 > you combine with it in a pipe to remove all duplicated lines?
 
-```{r, eval=F, include=F}
-> > #### Solution
-> > ~~~
-> > $ sort salmon.txt | uniq
-> > ~~~
-> > 
-> 
-```
+
 
 > #### Challenge: Pipe Reading Comprehension
 
@@ -2448,12 +2251,7 @@ Ctrl-D # This lets the shell know you have finished typing the input
 > 
 > Hint: build the pipeline up one command at a time to test your understanding
 
-```{r, eval=F, include=F}
-Solution
- #2012-11-06,rabbit
- #2012-11-06,deer
- # 2012-11-05,raccoon
-```
+
 
 > #### Challenge: Pipe Construction
 > For the file `animals.txt` from the previous exercise, the command:
@@ -2481,13 +2279,7 @@ Solution
 > out what animals the file contains (without any duplicates in their
 > names)?
 
-```{r, eval=F, include=F}
 
- #### Solution
-
-$ cut -d , -f 2 animals.txt | sort | uniq
-
-```
 
 > #### Challenge: Removing Unneeded Files
 
@@ -2502,17 +2294,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 3. `rm * .txt`
 > 4. `rm *.*`
 
-```{r, eval=F, include=F}
-> > #### Solution
-> > 1. This would remove `.txt` files with one-character names
-> > 2. This is correct answer
-> > 3. The shell would expand `*` to match everything in the current directory,
-> > so the command would try to remove all matched files and an additional
-> > file called `.txt`
-> > 4. The shell would expand `*.*` to match all files with any extension,
-> > so this command would delete all files
-> 
-```
+
 
 > #### Challenge: Wildcard Expressions
 
@@ -2535,18 +2317,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 3.  Under what circumstances would your new expression produce an error message
 >     where the original one would not?
 
-```{r, eval=F, include=F}
-> > #### Solution
-> > 1. 
-> > $ ls *A.txt
-> > $ ls *B.txt
-> > 
-> > 
-> > 2. The output from the new commands is separated because there are two commands.
-> > 3. When there are no files ending in `A.txt`, or there are no files ending in
-> > `B.txt`.
-> 
-```
+
 
 > #### Challenge: Which Pipe?
 >
@@ -2572,14 +2343,7 @@ $ cut -d , -f 2 animals.txt | sort | uniq
 > 5.  `cut -d, -f 2 animals.txt | sort | uniq -c`
 > 6.  `cut -d, -f 2 animals.txt | sort | uniq -c | wc -l`
 
-```{r, eval=F, include=F}
 
-#### Solution
-Option 5. is the correct answer.
-If you have difficulty understanding why, try running the commands, or sub-sections of
-the pipelines (make sure you are in the `filesystem/data` directory).
-
-```
 
 > #### Challenge: Appending Data
 >
@@ -2598,11 +2362,7 @@ the pipelines (make sure you are in the `filesystem/data` directory).
 > 3. The first three lines and the last two lines of `animals.txt`
 > 4. The second and third lines of `animals.txt`
 
-```{r, eval=F, include=F}
-#### Solution
- 3.
 
-```
 
 ---
 title: "Loops"
@@ -3104,44 +2864,7 @@ so she decides to get some coffee and catch up on her reading.
 >
 > Why do these two loops give different outputs?
 >
-```{r, eval=F,include=F}
-#### Solution
-The first code block gives the same output on each iteration through
-the loop.
-Bash expands the wildcard `*.pdb` within the loop body (as well as
-before the loop starts) to match all files ending in `.pdb`
-and then lists them using `ls`.
-The expanded loop would look like this:
-~~~~
-for datafile in cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-do
-	ls cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-done
-~~~
 
-
-~~~
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-~~~
-
-
-The second code block lists a different file on each loop iteration.
-The value of the `datafile` variable is evaluated using `$datafile`,
-and then listed using `ls`.
-
-~~~~
-cubane.pdb
-ethane.pdb
-methane.pdb
-octane.pdb
-pentane.pdb
-propane.pdb
-```
 
 
 
@@ -3166,12 +2889,7 @@ propane.pdb
 >     from `propane.pdb` will be saved to a file called `alkanes.pdb`.
 > 4.  None of the above.
 >
-```{r, eval=F, include=F}
-> #### Solution
-1. The text from each file in turn gets written to the `alkanes.pdb` file.
-However, the file gets overwritten on each loop interation, so the final content of `alkanes.pdb`
-is the text from the `propane.pdb` file.
-``` 
+
 
 
 > #### Challenge: Saving to a File in a Loop - Part Two
@@ -3194,13 +2912,7 @@ is the text from the `propane.pdb` file.
 > 4.  All of the text from `cubane.pdb`, `ethane.pdb`, `methane.pdb`, `octane.pdb`, `pentane.pdb`
 >     and `propane.pdb` would be printed to the screen and saved to a file called `all.pdb`.
 >
-```{r, eval=F, include=F}
-#### Solution
-3 is the correct answer. `>>` appends to a file, rather than overwriting it with the redirected
-output from a command.
-Given the output from the `cat` command has been redirected, nothing is printed to the screen.
-> 
-```
+
 
 > #### Challenge: Limiting Sets of Files
 >
@@ -3219,11 +2931,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > 3.  Only `cubane.pdb`, `octane.pdb` and `pentane.pdb` are listed.
 > 4.  Only `cubane.pdb` is listed.
 >
-```{r, eval=F, include=F}
-#### Solution
-> > 4 is the correct answer. `*` matches zero or more characters, so any file name starting with 
-> > the letter c, followed by zero or more other characters will be matched.
-```
+
 >
 > How would the output differ from using this command instead?
 >
@@ -3241,12 +2949,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > 4.  The files `cubane.pdb` and `octane.pdb` will be listed.
 > 5.  Only the file `octane.pdb` will be listed.
 
-```{r, eval=F, include=F}
-> > #### Solution
-> > 4 is the correct answer. `*` matches zero or more characters, so a file name with zero or more
-> > characters before a letter c and zero or more characters after the letter c will be matched.
-> 
-```
+
 
 > #### Note and Challenge: Doing a Dry Run
 >
@@ -3286,19 +2989,7 @@ Given the output from the `cat` command has been redirected, nothing is printed 
 > ~~~
 > 
 >
-```{r, eval=F, include=F}
-#### Solution
-The second version is the one we want to run.
-This prints to screen everything enclosed in the quote marks, expanding the
-loop variable name because we have prefixed it with a dollar sign.
 
-The first version redirects the output from the command `echo analyze $file` to
-a file, `analyzed-$file`. A series of files is generated: `cubane.pdb`,
-`ethane.pdb` etc.
-
-Try both versions for yourself to see the output! Be sure to open the 
-`analyzed-*.pdb` files to view their contents.
-```
 
 > #### Challenge: Nested Loops
 >
@@ -3317,15 +3008,7 @@ Try both versions for yourself to see the output! Be sure to open the
 > done
 > ~~~
 > 
-```{r, eval=F, include=F}
-#### Solution
-We have a nested loop, i.e. contained within another loop, so for each species
-in the outer loop, the inner loop (the nested loop) iterates over the list of
-temperatures, and creates a new directory for each combination.
 
-Try running the code for yourself to see which directories are created!
-> 
-```
 
 ---
 title: "Shell Scripts"
@@ -3769,22 +3452,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > 3. The first and the last line of each file in the `molecules` directory
 > 4. An error because of the quotes around `*.pdb`
 
-```{r, eval=F, include=F}
- #### Solution
- The correct answer is 2. 
 
- The special variables $1, $2 and $3 represent the command line arguments given to the
- script, such that the commands run are:
-
-~~~
- $ head -n 1 cubane.pdb ethane.pdb octane.pdb pentane.pdb propane.pdb
- $ tail -n 1 cubane.pdb ethane.pdb octane.pdb pentane.pdb propane.pdb
-~~~
- 
- The shell does not expand `'*.pdb'` because it is enclosed by quote marks.
- As such, the first argument to the script is `'*.pdb'` which gets expanded within the
- script by `head` and `tail`.
-```
 
 
 > #### Challenge: List Unique Species
@@ -3810,22 +3478,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > `uniq` to print a list of the unique species appearing in each of
 > those files separately.
 
-```{r, eval=F, include=F}
- #### Solution
 
- ~~~
- # Script to find unique species in csv files where species is the second data field
- # This script accepts any number of file names as command line arguments
-
- # Loop over all files
- for file in $@ 
- do
- 	echo "Unique species in $file:"
- 	# Extract species names
- 	cut -d , -f 2 $file | sort | uniq
- done
- ~~~
-``` 
 
 
 > #### Challenge: Find the Longest File With a Given Extension
@@ -3843,19 +3496,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > would print the name of the `.pdb` file in `/tmp/data` that has
 > the most lines.
 
-```{r, eval=F, include=F}
- #### Solution
 
- 
- # Shell script which takes two arguments: 
- #    1. a directory name
- #    2. a file extension
- # and prints the name of the file in that directory
- # with the most lines which matches the file extension.
- 
- wc -l $1/*.$2 | sort -n | tail -n 2 | head -n 1
- 
-``` 
 
 
 
@@ -3873,14 +3514,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > running it. In fact, the shell *always* adds commands to the log
 > before running them. Why do you think it does this?
 
-```{r, eval=F, include=F}
- #### Solution
- If a command causes something to crash or hang, it might be useful
- to know what that command was, in order to investigate the problem.
- Were the command only be recorded after running it, we would not
- have a record of the last command run in the event of a crash.
-> 
-```
+
 
 
 > #### Challenge: Script Reading Comprehension
@@ -3912,17 +3546,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > ~~~
 > 
 
-```{r, eval=F, include=F}
- #### Solutions
- Script 1 would print out a list of all files containing a dot in their name.
 
- Script 2 would print the contents of the first 3 files matching the file extension.
- The shell expands the wildcard before passing the arguments to the `example.sh` script.
- 
- Script 3 would print all the arguments to the script (i.e. all the `.pdb` files),
- followed by `.pdb`.
- cubane.pdb ethane.pdb methane.pdb octane.pdb pentane.pdb propane.pdb.pdb
-```
 
 > #### Note and Challenge: Debugging Scripts
 >
@@ -3957,14 +3581,7 @@ Of course, this introduces another tradeoff between flexibility and complexity.
 > What is the output showing you?
 > Which line is responsible for the error?
 
-```{r, eval=F, include=F}
-> Solution:
-> The `-x` flag causes `bash` to run in debug mode.
-> This prints out each command as it is run, which will help you to locate errors.
-> In this example, we can see that `echo` isn't printing anything. We have made a typo
-> in the loop variable name, and the variable `datfile` doesn't exist, hence returning
-> an empty string.
-``` 
+
 
 ---
 title: "Finding Things"
@@ -4492,11 +4109,7 @@ about them."
 > 3. `grep -w "of" haiku.txt`
 > 4. `grep -i "of" haiku.txt`
 
-```{r, eval=F, include=F}
-> #### Solution
-> The correct answer is 3, because the `-w` flag looks only for whole-word matches.
-> The other options will all match "of" when part of another word.
-```
+
 
 
 > #### Challenge: `find` Pipeline Reading Comprehension
@@ -4508,12 +4121,7 @@ about them."
 > ~~~
 > 
 
-```{r, eval=F,include=F}
-> #### Solution
-> 1. Find all files with a `.dat` extension in the current directory
-> 2. Count the number of lines each of these files contains
-> 3. Sort the output from step 2. numerically
-```
+
 
 
 > #### Challenge: Matching and Subtracting
@@ -4531,18 +4139,7 @@ about them."
 > 3.  `grep -v "temp" $(find data -name '*s.txt')`
 > 4.  None of the above.
 
-```{r, eval=F,include=F}
- #### Solution
- The correct answer is 1. Putting the match expression in quotes prevents the shell
- expanding it, so it gets passed to the `find` command.
 
- Option 2 is incorrect because the shell expands `*s.txt` instead of passing the wildcard
- expression to `find`.
-
- Option 3 is incorrect because it searches the contents of the files for lines which
- do not match "temp", rather than searching the file names.
-> 
-```
 
 > #### Challenge: Tracking a Species
 
@@ -4587,22 +4184,7 @@ about them."
 >
 > An example of such a file is provided in `/data/animal-counts/animals.txt`
 
-```{r, eval=F,include=F}
-> > #### Solution
-> >
-> > ~~~
-> > grep -w $1 -r $2 | cut -d : -f 2 | cut -d , -f 1,3  > $1.txt
-> > ~~~
-> > 
-> >
-> > You would call the script above like this:
-> >
-> > ~~~
-> > $ bash count-species.sh bear .
-> > ~~~
-> > 
-> 
-```
+
 
 > #### Challenge: Little Women
 >
@@ -4622,32 +4204,7 @@ about them."
 > particular solution is usually chosen based on a combination of
 > yielding the correct result, elegance, readability, and speed.
 
-```{r, eval=F,include=F}
-> > #### Solutions
-> > ~~~
-> > for sis in Jo Meg Beth Amy
-> > do
-> > 	echo $sis:
-> >	grep -ow $sis littlewomen.txt | wc -l
-> > done
-> > ~~~
-> > 
-> >
-> > Alternative, slightly inferior solution:
-> > ~~~
-> > for sis in Jo Meg Beth Amy
-> > do
-> > 	echo $sis:
-> >	grep -ocw $sis LittleWomen.txt
-> > done
-> > ~~~
-> > 
-> >
-> > This solution is inferior because `grep -c` only reports the number of lines matched.
-> > The total number of matches reported by this method will be lower if there is more
-> > than one match per line.
-> 
-```
+
 
 > #### Challenge: Finding Files With Different Properties
 > 
@@ -4661,16 +4218,7 @@ about them."
 >
 > Hint 2: The value for `-mtime` will need to be negative---why?
 
-```{r, eval=F,include=F}
-> > #### Solution
-> > Assuming that Nelle’s home is our working directory we type:
-> >
-> > ~~~
-> > $ find ./ -type f -mtime -1 -user ahmed
-> > ~~~
-> > 
-> 
-```
+
 
 
 # Introduction to Regular Expressions
