@@ -8,14 +8,14 @@ Software Carpentry & Eric D. Crandall
 #### Datasets that we will use in this lesson:
   - Nelle's Filesystem 
     - [*Google Drive*](https://drive.google.com/open?id=0B04rMcAYCuEdV3pEUU00SG4tSlU)
-    - [*Webserver*](https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip)
+    - [*Webserver*](https://ericcrandall.github.io/BIO444/lessons/unix/unix_figures/filesystem.zip)
  
 ##### Downloading Nelle's Filesystem
 
 If you are having difficulty in downloading, unzipping and locating the filesystem in your graphical user interface, then run this command at your command line:
 
 ~~~
-$ curl https://ericcrandall.github.io/BIO444/pages/unix_figures/filesystem.zip > filesystem.zip
+$ curl https://ericcrandall.github.io/BIO444/lessons/unix/unix_figures/filesystem.zip > filesystem.zip
 $ unzip filesystem.zip
 ~~~
 
