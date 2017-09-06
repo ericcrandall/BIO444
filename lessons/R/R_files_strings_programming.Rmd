@@ -1,5 +1,5 @@
 ---
-title: "Introduction to R"
+title: "Introduction to R: Files, Strings, Programming"
 author: "Eric D. Crandall"
 date: '`r Sys.Date()`'
 output:
@@ -24,12 +24,10 @@ output:
     - [*Webserver*](https://ericcrandall.github.io/BIO444/lessons/R/pelagics_metadata.txt)
 
 
-# Programming in R
-
 
 Some lesson ideas from [Software Carpentry](http://software-carpentry.org)
 
-## Working with the filesystem
+# Working with the filesystem
 R has many useful functions that can work with the file system on your computer (either Windows or Mac). First thing to learn is `getwd()` and `setwd()`, which will tell you about your working directory (like `pwd`) and let you change it to something else (like `cd`), respectively.
 ```{r}
 getwd()
@@ -44,7 +42,7 @@ list.files("/Users/eric/Desktop/filesystem")
 ```
 
 
-## String manipulation and grepping
+# String manipulation and grepping
 The ability to manipulate text strings in R is very useful when dealing with the file system etc. One useful function is `paste()`. Set the separator between strings using `sep =`
 
 ```{r}
@@ -95,6 +93,8 @@ pelagics$materialSampleID[grep("Fish Market",
                     pelagics$occurrenceRemarks)]<-sub("([0-9]+.[0-9]+)",                                    "\\1f",pelagics$materialSampleID[grep("Fish Market", pelagics$occurrenceRemarks)])
 
 ```
+
+# Programming
 
 ## Functions
 Just like in Unix, it can be useful to write functions that do specific tasks so that you may automate them in the future.

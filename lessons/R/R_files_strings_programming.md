@@ -1,4 +1,4 @@
-# Introduction to R
+# Introduction to R: Files, Strings, Programming
 Eric D. Crandall  
 `r Sys.Date()`  
 
@@ -11,12 +11,10 @@ Eric D. Crandall
     - [*Webserver*](https://ericcrandall.github.io/BIO444/lessons/R/pelagics_metadata.txt)
 
 
-# Programming in R
-
 
 Some lesson ideas from [Software Carpentry](http://software-carpentry.org)
 
-## Working with the filesystem
+# Working with the filesystem
 R has many useful functions that can work with the file system on your computer (either Windows or Mac). First thing to learn is `getwd()` and `setwd()`, which will tell you about your working directory (like `pwd`) and let you change it to something else (like `cd`), respectively.
 
 ```r
@@ -41,7 +39,7 @@ list.files("/Users/eric/Desktop/filesystem")
 ```
 
 
-## String manipulation and grepping
+# String manipulation and grepping
 The ability to manipulate text strings in R is very useful when dealing with the file system etc. One useful function is `paste()`. Set the separator between strings using `sep =`
 
 
@@ -50,7 +48,7 @@ paste("Today is", date())
 ```
 
 ```
-## [1] "Today is Wed Sep  6 15:36:41 2017"
+## [1] "Today is Wed Sep  6 15:43:07 2017"
 ```
 
 ```r
@@ -129,6 +127,8 @@ fishmarket_fish<-pelagics$materialSampleID[grep("Fish Market", pelagics$occurren
 pelagics$materialSampleID[grep("Fish Market",
                     pelagics$occurrenceRemarks)]<-sub("([0-9]+.[0-9]+)",                                    "\\1f",pelagics$materialSampleID[grep("Fish Market", pelagics$occurrenceRemarks)])
 ```
+
+# Programming
 
 ## Functions
 Just like in Unix, it can be useful to write functions that do specific tasks so that you may automate them in the future.
@@ -415,13 +415,13 @@ head(m)
 ```
 
 ```
-##             [,1]       [,2]     [,3]      [,4]     [,5]
-## [1,] -1.04192069  2.3598147 4.820039  9.953989 14.17993
-## [2,]  0.21985077  2.7946697 4.869805  8.711597 15.16703
-## [3,] -1.22905578  0.6847772 6.498812 11.053479 15.16038
-## [4,]  0.09577823  3.9803027 4.124618  8.935129 13.96942
-## [5,]  0.04191788 -0.6064269 3.532146 10.789976 12.99315
-## [6,]  2.37889496  2.1625249 6.173228  9.484261 15.78074
+##            [,1]      [,2]     [,3]      [,4]     [,5]
+## [1,] -1.3102067 3.0078753 6.161374  9.179342 13.94397
+## [2,]  1.1321795 1.0007909 4.354128  8.676612 15.26355
+## [3,]  0.1650371 4.1484823 3.887708 10.916772 14.73479
+## [4,] -0.5162139 3.3515238 5.211122  9.444498 13.49480
+## [5,] -0.4315310 0.6331394 4.205102  8.790362 15.27671
+## [6,] -1.1377335 2.4190832 5.617850 10.741339 13.47507
 ```
 
 ```r
@@ -429,7 +429,7 @@ apply(m,MARGIN = 2,FUN = mean) # margin = 2 takes columns, margin=1 takes rows
 ```
 
 ```
-## [1]  0.235789  1.835394  5.072873  9.763194 15.022193
+## [1]  0.07568908  2.08009096  4.97498497 10.09028440 14.97554989
 ```
 
 ## Challenge
