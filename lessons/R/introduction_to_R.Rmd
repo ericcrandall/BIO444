@@ -534,194 +534,141 @@ Download the pelagics dataset import into R directly from the web
 
 ```{r}
 pelagics <- read.table("https://ericcrandall.github.io/BIO444/lessons/R/pelagics_metadata.txt",stringsAsFactors = F, sep="\t", header=T)
-
+```
 ### Uniquing
 
 `unique()` will save only unique values of whatever you give it, whether it is a data frame or a vector
 
-`unique(pelagics$genus)`{rsplus}
-`<code>
-## [5] "Rastrelliger"
-```
-
-`unique(pelagics$decimalLatitude)`{rsplus}
-`<code>
-##  [8]  -8.6510   3.5915  -5.1189  -5.8192  -6.0000   1.4820  -6.0925
-
-## [15]  -2.5330  -1.8817  -6.9667  -8.5912 -10.4461  -5.1309  -0.5897
-## [22]  -9.4456   1.1255  -8.5254  -8.5073  -0.9500  -1.1422
-```
-
 ```{r}
+unique(pelagics$genus)
+
+unique(pelagics$decimalLatitude)
+
 newdata<-unique(pelagics[1:21,])
-newdata`<-unique(pelagics[2:21,])</code>`
+```
+
 ### Summarizing Data into Tables
 
 `table()` is handy for making "pivot tables"
 
-`table(pelagics$country,pelagics$genus)`{rsplus}
-`<code>
-##                    Auxis Euthynnus Katsuwonus Rastrelliger Scomberomorus
-
-##   Indonesia          192       190        184          178           139
-##   Papua New Guinea     0         6          0            0             0
-
-##   Solomon Islands      0         0         28            0             0
-```
 ```{r}
+table(pelagics$country,pelagics$genus)
+
 ##or
-table(pelagics[,c("country","genus")])
-```
-`<code>
-## country            Auxis Euthynnus Katsuwonus Rastrelliger Scomberomorus
+##table(pelagics[,c("country","genus")])
 
-##   Indonesia          192       190        184          178           139
-##   Papua New Guinea     0         6          0            0             0
-
-##   Solomon Islands      0         0         28            0             0
-```
-```{r}
 ##3 dimensional table!
-bymarket`<-table(pelagics$occurrenceRemarks,pelagics$genus,pelagics$country)</code>`
+bymarket<-table(pelagics$occurrenceRemarks,pelagics$genus,pelagics$country)
+
+```
+
 ## Subsetting (indexing)
 
-We have already learned how to subset data using square brackets ''%%[ ]%%'' and `$`. Let's go into these a bit more, and also learn how to get more specific in selecting data in data frames.
+We have already learned how to subset data using square brackets `[]` and `$`. Let's go into these a bit more, and also learn how to get more specific in selecting data in data frames.
 
 ### Selecting columns and rows
 
-Indexing with dataframe and matrices goes ''%%[row, column]%%'' So: 1. select columns by name
+Indexing with dataframe and matrices goes `[row, column]`
+
+
+1. select columns by name
 
 ```{r}
 myvars <- c("materialSampleID", "genus", "species")
-newdata `<- pelagics[,myvars]</code>`
- 1.  select columns or rows by number
+newdata<- pelagics[,myvars]</code
+```
+
+2.  select columns or rows by number
 
 ```{r}
 newdata <- pelagics[,c(1,2,3)]
 newdata <- pelagics[,c(1,5:10)]
-newdata `<- pelagics[1:10,1:10]</code>`
- 1.  Dropping columns and rows
+newdata <- pelagics[1:10,1:10]
+```
+
+3.  dropping columns and rows
 
 ```{r}
 newdata <- pelagics[,-c(1,2,3)]
 newdata <- pelagics[,-c(1,5:10)]
-newdata `<- pelagics[-c(1:10),-c(1:10)]</code>`
- 1.  Using `which()`
-
-`which(pelagics$country=="Papua New Guinea")`{rsplus}
-
-`which(pelagics$country=="Papua New Guinea"| pelagics$country=="Solomon Islands")`{rsplus}
-`<code>
-## [18] 553 554 555 556 557 558 559 560 561 562 563 564 565 566 567 568 569
+newdata <- pelagics[-c(1:10),-c(1:10)]
 ```
+
+4.  Using `which()`
+
+```{r}
+which(pelagics$country=="Papua New Guinea")
+
+which(pelagics$country=="Papua New Guinea"| pelagics$country=="Solomon Islands")
+```
+
 
 ```{r}
 newdata <- pelagics[which(pelagics$country=="Papua New Guinea" | pelagics$country=="Solomon Islands"),]
-newdata `<- pelagics[which(pelagics$country=="Papua New Guinea" | pelagics$country=="Solomon Islands" & (pelagics$country=="Euthynnus")),]</code>`
+newdata <- pelagics[which(pelagics$country=="Papua New Guinea" | pelagics$country=="Solomon Islands" & (pelagics$country=="Euthynnus")),]
+```
+
 ### Sorting vectors and dataframes
 
 **We will also begin to see how we "pipe" together commands in R**
 
 ```{r}
-student<-c("david","jess","liz l.","amelia","evan","drew","kalia")
-sex<-c("m","f","f","f","f","m","f")
-shoe<-c(12,8,7,6,10.5,11,7)
+student<-c("Dana","Ruth","Ylva","Skylar","Hanna","Sophia","Trevor","Jacob")
+sex<-c("f","f","f","m","f","f","m","m")
+shoe<-c(12,8,7,6,10.5,8,12,11)
 shoes<-as.data.frame(cbind(student,sex,shoe))
-shoes[,3]`<-as.numeric(as.character(shoes[,3]))</code>`
+shoes[,3]<-as.numeric(as.character(shoes[,3]))
+```
+
 `sort()` sorts vectors
 
-`sort(shoes[,1])`{rsplus}
-`<code>
-## Levels: amelia david drew evan jess kalia liz l.
-```
+```{r}
+sort(shoes[,1])
 
-`sort(shoes[,2])`{rsplus}
-`<code>
-## Levels: f m
-```
+sort(shoes[,2])
 
-`sort(shoes[,3])`{rsplus}
+sort(shoes[,3])
+```
 
 `order()` gets the sorted order of a vector, which can then be used to sort data frames
 
-`order(shoes[,1])`{rsplus}
+```{r}
+order(shoes[,1])
 
-`order(shoes[,3])`{rsplus}
+order(shoes[,3])
 
-`shoes[order(shoes[,3]),]`{rsplus}
-`<code>
-## 4  amelia   f  6.0
+shoes[order(shoes[,3]),]
 
-## 3  liz l.   f  7.0
-## 7   kalia   f  7.0
-
-## 2    jess   f  8.0
-## 5    evan   f 10.5
-
-## 6    drew   m 11.0
-## 1   david   m 12.0
 ```
 
 ```{r}
 byname<-shoes[order(shoes[,1]),]
-otherway`<-shoes[order(shoes[,3], decreasing=T),]</code>`
+otherway<-shoes[order(shoes[,3], decreasing=T),]
+```
+
 ### Merging Data Together
 
 We've already met `cbind` and `rbind` and now we will meet `merge`
 
 ```{r}
-hat<-c(7.5,7,7.25,6.75,8,7.75,7)
-belt<-c(30,26,34,29,31,25,32)
+hat<-c(7.5,7,7.25,6.75,8,7.75,7,8.3)
+belt<-c(30,26,34,29,31,25,32,33)
 
 #Yo, check out this randomization!
 
-shoes<-shoes[sample(1:7,replace=F),]
+shoes<-shoes[sample(1:8,replace=F),]
 
 moredata<-as.data.frame(cbind(student,sex,hat,belt))
 moredata[,3]<-as.numeric(as.character(moredata[,3]))
 moredata[,4]<-as.numeric(as.character(moredata[,4]))
 
 shoes
-```
-`<code>
-## 1   david   m 12.0
 
-## 3  liz l.   f  7.0
-## 2    jess   f  8.0
-
-## 5    evan   f 10.5
-## 6    drew   m 11.0
-
-## 7   kalia   f  7.0
-## 4  amelia   f  6.0
+moredata
 ```
 
-`moredata`{rsplus}
-`<code>
-## 1   david   m 7.50   30
-
-## 2    jess   f 7.00   26
-## 3  liz l.   f 7.25   34
-
-## 4  amelia   f 6.75   29
-## 5    evan   f 8.00   31
-
-## 6    drew   m 7.75   25
-## 7   kalia   f 7.00   32
-```
-
-`merge(shoes,moredata,by="student")`{rsplus}
-`<code>
-## 1  amelia     f  6.0     f 6.75   29
-
-## 2   david     m 12.0     m 7.50   30
-## 3    drew     m 11.0     m 7.75   25
-
-## 4    evan     f 10.5     f 8.00   31
-## 5    jess     f  8.0     f 7.00   26
-
-## 6   kalia     f  7.0     f 7.00   32
-## 7  liz l.     f  7.0     f 7.25   34
+```{r}
+merge(shoes,moredata,by="student")
 ```
 
 # Challenges
