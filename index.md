@@ -7,7 +7,8 @@ author: Dr. Eric Crandall
 ---
 
 
-- [Introduction to Unix](pages/introduction_to_unix.html)
+- [Introduction to Unix](./lessons/unix/introduction_to_unix.html)
+- [Introduction to R](./lessons/R/introduction_to_R.html)
 
 
 
