@@ -20,15 +20,15 @@ The most basic level of genetic variation is, of course, that of DNA sequence.  
 
 As an example, we are going to use data from the acp29 locus in *Drosophila melanogaster*,  Popset [11245776](http://www.ncbi.nlm.nih.gov/popset/11245776), downloaded as a FASTA file.  We will use the `rentrez` package to access the data directly:
 
-```{r,eval=FALSE,echo=FALSE}
+```{r,eval=T,echo=FALSE}
 library(rentrez)
+library(ape)
 
 dat.srch <-entrez_search("popset",term="11245776")
 dat <-entrez_fetch("popset",id=dat.srch$ids,rettype="fasta",retmode=xml)
-write(dat,file="./Data/acp29.fasta")
-acp29 <-read.FASTA("./Data/acp29.fasta")
+write(dat,file="../Data/acp29.fasta")
+acp29 <-read.FASTA("../Data/acp29.fasta")
 acp29
-read.FASTA("./Data/acp29.fasta")
 ```
 
 

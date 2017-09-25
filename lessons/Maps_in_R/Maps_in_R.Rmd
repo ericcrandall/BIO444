@@ -1,0 +1,522 @@
+---
+title: Making Maps With R
+author: "Eric D. Crandall"
+output:
+  html_document:
+    toc: yes
+  bookdown::html_chapter:
+    toc: no
+---
+
+
+
+# Making Maps with R {#map-making-in-R} 
+
+```{r, include = FALSE}
+library(knitr)
+opts_chunk$set(fig.width=10,
+               fig.height=7,
+               out.width = "600px",
+               out.height = "420px",
+               fig.path = "lecture_figs/making-maps-")
+```
+Thanks to Eric Anderson for ideas and some code and data in this lecture.
+
+## Intro {#map-making-intro}
+
+For a long time, R has had a relatively simple mechanism, via the `maps` package, for making simple outlines
+of maps and plotting lat-long points and paths on them.
+
+With the advent of packages like `sp`, `rgdal`, and `rgeos`, R has been acquiring much of the
+functionality of traditional GIS packages (like ArcGIS, etc). These packages require
+installation of external libraries and considerable familiarity with GIS concepts, and are
+not as accessible as they might be (I don't use them).
+
+More recently, a third approach to convenient mapping, using `ggmap` has been developed that
+allows the tiling of 
+detailed base maps from Google Earth or Open Street Maps, upon which spatial data may be
+plotted.
+Today, we are going to focus on mapping using base maps from R's tried and true `maps`
+package and also using the
+`ggmap` package.
+
+As with the graphics lesson, we are going to completely skip over R's base graphics system and head directly to Hadley Wickham's `ggplot2` package.  Hadley has
+included a few functions that make it relatively easy to interact with the data in R's
+`maps` package, and of course, once a map layer is laid down, you have all the power of
+ggplot at your fingertips to overlay whatever you may want to over the map.  `ggmap` is a
+package that goes out to different map servers and
+grabs base maps to plot things on, then it sets up the coordinate system and writes it out
+as the base layer for further ggplotting.  It's nice, but does not support different projections.
+
+
+For today we will also be skipping how to read in traditional GIS "shapefiles" so as to
+minimizethe number of packages that need installation, but keep in mind that it isn't too hard to do that in R, too.
+
+### Prerequisites
+You are going to need to install a few extra packages to follow along with this lecture.
+```{r, eval=FALSE}
+
+
+# some standard map packages.
+install.packages(c("maps", "mapdata", "ggpmap"))
+
+# the github version of ggmap, JIK
+#devtools::install_github("dkahle/ggmap")
+```
+
+
+
+
+### Load up a few of the libraries we will use
+
+```{r}
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(dplyr)
+```
+
+
+## Plotting maps-package maps with ggplot  {#maps-package-and-ggplot}
+
+### The main players:
+
+* The `maps` package contains a lot of outlines of continents, countries, states, and counties that have
+been with R for a long time.  
+* The `mapdata` package contains a few more, higher-resolution outlines.
+* The `maps` package comes with a plotting function, but, we will opt to use `ggplot2` to plot the 
+maps in the `maps` package.  
+* Recall that `ggplot2` operates on data frames.  Therefore we need some way to
+translate the `maps` data into a data frame format the `ggplot` can use.
+
+### Maps in the maps package
+
+* Package `maps` provides lots of different map outlines and points for cities, etc.  
+* Some examples: `usa`, `nz`, `state`, `world`, etc.
+
+
+
+### Makin' data frames from map outlines
+
+* `ggplot2` provides the `map_data()` function.
+    + Think of it as a function that turns a series of points along an outline into a data frame
+    of those points.
+    + Syntax:  `map_data("name")` where "name" is a quoted string of the name of a map in the `maps` or `mapdata`
+    package
+* Here we get a USA map from `maps`:
+    ```{r}
+    usa <- map_data("usa")
+
+    dim(usa)
+    
+    head(usa)
+    
+    tail(usa)
+    ```
+* Here is the high-res world map centered on the Pacific Ocean from `mapdata`
+    ```{r}
+    w2hr <- map_data("world2Hires")
+
+    dim(w2hr)
+
+    head(w2hr)
+
+    tail(w2hr)
+    ```
+
+### The structure of those data frames
+These are pretty straightforward:
+
+* `long` is decimal-degree longitude.  Things to the west of the prime meridian are negative.
+* `lat` is decimal-degree latitude.
+* `order`. This just shows in which order `ggplot` should "connect the dots"
+* `region` and `subregion` tell what region or subregion a set of points surrounds.
+* `group`.  This is _very important_!  `ggplot2`'s functions can take a group argument which 
+controls (amongst other things) whether adjacent points should be connected by lines.  If they are
+in the same group, then they get connected, but if they are in different groups then they don't.
+    + Essentially, having to points in different groups means that `ggplot` "lifts the pen" when going between them.
+    
+
+### Plot the USA map
+
+* Maps in this format can be plotted with the polygon geom.  i.e. using `geom_polygon()`.
+* `geom_polygon()` drawn lines between points and "closes them up" (i.e. draws a line from the last
+point back to the first point)
+* You have to map the `group` aesthetic to the `group` column
+* Of course, `x = long` and `y = lat` are the other aesthetics.
+
+#### Simple black map
+By default, `geom_polygon()` draws with no line color, but with a black fill:
+```{r}
+usa <- map_data("usa") # we already did this, but we can do it again
+ggplot() + geom_polygon(data = usa, aes(x=long, y = lat, group = group)) + 
+  coord_fixed(1.3)
+```
+Boink!
+#### What is this coord_fixed()?
+
+* This is very important when drawing maps.
+* It is part of the `coord` series of functions in ggplot2 that we didn't cover last time.
+* It fixes the relationship between one unit in the $y$ direction and one unit in the $x$ direction.
+* Then, even if you change the outer dimensions of the plot (i.e. by changing the window size or the size
+of the pdf file you are saving it to (in `ggsave` for example)), the _aspect ratio_ remains unchanged.
+* In the above case, I decided that if every $y$ unit was 1.3 times longer than an $x$ unit, then  the
+plot came out looking good.
+    + A different value might be needed closer to the poles.
+```{r}
+ggplot() + geom_polygon(data = usa, aes(x=long, y = lat, group = group)) + 
+  coord_fixed(4)
+ggplot() + geom_polygon(data = usa, aes(x=long, y = lat, group = group)) + 
+  coord_fixed(0.5)
+```
+    
+#### Mess with line and fill colors
+
+* Here is no fill, with a red line.  Remember, fixed value of aesthetics go _outside_ the `aes` function.
+    ```{r}
+    ggplot() + 
+      geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = NA, color = "red") + coord_fixed(1.3)
+    ```
+    
+* Here is violet fill, with a blue line.
+    ```{r}
+    gg1 <- ggplot() + 
+      geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = "violet", color = "blue") +  coord_fixed(1.3)
+    gg1
+    ```
+    
+#### Adding points to the map
+
+* Let's add black and yellow points at CSUMB, the White House, and Toad Suck, Arkansas.
+    ```{r}
+    points <- data.frame(
+      long = c(-121.8018, -77.0365, -92.5599),
+      lat = c(36.6544, 38.8977, 35.0756),
+      names = c("CSUMB", "White House", "Toad Suck"),
+      stringsAsFactors = FALSE
+      )  
+
+    gg1 + 
+      geom_point(data = points, aes(x = long, y = lat), color = "black", size = 5) +
+      geom_point(data = points, aes(x = long, y = lat), color = "yellow", size = 4)
+    ```
+
+#### See how important the group aesthetic is
+
+Here we plot that map without using the group aesthetic:
+```{r}
+ggplot() + 
+      geom_polygon(data = usa, aes(x=long, y = lat), fill = "violet", color = "blue") + 
+      geom_point(data = points, aes(x = long, y = lat), color = "black", size = 5) +
+      geom_point(data = points, aes(x = long, y = lat), color = "yellow", size = 4) +
+      coord_fixed(1.3)
+```
+
+That is no bueno!  The lines are connecting points that should not be connected! That's because its assuming that everything is one group, and not "lifting the pen."
+
+
+
+### State maps
+We can also get a data frame of polygons that tell us above state boundaries:
+```{r}
+states <- map_data("state")
+dim(states)
+
+head(states)
+
+tail(states)
+```
+
+#### Plot all the states, all colored a little differently
+
+This is just like it is above, but we can map fill to `region` and 
+make sure the the lines of state borders are white.
+```{r}
+ggplot(data = states) + 
+  geom_polygon(aes(x = long, y = lat, fill = region, group = group), color = "white") + 
+  coord_fixed(1.3) +
+  guides(fill=FALSE)  # do this to leave off the color legend
+```
+
+Boom! That is easy.
+
+#### Plot just a subset of states in the contiguous 48:
+
+* Read about the `subset` command.  It provides another way of 
+subsetting data frames (sort of like using the `[ ]` operator with
+a logical vector).
+* We can use it to grab just CA, OR, and WA:
+    ```{r}
+    best_coast <- subset(states, region %in% c("california", "oregon", "washington"))
+    
+    ggplot(data = best_coast) + 
+      geom_polygon(aes(x = long, y = lat), fill = "palegreen", color = "black") 
+    ```
+
+#### Man that is ugly!! 
+
+* What have we forgotten here?
+    
+    ```{r}
+    ggplot(data = best_coast) + 
+      geom_polygon(aes(x = long, y = lat, group = group), fill = "palegreen", color = "black") + 
+      coord_fixed(1.3)
+    ```
+
+Phew! That is a little better!
+
+
+#### Zoom in on California and look at counties
+
+* Getting the California data is easy:
+    ```{r}
+    ca_df <- states[states$region == "california",]
+
+    head(ca_df)
+    ```
+
+* Now, let's also get the county lines there
+    ```{r}
+    counties <- map_data("county")
+    ca_county <- counties[counties$region == "california",] 
+
+    head(ca_county)
+    ```
+
+* Plot the state first but let's ditch the axes gridlines, and gray background by
+using `theme_nothing()`.
+    ```{r}
+    ca_base <- ggplot(data = ca_df, mapping = aes(x = long, y = lat, group = group)) + 
+      coord_fixed(1.3) + 
+      geom_polygon(color = "black", fill = "gray")
+    ca_base + theme_nothing()
+    ```
+
+* Now plot the county boundaries in white:
+    ```{r}
+    ca_base + theme_nothing() + 
+      geom_polygon(data = ca_county, fill = NA, color = "white") +
+      geom_polygon(color = "black", fill = NA)  # get the state border back on top
+    ```
+
+#### Get some facts about the counties
+
+
+```{r, warning=FALSE, message=FALSE}
+pop_and_area<-read.csv(file="./data/ca_counties.csv")
+      
+    ```
+* We need to attach those to every point on polygons of the counties.  This is a job for `inner_join` from the `dplyr` package
+    ```{r}
+    cacopa <- inner_join(ca_county, pop_and_area, by = "subregion")
+    ```
+* And finally, add a column of `people_per_mile`:
+    ```{r}
+    cacopa$people_per_mile <- cacopa$population / cacopa$area
+
+    head(cacopa)
+    ```
+
+#### Now plot population density by county
+
+If you were needing a little more elbow room in the great Golden State, this shows you where you can find it. This also gives us a chance to learn about theme(), which is the par() of ggplot2, and I forgot to show you earlier. 
+  * It allows control over all the non-data aesthetics of your plot. 
+  * `element_blank()` is what we use to turn off items.
+  * You can read more in the `?theme` man page about it.
+
+Since we still want the guides and legends, we can't use `theme_nothing` here.
+```{r}
+
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+elbow_room1 <- ca_base + 
+      geom_polygon(data = cacopa, aes(fill = people_per_mile), color = "white") +
+      geom_polygon(color = "black", fill = NA) +
+      theme_bw() +
+      ditch_the_axes
+
+elbow_room1 
+```
+
+#### Lame!
+
+* The popuation density in San Francisco is so great that it makes it hard to discern differences between
+other areas.
+* This is a job for a scale transformation.  Let's take the log-base-10 of the population density.
+* Instead of making a new column which is log10 of the `people_per_mile` we can just apply the
+transformation in the gradient using the `trans` argument
+```{r}
+elbow_room1 + scale_fill_gradient(trans = "log10")
+```
+
+ 
+#### Still not great
+I personally like more color than ggplot uses in its default gradient.
+```{r}
+eb2 <- elbow_room1 + 
+    scale_fill_gradientn(colours = rev(rainbow(7)),
+                         breaks = c(2, 4, 10, 100, 1000, 10000),
+                         trans = "log10")
+eb2
+```
+
+That is reasonably cool.
+
+
+
+### zoom in?
+Note that the scale of these maps from package `maps` are not great. We can zoom in to the 
+Bay region, and it sort of works scale-wise, but if we wanted to zoom in more, it would
+be tough.  
+
+Let's try!
+```{r}
+eb2 + xlim(-123, -121.0) + ylim(36, 38)
+```
+
+* Whoa! That is an epic fail. Why?
+* Recall that `geom_polygon()` connects the end point of a `group` to its starting point.
+* And also remember: the `xlim` and `ylim` functions in `ggplot2` discard all the data that is
+not within the plot area.  
+    + Hence there are new starting points and ending points for some groups (or in this case the
+    black-line permiter of California) and those points get connected.  Not good.
+
+
+### True zoom.
+
+* If you want to keep all the data the same but just zoom in, you can use the `xlim` and `ylim` arguments to `coord_fixed()`. 
+* This chops stuff off but doesn't discard it from the data set:
+    ```{r}
+    eb2 + coord_fixed(xlim = c(-123, -121.0),  ylim = c(36, 38), ratio = 1.3)
+    ```
+
+
+## ggmap {#ggmap-hooray}
+
+The `ggmap` package is lots of fun.  You might be able to get
+better looking maps at some resolutions by using shapefiles and rasters from naturalearthdata.com
+but `ggmap` will get you 95% of the way there with only 5% of the work!
+
+### Three examples
+
+* I am going to run through three examples.  Working from the small spatial scale up to a larger spatial scale.
+    1. Named "sampling" points on the Sisquoc River from the "Sisquoctober Adventure"
+    2. A GPS track from a short bike ride in Wilder Ranch.
+    3. Fish sampling locations from the coded wire tag data base.
+    
+### How ggmap works
+
+* ggmap simplifies the process of downloading base maps from Google or Open Street Maps or Stamen Maps
+to use in the background of your plots.
+* It also sets the axis scales, etc, in a nice way.  
+* Once you have gotten your maps, you make a call with `ggmap()` much as you would with `ggplot()`
+* Let's do by example.
+
+### Sisquoctober
+
+* Here is a small data frame of points from the Sisquoc River.
+    ```{r}
+    sisquoc <- read.table("data/sisquoc-points.txt", sep = "\t", header = TRUE)
+    sisquoc
+
+    ```
+  * ggmap typically needs a zoom level:
+    + Zoom levels go from 3 (world scale) to 20 (house scale)
+    ```{r}
+    # compute the mean lat and lon so we can center the map on it
+    ll_means <- sapply(sisquoc[2:3], mean)
+    sq_map2 <- get_map(location = ll_means,  maptype = "satellite", source = "google", zoom = 15)
+    ggmap(sq_map2) + 
+      geom_point(data = sisquoc, color = "red", size = 4) +
+      geom_text(data = sisquoc, aes(label = paste("  ", as.character(name), sep="")), angle = 60, hjust = 0, color = "yellow")
+    ```
+* That's decent.  How about if we use the "terrain" type of map:
+    ```{r}
+    sq_map3 <- get_map(location = ll_means,  maptype = "terrain", source = "google", zoom = 15)
+    ggmap(sq_map3) + 
+      geom_point(data = sisquoc, color = "red", size = 4) +
+      geom_text(data = sisquoc, aes(label = paste("  ", as.character(name), sep="")), angle = 60, hjust = 0, color = "yellow")
+    ```
+
+### How about a bike ride?
+
+* We can plot a route like this:
+    ```{r}
+    bike <- read.csv("data/bike-ride.csv")
+    head(bike)
+    bikemap1 <- get_map(location = c(-122.080954, 36.971709), maptype = "terrain", source = "google", zoom = 14)
+    ggmap(bikemap1) + 
+      geom_path(data = bike, aes(color = elevation), size = 3, lineend = "round") + 
+      scale_color_gradientn(colours = rainbow(7), breaks = seq(25, 200, by = 25))
+    ```
+* See how we have mapped elevation to the color of the path using our
+rainbow colors again.
+* Note that getting the right zoom and position for the map is sort of trial and
+error.  You can go to google maps to figure out where the center should be (right click and choose "What's here?" to get the lat-long of any point. )
+
+### Pelagic Fishes
+Let's finally get a visual for the data in the pelagics metadata set that we've been playing with, shall we?
+```{r}
+pelagics<-read.table("./data/pelagics_metadata.txt",sep="\t",header=T,stringsAsFactors = F)
+#Instead of playing with the scale to get it just right, I'm going to try make_bbox to make
+#a bounding box
+boxtest <- make_bbox(lat=decimalLatitude,lon=decimalLongitude,data=pelagics)
+pmap <- get_map(location = boxtest, maptype = "satellite", source = "google")
+
+ggmap(pmap) + geom_point(data = pelagics, mapping = aes(x = decimalLongitude, y = decimalLatitude, color = paste(pelagics$genus,pelagics$species))) +
+  theme(legend.position="bottom") + 
+  labs(color="Species")
+
+# Huh, it chopped off a whole bunch of data for some reason. Can't get it to fix either. Going back to  zoom
+llmean<-sapply(pelagics[,c("decimalLongitude","decimalLatitude")],mean)
+
+pmap <- get_map(location = llmean, maptype = "satellite", source = "google",zoom=4)
+
+ggmap(pmap) + geom_point(data = pelagics, mapping = aes(x = decimalLongitude, y = decimalLatitude, color = paste(pelagics$genus,pelagics$species))) +
+  theme(legend.position="bottom") + 
+  labs(color="Species")
+```
+It is still chopping off Aceh! Also it would be nice to make pie charts out of the species to show their relative frequency at each location. But that is for another R session. It is almost midnight!
+
+#messing with vote data
+
+```{r}
+votes<-read.table(file="./data/state_votes.txt",sep="\t",header=T,row.names=T)
+votes$State.1<-tolower(votes$State.1)
+{r}
+votes2<-votes[,44:58]
+votes3<-t(votes2)
+write.csv(votes3,"./data/state_votes.txt")
+
+
+votes<-read.csv(file="./data/state_votes.txt", stringsAsFactors=F)
+
+length(votes$Alabama[which(votes$Alabama=="R")])/length(votes$Alabama)
+
+voteprop<-function(x){
+  length(x[which(x=="R")])/length(x)
+}
+
+Rs<-sapply(votes,voteprop)
+
+
+Rs2<-as.data.frame(Rs)
+Rs2$region<-tolower(rownames(Rs2))
+states <- map_data("state")
+
+states2<-inner_join(states,Rs2,by="region")
+
+ggplot(data = states2) + 
+  geom_polygon(aes(x = long, y = lat, fill = Rs, group = group), color = "white") + 
+  coord_fixed(1.3) +
+  guides(fill=FALSE) + scale_fill_continuous(low = "Blue", high = "Red")
+
+```
