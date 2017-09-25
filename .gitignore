@@ -3,3 +3,4 @@ Gemfile.lock
 .Rproj.user
 ./output
 .DS_Store
+.Rhistory
