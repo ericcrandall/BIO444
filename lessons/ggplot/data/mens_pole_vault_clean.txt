@@ -1,0 +1,73 @@
+Meters Athlete Nation Venue Date X
+4.02 Marc Wright  United States Cambridge, U.S. 1912-06-08 1
+4.09 Frank Foss  United States Antwerp, Belgium 1920-08-20 1
+4.12 Charles Hoff  Norway Copenhagen, Denmark 1922-09-22 1
+4.21 Charles Hoff  Norway Copenhagen, Denmark 1923-07-22 2
+4.23 Charles Hoff  Norway Oslo, Norway 1925-08-13 3
+4.25 Charles Hoff  Norway Turku, Finland 1925-09-27 4
+4.27 Sabin Carr  United States Philadelphia, U.S. 1927-05-27 1
+4.3 Lee Barnes  United States Fresno, U.S. 1928-04-28 1
+4.37 William Graber  United States Palo Alto, U.S. 1932-07-16 1
+4.39 Keith Brown  United States Boston, U.S. 1935-06-01 1
+4.43 George Varoff  United States Princeton, New Jersey, U.S. 1936-07-04 1
+4.54 Bill Sefton  United States Los Angeles, U.S. 1937-05-29 1
+4.54 Earle Meadows  United States Los Angeles, U.S. 1937-05-29 1
+4.6 Cornelius Warmerdam  United States Fresno, U.S. 1940-06-29 1
+4.72 Cornelius Warmerdam  United States Compton, U.S. 1941-06-26 2
+4.77 Cornelius Warmerdam  United States Modesto, U.S. 1942-05-23 3
+4.78 Robert Gutowski  United States Palo Alto, U.S. 1957-04-27 1
+4.8 Don Bragg  United States Palo Alto, U.S. 1960-07-02 1
+4.83 George Davies  United States Boulder, U.S. 1961-05-20 1
+4.89 John Uelses  United States Santa Barbara, U.S. 1962-03-31 1
+4.93 Dave Tork  United States Walnut, U.S. 1962-04-28 1
+4.94 Pentti Nikula  Finland Kauhava, Finland 1962-06-22 1
+5 Brian Sternberg  United States Philadelphia, U.S. 1963-04-27 1
+5.08 Brian Sternberg  United States Compton 1963-06-07 2
+5.13 John Pennel  United States London, England 1963-08-05 1
+5.2 John Pennel  United States Coral Gables, U.S. 1963-08-24 2
+5.23 Fred Hansen  United States San Diego, U.S. 1964-06-13 1
+5.28 Fred Hansen  United States Los Angeles, U.S. 1964-07-25 2
+5.32 Bob Seagren  United States Fresno, U.S. 1966-05-14 1
+5.34 John Pennel  United States Los Angeles, U.S. 1966-07-23 3
+5.36 Bob Seagren  United States San Diego, U.S. 1967-06-10 2
+5.38 Paul Wilson  United States Bakersfield, U.S. 1967-06-23 1
+5.41 Bob Seagren  United States Echo Summit, U.S. 1968-09-12 3
+5.44 John Pennel  United States Sacramento, U.S. 1969-06-21 4
+5.45 Wolfgang Nordwig  East Germany Berlin, Germany 1970-06-17 1
+5.46 Wolfgang Nordwig  East Germany Turin, Italy 1970-09-03 2
+5.49 Christos Papanikolaou  Greece Athens, Greece 1970-10-24 1
+5.51 Kjell Isaksson  Sweden Austin, U.S. 1972-04-08 1
+5.54 Kjell Isaksson  Sweden Los Angeles, U.S. 1972-04-15 2
+5.55 Kjell Isaksson  Sweden Helsingborg, Sweden 1972-06-12 3
+5.63 Bob Seagren  United States Eugene, U.S. 1972-07-02 4
+5.65 David Roberts  United States Gainesville, U.S. 1975-03-28 1
+5.67 Earl Bell  United States Wichita, U.S. 1976-05-29 1
+5.7 David Roberts  United States Eugene, U.S. 1976-06-22 2
+5.72 Władysław Kozakiewicz  Poland Milan, Italy 1980-05-11 1
+5.75 Thierry Vigneron  France Paris, France 1980-06-01 1
+5.75 Thierry Vigneron  France Lille, France 1980-06-29 2
+5.77 Philippe Houvion  France Paris, France 1980-07-17 1
+5.78 Władysław Kozakiewicz  Poland Moscow, Soviet Union 1980-07-30 2
+5.8 Thierry Vigneron  France Mâcon, France 1981-06-20 3
+5.81 Vladimir Polyakov  Soviet Union Tbilisi, Soviet Union 1981-06-26 1
+5.82 Pierre Quinon  France Cologne, Germany 1983-08-28 1
+5.83 Thierry Vigneron  France Rome, Italy 1983-09-01 4
+5.85 Sergey Bubka  Soviet Union Bratislava, Czechoslovakia 1984-05-26 1
+5.88 Sergey Bubka  Soviet Union Paris, France 1984-06-02 2
+5.9 Sergey Bubka  Soviet Union London, England 1984-07-13 3
+5.91 Thierry Vigneron  France Rome, Italy 1984-08-31 5
+5.94 Sergey Bubka  Soviet Union Rome, Italy 1984-08-31 4
+6 Sergey Bubka  Soviet Union Paris, France 1985-07-13 5
+6.01 Sergey Bubka  Soviet Union Moscow, Soviet Union 1986-06-08 6
+6.03 Sergey Bubka  Soviet Union Prague, Czechoslovakia 1987-06-23 7
+6.05 Sergey Bubka  Soviet Union Bratislava, Czechoslovakia 1988-06-09 8
+6.06 Sergey Bubka  Soviet Union Nice, France 1988-07-10 9
+6.07 Sergey Bubka  Soviet Union Shizuoka, Japan 1991-05-06 10
+6.08 Sergey Bubka  Soviet Union Moscow, Soviet Union 1991-06-09 11
+6.09 Sergey Bubka  Soviet Union Formia, Italy 1991-07-08 12
+6.1 Sergey Bubka  Soviet Union Malmö, Sweden 1991-08-05 13
+6.11 Sergey Bubka  Ukraine Dijon, France 1992-06-13 14
+6.12 Sergey Bubka  Ukraine Padua, Italy 1992-08-30 15
+6.13 Sergey Bubka  Ukraine Tokyo, Japan 1992-09-19 16
+6.14 Sergey Bubka  Ukraine Sestriere, Italy 1994-07-31 17
+6.16 Renaud Lavillenie  France Donetsk, Ukraine 2014-02-15 1
