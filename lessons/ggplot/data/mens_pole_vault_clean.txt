@@ -1,4 +1,4 @@
-Meters Athlete Nation Venue Date X
+Meters.Athlete.Nation.Venue.Date.X
 4.02 Marc Wright  United States Cambridge, U.S. 1912-06-08 1
 4.09 Frank Foss  United States Antwerp, Belgium 1920-08-20 1
 4.12 Charles Hoff  Norway Copenhagen, Denmark 1922-09-22 1
