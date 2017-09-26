@@ -60,6 +60,7 @@ You are going to need to install a few extra packages to follow along with this 
 # some standard map packages.
 install.packages(c("maps", "mapdata", "ggpmap"))
 
+
 # the github version of ggmap, JIK
 #devtools::install_github("dkahle/ggmap")
 ```
@@ -304,7 +305,7 @@ using `theme_nothing()`.
 
 
 ```{r, warning=FALSE, message=FALSE}
-pop_and_area<-read.csv(file="./data/ca_counties.csv")
+pop_and_area<-read.csv(file="https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/ca_counties.csv")
       
     ```
 * We need to attach those to every point on polygons of the counties.  This is a job for `inner_join` from the `dplyr` package
@@ -424,7 +425,7 @@ to use in the background of your plots.
 
 * Here is a small data frame of points from the Sisquoc River.
     ```{r}
-    sisquoc <- read.table("data/sisquoc-points.txt", sep = "\t", header = TRUE)
+    sisquoc <- read.table("https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/sisquoc-points.txt", sep = "\t", header = TRUE)
     sisquoc
 
     ```
@@ -450,7 +451,7 @@ to use in the background of your plots.
 
 * We can plot a route like this:
     ```{r}
-    bike <- read.csv("data/bike-ride.csv")
+    bike <- read.csv("https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/bike-ride.csv")
     head(bike)
     bikemap1 <- get_map(location = c(-122.080954, 36.971709), maptype = "terrain", source = "google", zoom = 14)
     ggmap(bikemap1) + 
@@ -465,7 +466,7 @@ error.  You can go to google maps to figure out where the center should be (righ
 ### Pelagic Fishes
 Let's finally get a visual for the data in the pelagics metadata set that we've been playing with, shall we?
 ```{r}
-pelagics<-read.table("./data/pelagics_metadata.txt",sep="\t",header=T,stringsAsFactors = F)
+pelagics<-read.table("https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/pelagics_metadata.txt",sep="\t",header=T,stringsAsFactors = F)
 #Instead of playing with the scale to get it just right, I'm going to try make_bbox to make
 #a bounding box
 boxtest <- make_bbox(lat=decimalLatitude,lon=decimalLongitude,data=pelagics)
@@ -484,20 +485,20 @@ ggmap(pmap) + geom_point(data = pelagics, mapping = aes(x = decimalLongitude, y 
   theme(legend.position="bottom") + 
   labs(color="Species")
 ```
-It is still chopping off Aceh! Also it would be nice to make pie charts out of the species to show their relative frequency at each location. But that is for another R session. It is almost midnight!
+It is still chopping off Aceh! But that is for another R session. It is almost midnight!
 
 #messing with vote data
 
 ```{r}
-votes<-read.table(file="./data/state_votes.txt",sep="\t",header=T,row.names=T)
-votes$State.1<-tolower(votes$State.1)
-{r}
-votes2<-votes[,44:58]
-votes3<-t(votes2)
-write.csv(votes3,"./data/state_votes.txt")
+#votes<-read.table(file="https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/state_votes.txt",sep="\t",header=T,row.names=T)
+#votes$State.1<-tolower(votes$State.1)
+
+#votes2<-votes[,44:58]
+#votes3<-t(votes2)
+#write.csv(votes3,"./data/state_votes.txt")
 
 
-votes<-read.csv(file="./data/state_votes.txt", stringsAsFactors=F)
+votes<-read.csv(file="https://ericcrandall.github.io/BIO444/lessons/Maps_in_R/data/state_votes.txt", stringsAsFactors=F)
 
 length(votes$Alabama[which(votes$Alabama=="R")])/length(votes$Alabama)
 
