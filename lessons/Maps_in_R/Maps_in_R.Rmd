@@ -36,7 +36,7 @@ More recently, a third approach to convenient mapping, using `ggmap` has been de
 allows the tiling of 
 detailed base maps from Google Earth or Open Street Maps, upon which spatial data may be
 plotted.
-Today, we are going to focus on mapping using base maps from R's tried and true `maps`
+We are going to focus on mapping using base maps from R's tried and true `maps`
 package and also using the
 `ggmap` package.
 
