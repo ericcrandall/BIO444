@@ -1,12 +1,18 @@
 ---
 title: Graphics in ggplot2
 author: "Eric Crandall"
+date: '`r Sys.Date()`'
 output:
   html_document:
+    keep_md: yes
     toc: yes
-  bookdown::html_chapter:
-    toc: no
-layout: default
+    toc_depth: 3
+  md_document:
+    toc: yes
+    variant: markdown_github
+  pdf_document:
+    toc: yes
+    toc_depth: 3
 ---
 
 
@@ -16,6 +22,8 @@ Thanks to Eric Anderson for lesson ideas and code!
 
 ```{r, include = FALSE}
 library(knitr)
+library(lubridate)
+
 opts_chunk$set(fig.width=10, 
                fig.height=7, 
                out.width = "600px", 
@@ -28,7 +36,7 @@ opts_chunk$set(fig.width=10,
 * Please download/install these before coming to class:
     1. install necessary packages:
         ```{r, eval = FALSE}
-        install.packages(c("ggplot2","lubridate", "plyr", "mosaic", "mosaicData", "reshape2"))
+        install.packages(c("ggplot2","lubridate", "plyr", "mosaic", "mosaicData", "reshape2","png"))
         ```
     2. Pull the most recent version of the rep-res-course repo just before coming to class.
 
@@ -124,32 +132,22 @@ All I can say is you owe it to yourself to persevere --- `ggplot2` is really wor
 * I grabbed the data by copying them from http://en.wikipedia.org/wiki/Men's_pole_vault_world_record_progression and pasting them into a text file
 * Here we read them in:
     ```{r}
-    library(lubridate)  # for dealing with dates
     library(ggplot2)
+    library(lubridate)
     library(plyr)
     # first off read the data into a data frame
-    pv <- read.table("data/mens_pole_vault_raw.txt", 
+    pv <- read.table("https://ericcrandall.github.io/BIO444/lessons/ggplot/data/mens_pole_vault_clean.txt", 
                 sep = "\t", 
                 header = TRUE, 
                 stringsAsFactors = FALSE
                 )
+    #change date to true date format
+    pv$Date<-ymd(pv$Date)
     #View(pv)
     ```
-  Yuck! These data are full of annotations.
-  Let's use our newfound regular expression and data cleaning powers to clean these data up.
 
-```{r}
-# remove the footnote refs in the dates
-    pv$Date <- gsub("\\[[0-9]\\]", "", pv$Date) 
-# remove the "m" and other stuff from the heights
-    pv$Record <- as.numeric(gsub(" m.*", "", pv$Record))  
-# convert dates to lubridate 
-    pv$Date <- mdy(pv$Date)  
-# change "Record" column to "Meters"
-    names(pv)[names(pv) == "Record"] = "Meters" 
-    ```
-* Here are the first few rows of our clean data fram:
-    ```{r, eval=F}
+* Here are the first few rows of our data fram:
+    ```{r, eval=T}
     head(pv)
     ```
 
@@ -186,8 +184,8 @@ Here are some interesting points about:
     c. when you map aesthestics you wrap them inside the `aes()` function
     b. the full object with all the layers is returned into `g2` and then we printed it (by typing `g2`).
     (we could have also just said `g + geom_point(data = pv, mapping = aes(x = Date, y = Meters))`)
-    d. we didn't have to do anything fancy to the dates...ggplot knew how to plot them.  This is thanks to 
-    turning the dates into `lubridate` objects. (If you work with dates, get to know the lubridate package!)
+    d. we didn't have to do anything fancy to the dates...ggplot knew how to plot them.
+    
 3.  I want to overlay a line on that...No problem!  Add another layer:
     ```{r}
     g3 <- g2 + geom_line(data = pv, mapping = aes(x = Date, y = Meters))
@@ -229,7 +227,8 @@ and mappings are not specified in later layers, the defaults are used.
     d2
     ```
     
-    Wow! Transparency was never so easy in R base graphics!
+    Wow! Transparency is not so easy in R base graphics!
+    
 3. Put a line along there too:
     ```{r}
     d3 <- d2 + geom_line(color = "blue")
@@ -413,7 +412,7 @@ Month on the $x$-axis and we will map Snowfall to the $y$-axis.
 
 ### Colors: discrete or continuous gradient?
 
-* When `ggplot` applies colors to things, it uses discrete values if the values of discrete (aka factors or characters) and 
+* When `ggplot` applies colors to things, it uses discrete values if the values are discrete (aka factors or characters) and 
 continuous gradients if they are numeric.
 * We can plot points, coloring them by SeasonStart (which is numeric...) instead of making boxplots
     ```{r}
