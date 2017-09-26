@@ -10,6 +10,7 @@ author: Dr. Eric Crandall
 - [Introduction to Unix](./lessons/unix/introduction_to_unix.html)
 - [Introduction to R: Data types and Data Manipulation ](./lessons/R/R_objects_data_manipulation.html)
 - [Introduction to R: Files, Strings, and Programming ](./lessons/R/R_files_strings_programming.html)
+- [Introduction to R: Graphics with ggplot2](./lessons/ggplot/ggplot_all_EDC.html)
 
 
 
