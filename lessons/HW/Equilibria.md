@@ -1,3 +1,10 @@
+---
+layout: page
+title: "The Hardy Weinberg Equilibrium"
+date: 2017-9-27
+
+---
+
 # <center>The Hardy Weinberg Equilibrium</center>
 `r Sys.Date()`  
 
