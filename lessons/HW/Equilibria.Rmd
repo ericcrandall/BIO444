@@ -1,0 +1,27 @@
+---
+title: <center>The Hardy Weinberg Equilibrium</center>
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+  md_document:
+    toc: yes
+    variant: markdown_github
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r child="../Rmd/IntroHW.Rmd"}
+
+```
+
+```{r child="../Rmd/HardyWeinbergII.Rmd"}
+
+```
+
+
+
+### References
