@@ -13,6 +13,7 @@ output:
     toc: yes
     toc_depth: 3
 ---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 
 ```{r child="../Rmd/IntroHW.Rmd"}
 

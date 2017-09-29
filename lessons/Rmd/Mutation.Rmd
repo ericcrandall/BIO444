@@ -1,0 +1,144 @@
+---
+title: <h1>Mutation</h1>
+date:  <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
+bibliography: ../TPG.bib
+csl:  ../genetics.csl.txt
+output:
+  html_document:
+    css: ../Chapter.css
+    toc: yes
+    toc_depth: 5
+    code_fold: show
+---
+
+#### What is a mutation?
+
+Look in any introductory biology, genetics, or evolution text, and you will likely find the following statements made in some form,
+
+1.   Mutation is a random process
+2.  Most mutations are detrimental and are quickly eliminated from the population
+3.  Those rare beneficial mutations that occur quickly spread and go to fixation
+
+
+#### Mutations can come in many forms
+
+1. Point mutations
+AGCTAGCTGACTA
+AGCTA*G*CTGACTA
+
+2. Insertions/Deletions
+AGCTAGCTGACTA
+AGCT*CC*AGCTGACTA
+
+AGCT--AGCTGACTA
+AGCTCCAGCTGACTA
+
+3. Gene Duplications
+
+![Gene Duplication](../images/gene_duplication.jpg)
+
+4. Chromosomal Inversions
+![Chromosomal Inversion](../images/inversion.jpg)
+
+5. Whole genome duplication (auto or allo polyploidy)
+![Autopolyploidy](../images/autopolyploidy.jpg)
+
+And there are many other ways to categorize and label mutations. For this class we will be focused on mutations from the first two categories, and really mostly only the point mutations. Point mutations yield what is called a Single Nucleotide Polymorphism (SNP). 
+My intent here is not to come up with an absolute definition, but rather to emphasize that when one reads about mutation or investigates mutational data, it is important to be certain of the context in which the term is being used. Of course, a very simple molecular definition of the word might be "a change in DNA sequence".  But what kind of change - single base substitution, inversion, deletion, duplication, microsatellite expansion/contraction?  And what do we mean by sequence - base pair, coding region, "gene", chromosomal region?  Each of these have unique properties that must be considered. In the discussion that follows, I will attempt to focus on some general factors that can potentitally affect any mutational change, broadly defined.  Where necessary, I will specify particular features of the process in question that contribute to the analysis.
+
+### Is Mutation Random or Directed?
+
+The idea that mutation is a random process is so engrained in modern biology that the phrase "random mutation" seems repetitive.  But consider this.  If one grows up a large number of bacterial cells (let's say something like 10^10^) from a single cell that is sensitve to infection by bacteriophage T4, and then plates those bacteria on media containing the virus, a small number of colonies will grow, suggesting that, in those cases, a mutation has occurred that confers resistance to bacteriophage infection.  But how did they arise?  There are two possibilities
+
+2.  The mutations arose as an adaptive response to the presence of T4 *after being exposed to the bacteriophage*.
+1.  The mutations occurred at random, while the bacteria were being grown *in the absence of T4*.
+
+Salvador Luria and Max Delbruck did exactly  this experiment, but in a way that allowed them to elegantly distinguish between the two hypotheses.  The basic experiment was simple - grow several cultures of sensitive cells as described above, and then plate samples of those  cultures on T4-containing agar plates.  Count the resistant colonies on the replicate plates and then compute the mean and variance.  
+
+![Luria-Delbruck](../images/luria_delbruck.png)
+
+So what does that give us?  Consider the two possibilities; in both cases recognizing that the number of mutations that occurs relative to the total number of bacterial cells is quite small
+
+#### Hypothesis I - Mutations are adaptive.
+
+If the mutations occur in response to T4, then the probability of mutations occurring on the different plates would be the same, since they are all being exposed to the same mutation-inducing agent (the bacteriophage).  For such a rare event (sort of akin to the probability of an auto accident occurring at a particular intersection on a given day), the most likely event on a given plate would be the occurrence of a small number of resistant colonies (perhaps even zero), and the probabilities of larger numbers occurring would be smaller - a classic Poisson process.
+
+As an aside, a Poisson process is one in which a particular event occurs with some probability per unit time.  Examples might be
+
+1.  The number of cars passing a particular point in a given period of time.
+2.  The number of persons killed by lightning per year.
+3.  In our case, the number of mutations that occur in response to T4 per plate.
+
+Let's simulate 20 Petri plates, and we find that the mean number of resistant colonies is 4.
+```{r}
+set.seed(123) #set random number seed
+colonies <-rpois(20,4) # Generate 20 Poisson distributed points with mean of 4
+colonies
+hist(colonies,xlab="Number of Colonies",ylab="Number of Plates", main="Simulation of Adaptive Mutation") 
+
+```
+But the interesting feature about the Poisson distribution, which we could show mathematically (but won't) is that the expectation is that the mean equals the variance.  Let's see if that's the case
+```{r}
+mean(colonies)
+var(colonies)
+```
+
+And we see that they are very close.  So getting back to the experiment, this leads to the following prediction:
+
+**If mutation is an adaptive response to the selective agent, then we would expect the mean number of colonies per plate to be equal to the variance among them**
+
+#### Hypothesis 2 - Mutation is random
+
+Now let us see what we would expect if mutation did not occur n response to selection, but rather occurred at random while the cells were growing *in the absence of the selective agent*.  Remember that Luria and Delbruck grew multiple independent cultures, which were the source of bacteria for plating.  If mutation is random, then in  some cultures, it might occur early in the growth period, and through subsequent rounds of cell division produce a large number of progeny.  In others, it might occur late, shortly before plating, so that only a small number of resistant cells would be present at the time of plating.  The result would be an extremely large variance in the number of resistant colonies on the "replicate" plates.  Predicting the exact distribution under this hypothesis is not trivial; for our purposes at the moment, we can make the following prediction:
+
+**If mutation is random, then we would expect the variance in number of colonies on the plate to greatly exceed the mean**
+
+#### The results
+
+So what did Luria and Delbruck actually find?  Here, We will use some functions developed by EsHamon2012; included in their material are some data from one of the original experiments, in which 42 plates were scored:
+
+```{r}
+source("http://ljk.imag.fr/membres/Bernard.Ycart/LD/LD.R")
+length(LD43a)
+LD43a
+```
+And doing our test is as simple as computing the mean and variance
+```{r}
+m2 <-mean(LD43a)
+m2
+var(LD43a)
+```
+
+And we see that the variance exceeds the meen by two orders of magnitude, clearly supporting hypothesis 2 above.
+
+We can also examine this graphically, comparing the observed distribution of resistant colonies compared with those expected from a Poisson distribution, given the mean value obtained:
+
+```{r}
+hist(LD43a,freq=FALSE,ylim=c(0,.07))
+lines(dpois(0:200,m2),col="red")
+```
+
+Clearly, the fit of the data to a Poisson expectation is poor.
+
+Finally, as a control, Luria and Delbruck made replicate plates from a single culture, predicting that, since all of the platings were the result of the same mutational history, indeed we would expect to see a Poisson distribution of resistant colony numbers.  These were their results:
+
+```{r}
+con <-c(14,15,13,21,15,14,26,16,20,13)
+m3 <-mean(con)
+m3
+var(con)
+```
+
+
+And these are entirely consistent with expectations based on the Poisson distribution.
+
+```{r}
+hist(con,freq=FALSE,xlim=c(0,30))
+lines(dpois(1:30,m3),col="red")
+```
+
+
+The fit is still not gorgeous, but in fact the difference between observed and expected is not significant.
+
+This then leads to our next question - what happens to mutant alleles once they arise?
+

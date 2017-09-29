@@ -1,0 +1,33 @@
+---
+title: <h1>Mutation</h1>
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+  md_document:
+    toc: yes
+    variant: markdown_github
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
+
+```{r}
+library(ggplot2)
+```
+
+```{r,child="../Rmd/Mutation.Rmd"}
+
+```
+
+```{r,child="../Rmd/MutationFate.Rmd"}
+
+```
+
+```{r child="../Rmd/MutModels.Rmd"}
+
+```
+
