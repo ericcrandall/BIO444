@@ -1,0 +1,26 @@
+---
+title: <h1>Introduction to DNA Sequence Variation</h1>
+author: <center></center>
+date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
+bibliography: ../TPG.bib
+csl: ../genetics.csl.txt 
+output: 
+    html_document:
+       theme: paper
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+```{r child="../Rmd/IntroDNA.Rmd"}
+
+```
+
+```{r child="../Rmd/sfsDNA.Rmd"}
+
+```
+
+```{r child="../Rmd/MtDNA.Rmd"}
+
+```
+
+## References

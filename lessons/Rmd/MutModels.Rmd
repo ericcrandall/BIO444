@@ -32,7 +32,7 @@ We now need to think a little bit more about mutation as an evolutionary process
 
 For our purposes, we're going to assume that at a given time, the probability of a given mutation is constant and is the same for each position being considered.  Thus, we can think of there being a stable *Transition matrix* conisting of the probabilities of all possible state changes (no change, transition, transversion).  And if our model is "time-reversible" then p(A - > G) is the same as p(G ->A) and the matrix is symmetric.
 
-![Figure 1](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/images/MutationMatrix.png)
+![Figure 1](../images/MutationMatrix.png)
 
 ### The Jukes Cantor Model
 
@@ -99,7 +99,7 @@ What we see is that both lines assymptotically approach .25, reflective of the f
 
 What we have done so far is obviously simplistic - as noted at the outset, other factors are involved as well.  One of those is that it is well established that transition mutations occur more frequently than transversions.  In the following, k is a rate associated with transitions and &beta; with transversions:
 
-![](https://dl.dropboxusercontent.com/u/9752688/PopGenWithR/images/K80.png)
+![](../images/K80.png)
 
 If we set k to 4 and &beta; to 1/(2+k), then we can get  our transition rate matrix:
 
@@ -145,10 +145,10 @@ There are three additional models that are commonly used in modeling the evoluti
 So which should we use?  There are two possible approaches
 
 1.  Keep it simple.  As the models become more complex, there are more parameters that must be estimated from the data.  This is risky - there may simply not be enough data to come up with accurate assessments of each.
-2.  Compare the different models.  Here, we won't go into great detail, but there is a procedure that does that, which is implemented in the phangorn package of R.  An example, We will look at a small simulated DNA sequence data set:
+2.  Compare the different models.  Here, we won't go into great detail, but there is a procedure that does that, which is implemented in the phangorn package of R.  As an example, we will look at a small simulated DNA sequence data set:
 
 ```{r}
-dat <-read.FASTA("./BeastDemo/demo1.fasta")
+dat <-read.FASTA("../BeastDemo/demo1.fasta")
 dat.phy <-phyDat(dat)
 
 dat.mt <-modelTest(dat.phy,G=FALSE,I=FALSE)
@@ -156,10 +156,10 @@ dat.mt <-modelTest(dat.phy,G=FALSE,I=FALSE)
 dat.mt[with(dat.mt,order(dat.mt$BIC)),]
 ```
 
-Here, the models are listed from the best fit to the worst, and we find out that, for these data, the Jukes and Cantor model works fine.  But in fact that's the model that was used to simulate the data, so that is no surprise.  What if we use some real data?  We can use some mitochondrial DNA sequences from fur seals [@Hoffman2011] as an example.
+Here, the models are listed from the best fit to the worst, and we find out that, for these data, the Jukes and Cantor model works fine.  But in fact that's the model that was used to simulate the data, so that is no surprise.  What if we use some real data?  We can use some mitochondrial DNA sequences from fur seals as an example.
 
 ```{r}
-data(furseals)
+load("../Data/furseals.R")
 fur.phy <-phyDat(fur.dat)
 fur.mt <-modelTest(fur.phy,G=FALSE,I=FALSE)
 fur.mt[with(fur.mt,order(fur.mt$BIC)),]

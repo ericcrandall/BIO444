@@ -114,17 +114,34 @@ As an exercise, you might want to try to repeat the calculations we did above fo
 
 This is a good point to make an important point regarding terminology.  In everything we have talked about so far, we are talking about *mutations*, as noted at the outset, as a change in DNA sequence.  Thus, when one occurs, there is a single copy of the mutation present in 2N alleles, an obviously very low frequency.  But obviously some mutations subsequently increase in frequency, and resulting from either chance (genetic drift) or deterministic (selection) processes, increase to a frequency of 1, or go to fixation.  At that point, we say that a *substitution* has occurred.  The distinction between mutation and substitution is one to keep in mind as we move forward.
 
+*Mutation*  
+AAGCTAGCTTA  
+AAGCTAGCTTA  
+AAGC**G**AGCTTA <- mutation  
+AAGCTAGCTTA  
+AAGCTAGCTTA  
+AAGCTAGCTTA  
+
+*Substitution*  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+
 ### Conclusions
 
 So we are left with three observations:
 
 1.  Mutations occur without respect to the presence or absence of a selective agent - this is what we mean when we use the shorthand "random mutation". While rates and processes of mutational change are in fact distributed nonrandomly in the genome, this basic tenet, first demonstrated by Luria and Delbruck, holds in all cases in which it has been examined.
-2.  The rate at which individual genes mutate are typically very low (more on this in subsequent units)
+2.  The rate at which individual genes mutate are typically very low
 3.  The typical fate of a particular new mutation in a finite population of constant size, *even if it confers a selective advantage* is that it will be lost.
 
 Point three, on the face of it, may seem paradoxical.  All populations are finite; many have relatively constant population sizes, If variation is the raw material of evolution, and it is those mutations that confer an advantage that benefit from natural selection, how can the process occur if most of them are lost?
 
 There are a few general responses we can make at this point.  First, although mutations in a given gene and a given generation may be rare, there are lots of genes in the genome undergoing the process, the total number of mutations occurring can be quite large.  Second, of course, while the probability of loss of a particular advantageous mutation is high, it is not 1, so that some will obviously survive.  And at this point, natural selection can take over, right?
 
-Not so fast.  Before we get to that, we need to consider the issue of population size more closely.  For that, we will now incorporate mutation into our thinking about genetic drift
+Not so fast.  Before we get to that, we need to consider the issue of population size (and genetic drift) more closely.
+
 

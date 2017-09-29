@@ -1,0 +1,152 @@
+#NEXUS
+[Data written by write.nexus.data.R, Wed Feb 17 10:03:18 2016]
+BEGIN DATA;
+  DIMENSIONS NTAX=17 NCHAR=600;
+  FORMAT DATATYPE=DNA MISSING=? GAP=- INTERLEAVE=YES;
+  MATRIX
+    Chihuahua               acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    ShihTzu                 acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    JackRussel              acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttcttccctcccctat
+    Hovawart                acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    MalthezerBichon         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    PoodlexShihTzu1         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    PoodlexShihTzu2         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    ArgosGermanBracke       acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttcttccctcccctat
+    DwarfSchnauzer          acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    GermanShepherd          acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    GermanShepherd2         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    JackRussel2             acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttcttccctcccctat
+    Maltheser2              acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    BorderCollie            acacccctacattcatatattgaattacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    GoldenRetriever         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    GermanShepherd3         acacccctacattcatatattgaatcacccctactgtgctatgtcagtatctccaggtaaacccttctcccctcccctat
+    Cocker3Spaniel          acacccctacattcatatattgaatcacccctactgtgctatgtcagtatttccaggtaaacccttcttccctcccctat
+
+    Chihuahua               gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    ShihTzu                 gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    JackRussel              gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatattcttacataggacatatcaactc
+    Hovawart                gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    MalthezerBichon         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    PoodlexShihTzu1         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    PoodlexShihTzu2         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    ArgosGermanBracke       gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatattcttacataggacatatcaactc
+    DwarfSchnauzer          gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    GermanShepherd          gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    GermanShepherd2         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    JackRussel2             gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatattcttacataggacatatcaactc
+    Maltheser2              gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    BorderCollie            gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    GoldenRetriever         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    GermanShepherd3         gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatattaactc
+    Cocker3Spaniel          gtacgtcgtgcattaatggtttgccccatgcatataagcatgtacataatattatatccttacataggacatactaactc
+
+    Chihuahua               aatctcataattcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    ShihTzu                 aacctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    JackRussel              aatctcataattcattgatctgtcagcagtaatcaaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    Hovawart                aacctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    MalthezerBichon         aatctcataattcactgatctttcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    PoodlexShihTzu1         aacctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    PoodlexShihTzu2         aacctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    ArgosGermanBracke       aatctcataattcattgatctgtcagcagtaatcaaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    DwarfSchnauzer          aatctcataattcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    GermanShepherd          aatctcataattcactgatctttcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    GermanShepherd2         aatctcataattcactgatctttcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    JackRussel2             aatctcataattcattgatctgtcagcagtaatcaaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    Maltheser2              aatctcacaattcactgatctttcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    BorderCollie            aatctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    GoldenRetriever         aacctcatagttcactgatctatcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    GermanShepherd3         aatctcataattcactgatctttcaacagtaatcgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+    Cocker3Spaniel          aatctcataattcactgatctgtcaacagtaaccgaatgcatatcacttagtccaataagggcttaatcaccatgcctcg
+
+    Chihuahua               agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    ShihTzu                 agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    JackRussel              agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    Hovawart                agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    MalthezerBichon         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    PoodlexShihTzu1         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    PoodlexShihTzu2         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    ArgosGermanBracke       agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    DwarfSchnauzer          agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    GermanShepherd          agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatattaacgtgggggttactatcatgaaact
+    GermanShepherd2         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatattaacgtgggggttactatcatgaaact
+    JackRussel2             agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    Maltheser2              agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    BorderCollie            agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    GoldenRetriever         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    GermanShepherd3         agaaaccatcaacccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+    Cocker3Spaniel          agaaaccatcaatccttgctcgtaatgtccctcttctcgctccgggcccatactaacgtgggggttactatcatgaaact
+
+    Chihuahua               atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    ShihTzu                 atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    JackRussel              atacctggcatctggttcttacctcagggccataactctatttactccaatcctactaattctcgcaaatgggacatctc
+    Hovawart                atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    MalthezerBichon         atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    PoodlexShihTzu1         atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    PoodlexShihTzu2         atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    ArgosGermanBracke       atacctggcatctggttcttacctcagggccataactctatttactccaatcctactaattctcgcaaatgggacatctc
+    DwarfSchnauzer          atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    GermanShepherd          atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    GermanShepherd2         atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    JackRussel2             atacctggcatctggttcttacctcagggccataactctatttactccaatcctactaattctcgcaaatgggacatctc
+    Maltheser2              atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    BorderCollie            atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    GoldenRetriever         atacctggcatctggttcttacttcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+    GermanShepherd3         atacctggcatctggttcttacttcagggccataaccttatttactccaatcctactaattctcgcaaatgggacatctc
+    Cocker3Spaniel          atacctggcatctggttcttacctcagggccataactttatttactccaatcctactaattctcgcaaatgggacatctc
+
+    Chihuahua               gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    ShihTzu                 gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    JackRussel              gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatttggtatcttttaatttttagggggg
+    Hovawart                gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    MalthezerBichon         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    PoodlexShihTzu1         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    PoodlexShihTzu2         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    ArgosGermanBracke       gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatttggtatcttttaatttttagggggg
+    DwarfSchnauzer          gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    GermanShepherd          gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    GermanShepherd2         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    JackRussel2             gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatttggtatcttttaatttttagggggg
+    Maltheser2              gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    BorderCollie            gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatttggtatcttttaatttttagggggg
+    GoldenRetriever         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    GermanShepherd3         gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatctggtatcttttaatttttagggggg
+    Cocker3Spaniel          gatggactaatgactaatcagcccatgatcacacataactgtggtgtcatgcatttggtatcttttaatttttagggggg
+
+    Chihuahua               gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    ShihTzu                 gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    JackRussel              gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcaggggatatgcccgtcgcg
+    Hovawart                gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    MalthezerBichon         gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    PoodlexShihTzu1         gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    PoodlexShihTzu2         gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    ArgosGermanBracke       gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    DwarfSchnauzer          gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    GermanShepherd          gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    GermanShepherd2         gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    JackRussel2             gaatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcaggggatatgcccgtcgcg
+    Maltheser2              gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    BorderCollie            gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    GoldenRetriever         gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    GermanShepherd3         gaatctgctatcactcacctacgaccgcaacggcactaactctaacttatcttctgctctcagggaatatgcccgtcgcg
+    Cocker3Spaniel          naatctgctatcactcatctacgaccgcaacggcactaactctaacttatcttctgctctcaggggatatgcccgtcgcg
+
+    Chihuahua               gccctaacgcagtcaaataacttgtagctggacttattca
+    ShihTzu                 gccctaatgcagtcaaataacttgtagctggacttattca
+    JackRussel              gccctaatgcagtcaaataacttgtagctggacttattca
+    Hovawart                gccctaacgcagtcgaataacttgtagctggacttattca
+    MalthezerBichon         gccctaatgcagtcaaataacttgtagctggacttattca
+    PoodlexShihTzu1         gccctaatgcagtcaaataacttgtagctggacttattca
+    PoodlexShihTzu2         gccctaatgcagtcaaataacttgtagctggacttattca
+    ArgosGermanBracke       gccctaatgcagtcaaataacttgtagctggacttattca
+    DwarfSchnauzer          gccctaacgcagtcaaataacttgtagctggacttattca
+    GermanShepherd          gccctaatgcagtcaaataacttgtagctggacttattca
+    GermanShepherd2         gccctaatgcagtcaaataacttgtagctggacttattca
+    JackRussel2             gccctaatgcagtcaaataacttgtagctggacttattca
+    Maltheser2              gccctaatgcagtcaaataacttgtagctggacttattca
+    BorderCollie            gccctaatgcagtcaaataacttgtagctggacttattca
+    GoldenRetriever         gccctaatgcagtcaaataacttgtagctggacttattca
+    GermanShepherd3         gccctaatgcagtcaaataacttgtagctggacttattca
+    Cocker3Spaniel          gccctaatgcagtcaaataacttgtagctggacttattca
+  ;
+END;
+

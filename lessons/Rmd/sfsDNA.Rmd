@@ -1,0 +1,94 @@
+---
+title: <center>Site Frequency Spectra</center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+output:
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+## The Site Frequency Spectrum
+
+Thus far, we have talked about the use of nucleotide diversity (π) and number of segregating sites (S) as possible summary statistics for characterizing DNA sequence variation.  However, there is more that can be extracted from a typical data set.  In particular, neither of these address the question of allele frequencies.  But when we are talking about DNA sequences, what do we mean by "allele"?  Let's consider sites as loci; further we can assume that each site has one of two states - ancestral or derived. Furthermore, we assume that a particular site only undergoes a single mutation, so that all sequence differences we observe when we compare two sequences are the result of unique mutational events.  This is what is known as the *infinite sites model*.   
+
+Thus, we might want to use as a measure site-based allele frequencies as the fraction of sequences that contain the derived allele at that site.  Let's do so by simulating a simple data set.  To do so, we are going to us Rick Hudson's program `ms` for the first time [@ms].  It is an incredibly powerful program, but its basic function is simple - given some parameters such as &theta; or S, it will generate samples that would be generated based on the infinite sites model.  It is distributed as c++ code that can be compiled and run from the command line; fortunately for us it has been incorporated into the r package `phyclust`, which is loaded along with `TeachingPopGen`.  
+
+So we are going illustrate site frequency spectra, we will use ms to generate 10 samples with 10 segregating sites.  These will be coded as 0's and 1's, indicating ancestral and derived alleles, but remember, in real life each allele would be a nucleotide (A, G, C or T), and two such alleles (one ancestral and one derived) would be segregating at each position.  
+
+```{r}
+library(TeachingPopGen)
+set.seed(123)  
+rand <-ms(nsam=10, nreps=1,opts="-s 10")  
+rand <-read.ms.output(txt=rand)  
+x <-rand$gametes[[1]]  
+x  
+```
+
+Now, we can visually inspect this and see, for example, that sites 1,2,5,6,8, 9 and 10 contain one derived allele each, 3 and 4 contain 2, and so on.  But R can get the whole spectrum  much more readily, and we can then plot a histogram.
+
+```{r}
+
+spec <-sfs(x)
+spec
+```
+
+And we see the spectrum plotted graphically; in addition the function returns a list (here given the name spec) that has as elements the number of sequences (spec[[1]]) and the actual spectrum (spec[[2]]).
+
+### Some real data
+
+But let's go to something more realistic. Let's return to the acp29 data.  The data are in FASTA format.  By the following, we can read it in as a DNAbin object and plot the sfs:
+
+```{r}
+#data(acp29) #Load data from TeachingPopGen
+acp29 <-read.FASTA("./Data/acp29.fasta") #Read the file we created in the last unit
+spec.acp <-site.spectrum(acp29)
+plot(spec.acp)
+```
+
+So we have 10 positions which are "singletons" 16 of the 17 sequences have one base and one has another.  We then have 1 each where 2 and 3 sequences differ from the rest., and so forth.  The question then becomes what to do with them - as with the examples we did with the Ewens data, we need to compare these to some sort of expectation.  
+
+Note that this is what is called a "folded" site frequency spectrum.  That means that, in contrast to our simulated example, the ancestral state is not known. In this case,  what we do is to treat all positions in which a base has a frequency of 1 as the first class, again for those with two, and so forth up to the any class that has equal numbers of two bases.  In this situation (and in contrast to the unfolded case, where ancestry is known), the maximum frequency class is n/2.
+
+### Simulating Expected Data
+
+But the question is, what should that distribution look like.  Nielsen and Slatkin provide an analytical solution for the expectation - see pp. 54 and 55.  But in our philosophy of using simulation as an approach, we will eschew the equations and simulate the result as follows.
+
+First, we have seen that the data set contains 17 sequences of 703 bases.  We need to know the number of segregating sites
+
+```{r}
+length(seg.sites(acp29))
+```
+
+There are 15.  So now we will use ms to simulate that, and then send the results to ms2dna to produce simulated bases (rather than 1's and zeros).  The results are stored in a fasta file (called test.fasta) Note that in this case, we are not using ms as implemented in phyclust; rather we are making a system call directly to ms, rerouting the outcome to ms2dna, which converts the output to simulated DNA sequences, and having that saved as a fasta file.
+
+```{r}
+system("ms 17 1 -s 15 -r 0 703 -seed 1 2 3 | ms2dna >test.fasta") # numbers set to mimic acp data; r parameter is essential
+```
+Now we will read that file and look at its SFS., compared with that of acp
+```{r,fig.height=10}
+test.dna <-read.FASTA("test.fasta")
+
+par(mfrow=c(2,1))
+test.sfs <-site.spectrum(test.dna)
+plot(spec.acp,main="Observed")
+plot(test.sfs, main="Simulated")
+```
+
+So is what we observe consistent with neutral expectations?  Based on a single simulation, that's hard to say.  Suppose we repeat the simulation 10 times:
+
+
+```{r, fig.height=15}
+#par(mfrow=c(5,2))
+for(i in 1:10){
+  system("ms 17 1 -s 15 -r 0 703 | ms2dna >test.fasta") # numbers set to mimic acp data; r parameter is essential
+  test.dna <-read.FASTA("test.fasta")
+  test.sfs <-site.spectrum(test.dna)
+plot(test.sfs,main=paste("Simulation", i, sep=" "))
+}
+par(mfrow=c(1,1))
+```
+
+We see that we get a variety of spectra.  So how to sort through them?  Before we can address that, we need to turn to coalescent theory.
+

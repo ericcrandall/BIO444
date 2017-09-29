@@ -1,0 +1,225 @@
+---
+title: <h1>Thinking About Finite Populations</h1>
+date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
+bibliography: ../TPG.bib
+csl: ../genetics.csl.txt
+output:
+  html_document:
+    css: ../Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+
+
+```{r,echo=FALSE}
+library(TeachingPopGen)
+```
+
+## The Basics
+
+Of all of the assumptions of Hardy-Weinberg, the one that is always violated is that of infinite population size.  While many populations are so large that we needn't be concerned about it too much, in fact many others are sufficiently small that we need to explore this further.  And in fact, we shall see that that population size, in concert with mutation rate, are two of the most critical parameters in determining the genetic structure of real populations
+
+### What does it mean to be homozygous?
+
+Before getting into the heart of the matter, we're going to take a short detour and think about homozygosity.  How does it arise?  We can think of two possibilities
+
+
+1.  They are identical in state - are same in sequence or whatever, regardless of ancestry
+2.  They are identical by descent - identical by virtue of having descended from a common ancestor.
+
+We need to think a bit about the difference here.  If, for example, we assume that a particular allele can only arise once (by a single mutation), then the distinction goes away - if we know enough about ancestry we will find the last common one.  On the other hand, if particular mutations can arise multiple times, then the second possibility comes into the picture.  For now, however (and for the next few weeks), we are going to assume that identity in state does in fact imply identity by descent - that is, every new mutation is unique, and thus identical alleles are identical by descent.
+
+### Departure from Hardy Weinberg
+
+Let's look at some real data.  In the human data we looked previously, we saw that departures from Hardy Weinberg were minimal.  Let's now look at another example, some microsatellite data from the legume *Medicago trunculata* [@Ronfort2006].  The data are included in TPG; we will se them to do the following:
+
+1.  We look for departures from Hardy Weinberg
+2.  We will examine some sample loci to see what's going on.
+
+So first we can look at the data and see what it consists of
+```{r}
+data(Medicago)
+Medicago
+```
+
+Next, we can look at the thirteen loci individually and determine whether they conform to Hardy-Weinberg expectations:
+
+```{r}
+hw.test(Medicago)
+```
+
+And we see that, in fact all loci are wildly out of equilibrium.  But let's look at the data for one locus:
+
+```{r}
+med.sum <-summary(Medicago)
+med.sum$MTIC243
+```
+
+
+And what we see is
+
+1.  We are dealing with multiple alleles
+2.  Many of the genotype numbers are small, making our &chi;^2^ numbers a bit suspect.
+3.  But here's the important part - if we visually inspect the numbers above, we see that there are a total of 3 heterozygotes out of the total sample of 346 individuals, so our observed heterozygosity is `r round(3/346,3)`.  In contrast, remember that 
+
+\(H_{exp}=1-\sum{p_i^2}\)
+
+Which can be calculated for this locus by the following
+
+```{r}
+hexp <- heterozygosity(med.sum$MTIC243$allele)
+hexp
+```
+
+and of course
+```{r}
+Hobs <-3/346
+Fi <-1-Hobs/hexp
+Fi
+```
+
+So quite obviously, for this locus (and, as it turns out for all of the others as well), the departure from Hardy-Weinberg is the result of a severe reduction in heterozygosity.  So what gives?
+
+
+### The Sampling Effect of reproduction
+
+We are all familiar with sampling, in the context of collecting data from a sample of a larger population and using those data to estimate parameters for the population as a whole.  It is important to understand, however, that in population genetics, there is also the *biological* sampling that takes place during reproduction.  That is, in a finite population, while an essentially infinite number of gametes can be produced (and for a ballelic locus, allele frequencies of p and q), only a limited number of those gametes actually give rise to the next generation.  In a diploid population with constant size N, that number, of course, will be 2N. This model is what is known as a *Wright-Fisher Population*.   And such a population, the parameters about which  we've been talking - notably allele frequencies and linkage disequilibrium, will be subject to the sampling "error" that results (we've already seen this in simulated data).  So the question we will be dealing with is how that biological sampling process, a random one, affects the genetics of the evolutionary process.
+
+### Nonrandom Mating - an Extreme Case
+
+Suppose we set up the following experiment.  We start with a population of heterozygotes (so p=q=.5).  Each generation, after gametes are produced, we then set up a large number of populations, each founded by one individual with two gametes sampled from that pool.  We then repeat the process for subsequent generations and look at the number of populations that have 0, 1, or 2 a alleles.  We can model that as follows:
+
+```{r}
+par(mfrow=c(5,1),mar=c(1,5,1,1))
+g <-c(0,1,0)
+
+for(i in 1:5){
+t <-rbind(c(1,0,0),c(.25,.5,.25),c(0,0,1))
+g <-g%*%t
+cols <-heat.colors(5)
+
+
+
+barplot(g,names.arg =c("0","1","2"), xlab="# a alleles",ylab="Frequency", col=cols[i])
+
+}
+
+```
+So what we are seeing is an extreme form of genetic drift, the result of which is a set of populations where a is either lost or fixed.  Note, however, that if we were to look at the frequency of the alleles across all populations combined, they would not have changed - p = q = 0.5.  But in such a combined population, of course, the number of heterozygotes would be very low.  So what we see are the following:
+
+1.  An increase in the variance of allele frequencies across populations
+2.  A decline in overall heterozygosity
+3.  Random fixation or loss of alleles.
+
+### A More realistic Example
+
+Now, suppose we start with a set of replicate populations, each with 16 individuals that are all heterozygotes for some gene.  What do we expect to happen?  Below are the results of simulating that experiment (the rather crude R code used is hidden)
+
+```{r,echo=FALSE}
+##Basic code for calculating binomial probability of N taken k with probability p
+##Pr=dbinom(k, N, p)
+##create N +1 X N+1 Matrix (to account for allele numbers from 0 to 2N inclusive)
+##Populate with binomial probabilities
+par(mfrow=c(1,1))
+N=16
+ngen=20
+npops=107
+N2=2*N
+xx=matrix(nrow=ngen,ncol=N2+1,byrow=TRUE)
+z=matrix(nrow=N2+1, ncol=N2+1, byrow=TRUE)
+##y=matrix(nrow=N2+1, ncol=N2+1)
+for (i in 0:N2)
+{ for (j in 0:N2)
+  {
+	z[i+1,j+1]=dbinom(j,N2,i/N2)
+}
+}
+
+##Next step will be to generate starting vector of npops with 0:2N alleles,all 0 except npop with N
+##xx is matrix where rows=generations, columns = number of A alleles (0 to 2N)
+x= rep(0,N2+1); x[N+1]=npops
+for (k in 1:ngen)
+{x=x%*%z
+	for(l in 0:N2)
+	xx[k,l+1]=x[l+1]}
+##barplot(x)
+b=paste("N = ", N, ", Number of Generations = ",ngen, sep=" ")
+persp(xx, xlab="Generation", ylab="Number of A Alleles", zlab="Number of Populations", main="Simulation of Genetic Drift for 50 Replicate Populations", sub=b,phi=30, theta=30 )
+
+```
+
+And what we see is that while initially all populations were heterozygous, by the end, all are fixed for one of the two alleles.  So does this happen in real life?   @Buri1956 performed just this experiment, using populations of *Drosophila melanogaster* that were initially heterozygous for two alleles of the *bw* locus, one that affects eye color.   His results are shown below
+
+
+![Buri](https://dl.dropbox.com/u/9752688/ZOO%20422P/R/Buri.jpg)
+
+So we see that in the laboratory, we get results very similar to those we predicted.  So what has happened? As in the case of our initial hypothetical example, we see an increase in allele frequency variance among replicate populations, an overall decline in heterozygosity, and random fixation and loss of alleles.  
+
+
+
+### Tracking allele frequencies over time
+
+Thus far, we have only been looking at genotype distributions.  For example, in the Buri experiment, we did not delve into the dynamics of change in individual populations - we only pointed out that we went from populations consisting of heterozygotes (p=.5) to ones in which one allele or the other is fixed (p=0 or 1)  Now we want to look at that process.
+
+To do so, we can use the driftPlot function in the TeachingPopGen function.  It uses as input a vector of population sizes, the length of which is the number of generations to be simulated.  The number of simulations can also be set with the parameter nreps=n; the default value of n (used if none is specified) is 10.
+
+So, for example, let's look at 100 generations of allele frequency change in a population of N=100,000, where p = q = .5
+```{r}
+
+par(mfrow=c(1,1)) #set a single graphics pane
+set.seed(3454) #set a random number generator seed (not strictly necessary)
+ngen <-rep(100000,100) # create the vector of population sizes
+sim1.out <-driftPlot(ngen) #run the simulation
+head(sim1.out)
+```
+This gives us a plot that shows very little change.  In addition to the plot, however, the function returns a matrix, in which the rows are generations and the columns are simulations.  This will become valuable in a little bit.
+
+ Now let's look at N=1000
+```{r}
+sim2.out <-driftPlot(rep(1000,100))
+```
+And we see that there is more scatter in the trajectories of the replicate populations.  Now let's run it one more time with N=100 and analyze the results more closely
+
+```{r}
+set.seed(9987)
+sim3.out <-driftPlot(rep(100,100))
+```
+One thing should immediately jump out - we have populations that have gone to either fixation or loss, and the variance among replicates has grown large.  What about the mean value of p for all populations?  Here is where we use the matrix output of the drifPlot function.  In the plot statement below, we use the apply function, which works as follows
+
+1.  Starts with a matrix or data frame
+2.  based on the parameter provided, looks at rows(1) or columns (2)
+3.  Applies a function (mean in this case) to the selected dimension.
+
+```{r}
+plot(apply(sim3.out,1,mean),type="l", xlab="Generation", ylab="p", main="Mean Allele Frequency", ylim=c(0,1))
+```
+
+We see vary little change.  But what about the variance?
+
+
+```{r}
+# par(mfrow=c(1,2))
+plot(apply(sim3.out,1,var),main="Variance Among Replicates",xlab="Generation",ylab="Variance")
+```
+
+And we see that it increases, more or less monotonically, with time.  Now finally, what happens to expected heterozygosity (2pq)?  Here, in the apply function, we create our own function, one which takes each element of a row, calculates 2pq, and then averages over all replicates:
+
+```{r}
+Fhat <-apply(sim3.out,1,function(p) mean(2*p*(1-p)))
+plot(Fhat, main="Mean Heterozygosity among Replicates",xlab="Generation",ylab="Heterozygosity")
+```
+
+It declines monotonically
+
+These two observations lead to concept of "Effective Population size" , or N<sub>e</sub>, which is defined as *the size of a Wright-Fisher population that would exhibit the same amount of either increase in variance or level of genetic drift as observed in an actual population.*     
+
+
+### Summary
+
+What we have done is to develop an understanding of the basics of genetic drift, a process that all finite populations undergo.  In so doing, we have reached a definition of effective population size, one of the most important parameters in population genetics.  However, as is so often the case, new questions arise, in particular
+
+1.  Our definition is based on what we saw by simulating allele frequency dynamics in replicate populations.  How can use real data gathered from a sample of a single population, to arrive at an estimate of Ne?
+2.  We've seen now, both in the Buri experiment and in our last simulation, that the long-term effect of genetic drift is fixation or loss of an allele, meaning a net loss of genetic variation with time.  However, we also know that mutation is acting in the opposite fashion to introduce new variation.  How do these two stochastic processes interact?
+
+These questions will occupy much of our attention in the next several weeks.
+
