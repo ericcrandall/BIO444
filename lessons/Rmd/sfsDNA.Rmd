@@ -13,7 +13,7 @@ output:
 
 Thus far, we have talked about the use of nucleotide diversity (π) and number of segregating sites (S) as possible summary statistics for characterizing DNA sequence variation.  However, there is more that can be extracted from a typical data set.  In particular, neither of these address the question of allele frequencies.  But when we are talking about DNA sequences, what do we mean by "allele"?  Let's consider sites as loci; further we can assume that each site has one of two states - ancestral or derived. Furthermore, we assume that a particular site only undergoes a single mutation, so that all sequence differences we observe when we compare two sequences are the result of unique mutational events.  This is what is known as the *infinite sites model*.   
 
-Thus, we might want to use as a measure site-based allele frequencies as the fraction of sequences that contain the derived allele at that site.  Let's do so by simulating a simple data set.  To do so, we are going to us Rick Hudson's program `ms` for the first time [@ms].  It is an incredibly powerful program, but its basic function is simple - given some parameters such as &theta; or S, it will generate samples that would be generated based on the infinite sites model.  It is distributed as c++ code that can be compiled and run from the command line; fortunately for us it has been incorporated into the r package `phyclust`, which is loaded along with `TeachingPopGen`.  
+Thus, we might want to use as a measure site-based allele frequencies as the fraction of sequences that contain the derived allele at that site.  Let's do so by simulating a simple data set.  To do so, we are going to us Rick Hudson's program `ms` for the first time.  It is an incredibly powerful program, but its basic function is simple - given some parameters such as &theta; or S, it will generate samples that would be generated based on the infinite sites model.  It is distributed as c++ code that can be compiled and run from the command line; fortunately for us it has been incorporated into the r package `phyclust`, which is loaded along with `TeachingPopGen`.  
 
 So we are going illustrate site frequency spectra, we will use ms to generate 10 samples with 10 segregating sites.  These will be coded as 0's and 1's, indicating ancestral and derived alleles, but remember, in real life each allele would be a nucleotide (A, G, C or T), and two such alleles (one ancestral and one derived) would be segregating at each position.  
 
@@ -42,7 +42,7 @@ But let's go to something more realistic. Let's return to the acp29 data.  The d
 
 ```{r}
 #data(acp29) #Load data from TeachingPopGen
-acp29 <-read.FASTA("./Data/acp29.fasta") #Read the file we created in the last unit
+acp29 <-read.FASTA("../Data/acp29.fasta") #Read the file we created in the last unit
 spec.acp <-site.spectrum(acp29)
 plot(spec.acp)
 ```
@@ -53,7 +53,7 @@ Note that this is what is called a "folded" site frequency spectrum.  That means
 
 ### Simulating Expected Data
 
-But the question is, what should that distribution look like.  Nielsen and Slatkin provide an analytical solution for the expectation - see pp. 54 and 55.  But in our philosophy of using simulation as an approach, we will eschew the equations and simulate the result as follows.
+But the question is, what should that distribution look like.   In our philosophy of using simulation as an approach, we will eschew the equations and simulate the result as follows.
 
 First, we have seen that the data set contains 17 sequences of 703 bases.  We need to know the number of segregating sites
 
@@ -90,5 +90,5 @@ plot(test.sfs,main=paste("Simulation", i, sep=" "))
 par(mfrow=c(1,1))
 ```
 
-We see that we get a variety of spectra.  So how to sort through them?  Before we can address that, we need to turn to coalescent theory.
+We see that we get a variety of spectra.  So how to sort through them?  Before we can address that, we need to turn to coalescent theory, which we will do in a future lesson.
 

@@ -14,7 +14,7 @@ output:
 
 ## DNA Sequence Variation
 
-The most basic level of genetic variation is, of course, that of DNA sequence.  Indeed, we have been thinking about that implicitly up until this point; now, before going further, we need to make it explicit.  So our first objective will be to consider how we make such comparisons; from there we will ask how we can use those comparisons to make evolutionary inferences.
+The most basic level of genetic variation is, of course, that of DNA sequence.  
 
 ### Some data
 
@@ -23,6 +23,7 @@ As an example, we are going to use data from the acp29 locus in *Drosophila mela
 ```{r,eval=T,echo=FALSE}
 library(rentrez)
 library(ape)
+library(pegas)
 
 dat.srch <-entrez_search("popset",term="11245776")
 dat <-entrez_fetch("popset",id=dat.srch$ids,rettype="fasta",retmode=xml)
@@ -37,7 +38,7 @@ Note that at this point, we have saved the downloaded data as a local file, whic
 We see that there are 17 sequences, each 702 base pairs in length.  We're going to do two processing steps, one trivial an one critical:  
 
 1.As a cleanup for now, we will rename them as simply 1 through 17.  
-2.  We want to be sure they are properly aligned.  To o so, we will use the add-on program `muscle` (which must be indepenently installed so that it can be called from R).
+2.  We want to be sure they are properly aligned.  To do so, we will use the add-on program `muscle` (which must be indepenently installed so that it can be called from R).
 
 ```{r}
 names(acp29) <-c(1:17)
@@ -58,7 +59,7 @@ But how much variation?  There are two measures that we will use extensively for
 
 #### Number of segregating sites
 
-Since we are interested in variation, our attention should be focused on those sites that are in fact polymorphic.  ape provides a function to give us those sites:
+Since we are interested in variation, our attention should be focused on those sites that are in fact polymorphic (they are therefore Single Nucleotide Polymorphisms).  The ape package provides a function to give us those sites:
 
 ```{r}
 acp.sites <-seg.sites(acp29)

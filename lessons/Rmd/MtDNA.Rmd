@@ -40,8 +40,8 @@ The data we are going to look at are from popset [322367799](http://www.ncbi.nlm
 ```{r}
 dat.rnt <-entrez_search(db="popset",term="322367799")
 dat.raw <-entrez_fetch("popset",id=dat.rnt$ids,rettype="fasta")
-write(dat.raw,file="dog.fasta")
-dog.dat <-read.FASTA("dog.fasta")
+write(dat.raw,file="../Data/dog.fasta")
+dog.dat <-read.FASTA("../Data/dog.fasta")
 dog.dat
 ```
 
