@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2017-09-27" />
+<meta name="date" content="2017-10-04" />
 
 <title></title>
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 <h1 class="title toc-ignore"><center>
 The Hardy Weinberg Equilibrium
 </center></h1>
-<h4 class="date"><em>2017-09-27</em></h4>
+<h4 class="date"><em>2017-10-04</em></h4>
 
 </div>
 
@@ -137,6 +137,7 @@ The Hardy Weinberg Equilibrium
 </ul>
 </div>
 
+<p>Lesson based on materials from <a href="http://www.teachingpopgen.org">Bruce Cochrane</a></p>
 <div id="what-is-it" class="section level2">
 <h2>What is it?</h2>
 <p>The starting point for population genetics is the Hardy Weinberg equilibrium. It is the basis on which everything is built, so a thorough understanding of what it says and what it assumes is critical. In this unit, we will briefly go through the basics of it ( the familiar p and q approach). We will then examine it in more detail.</p>
@@ -172,7 +173,7 @@ The Hardy Weinberg Equilibrium
 </ol>
 <div id="determining-allele-frequencies" class="section level4">
 <h4>Determining Allele Frequencies</h4>
-<p>So for let’s proceed as follows. First of all, we will create a vector with of the observed data.</p>
+<p>So let’s proceed as follows. First of all, we will create a vector with of the observed data.</p>
 <pre class="r"><code>obs &lt;- c(6,28,66)</code></pre>
 <p>Recall that c() is a function that concatenates a number of values, in this case integers, in order to create a vector.</p>
 <p>Now, let’s ask how many G’s there are. Recognizing that every GG homozygote has two and every GT heterozygote has one, we can calculate that by</p>
@@ -191,7 +192,7 @@ q</code></pre>
 </div>
 <div id="random-mating" class="section level4">
 <h4>Random Mating</h4>
-<p>Now, suppose we turn the question around. Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see? There are two ways we can approach this, one mathematical and one graphical. First, the mathematical one. Think of the population as orginating from a pool of alleles with frequencies p and q. If that is the case, then we can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as</p>
+<p>Now, suppose we turn the question around. Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see? There are two ways we can approach this, one mathematical and one graphical. First, the mathematical one. Think of the population as orginating from a pool of alleles with frequencies p and q. Literally, think of a pool of G’s and T’s. If that is the case, what is the chance that we reach into the pool and pull out a G? It turns out that the probability is the frequency of G! What is the chance that we pulling two Gs? These are independent events, so we multiply the probabilities: the frequency of G times frequency of G! And the same thing goes with the other genotypes below. We can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as</p>
 <p>p{GG} = p{G}<em>p{G} = p<sup>2</sup><br />
 p{TT} = p{T}</em>p{T} = q<sup>2</sup><br />
 p{GT} =p{GT} or p{TG}<br />
@@ -251,8 +252,14 @@ p1;q1</code></pre>
 </tr>
 </tbody>
 </table>
-<pre><code>## [1] 0.5975</code></pre>
-<pre><code>## [1] 0.3570063 0.4809875 0.1620062</code></pre>
+<pre class="r"><code>obs &lt;-c(69,101,30)
+p &lt;-(2*obs[1]+obs[2])/(2*sum(obs))
+p</code></pre>
+<pre class="r"><code>q &lt;-1-p
+q</code></pre>
+<pre class="r"><code>genos &lt;-c(p^2,2*p*q,q^2)
+genos
+gebis2 &lt;-genos*sum(obs)</code></pre>
 </div>
 </div>
 <div id="and-why-is-this-important" class="section level3">
@@ -351,8 +358,8 @@ exp</code></pre>
 <pre class="r"><code>chi &lt;-sum((obs-exp)^2/exp)
 chi</code></pre>
 <pre><code>## [1] 0.3879836</code></pre>
-<p>But how many degrees of freedom? Our rule of thumb previously was that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case. However there is another wrinkle. In this case we used the actual data to estimate a parameter used in determining our expected values - p. That costs us another degree of freedom. So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.</p>
-<p>So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)? One way to do that is what we did with coin flips - generate a bunch of χ<sup>2</sup> distributed random variables and see where the 5% cutoff falls. In this case, we will do a <em>one tail test</em>, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)</p>
+<p>But how many degrees of freedom? One rule of thumb is that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case. However there is another wrinkle. In this case we used the actual data to estimate a parameter used in determining our expected values - p. That costs us another degree of freedom. Another way to think of it is that our genotype frequencies are actually derived from two allelic frequencies (p and q). So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.</p>
+<p>So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)? One way to do that is simulation - generate a bunch of χ<sup>2</sup> distributed random variables and see where the 5% cutoff falls. In this case, we will do a <em>one tail test</em>, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)</p>
 <pre class="r"><code>set.seed(123)
 ch &lt;- rchisq(100000,1)
 colhist(ch,tail=1, xr=c(0,20),xlab=&quot;chi-square&quot;,ylab=&quot;Number&quot;,main=&quot;Are the Data Consistent with HWE?&quot;)
@@ -361,7 +368,7 @@ abline(v=chi,col=&quot;blue&quot;)</code></pre>
 <pre class="r"><code>quantile(ch,.95)</code></pre>
 <pre><code>##      95% 
 ## 3.851331</code></pre>
-<p>And we see that the data in fact fall within the range expected be observed as a result of chance.</p>
+<p>And we see that the data in fact fall within the range expected we observed as a result of chance.</p>
 <p>We can also calculate the probability of this particular χ<sup>2</sup> value as follows:</p>
 <pre class="r"><code>pr &lt;-qchisq(chi,.95)
 pr</code></pre>

@@ -60,9 +60,9 @@ chi <-sum((obs-exp)^2/exp)
 chi
 ```
 
-But how many degrees of freedom?  Our rule of thumb previously was that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case.  However there is another wrinkle.  In this case we used the actual data to estimate a parameter used in determining our expected values - p.  That costs us another degree of freedom.  So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.  
+But how many degrees of freedom?  One rule of thumb is that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case.  However there is another wrinkle.  In this case we used the actual data to estimate a parameter used in determining our expected values - p.  That costs us another degree of freedom. Another way to think of it is that our genotype frequencies are actually derived from two allelic frequencies (p and q).  So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.  
 
-So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)?  One way to do that is what we did with coin flips - generate a bunch of &chi;^2^ distributed random variables and see where the 5% cutoff falls.  In this case, we will do a *one tail test*, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)
+So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)?  One way to do that is simulation - generate a bunch of &chi;^2^ distributed random variables and see where the 5% cutoff falls.  In this case, we will do a *one tail test*, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)
 
 ```{r}
 set.seed(123)
@@ -72,7 +72,7 @@ abline(v=chi,col="blue")
 quantile(ch,.95)
 ```
 
-And we see that the data in fact fall within the range expected be observed as a result of chance.
+And we see that the data in fact fall within the range expected we observed as a result of chance.
 
 We can also calculate the probability of this particular &chi;^2^ value as follows:
 

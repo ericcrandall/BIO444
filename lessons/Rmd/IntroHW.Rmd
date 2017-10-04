@@ -37,7 +37,7 @@ We want to ask two questions:
 
 #### Determining Allele Frequencies
 
-So for let's proceed as follows.  First of all, we will create a vector with of the observed data.
+So let's proceed as follows.  First of all, we will create a vector with of the observed data.
 ```{r}
 obs <- c(6,28,66)
 ```
@@ -62,7 +62,7 @@ q
 ```
 #### Random Mating
 
-Now, suppose we turn the question around.  Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see?  There are two ways we can approach this, one mathematical and one graphical.  First, the mathematical one.  Think of the population as orginating from a pool of alleles with frequencies p and q.  If that is the case, then we can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as
+Now, suppose we turn the question around.  Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see?  There are two ways we can approach this, one mathematical and one graphical.  First, the mathematical one.  Think of the population as orginating from a pool of alleles with frequencies p and q.  Literally, think of a pool of G's and T's. If that is the case, what is the chance that we reach into the pool and pull out a G? It turns out that the probability is the frequency of G! What is the chance that we pulling two Gs? These are independent events, so we multiply the probabilities: the frequency of G times frequency of G! And the same thing goes with the other genotypes below.  We can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as
 
 p{GG} = p{G}*p{G} = p^2^  
 p{TT} = p{T}*p{T} = q^2^  
@@ -114,15 +114,16 @@ AA|69
 Aa|101
 aa|30
 
-```{r,echo=F}
+```{r,eval=F}
 obs <-c(69,101,30)
 p <-(2*obs[1]+obs[2])/(2*sum(obs))
 p
 ```
-```{r, echo=F}
+```{r, eval=F}
 q <-1-p
+q
 ```
-```{r, echo=F}
+```{r, eval=F}
 genos <-c(p^2,2*p*q,q^2)
 genos
 gebis2 <-genos*sum(obs)

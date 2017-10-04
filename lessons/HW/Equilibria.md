@@ -1,5 +1,6 @@
 # <center>The Hardy Weinberg Equilibrium</center>
 `r Sys.Date()`  
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 
 
 
@@ -30,7 +31,7 @@ We want to ask two questions:
 
 #### Determining Allele Frequencies
 
-So for let's proceed as follows.  First of all, we will create a vector with of the observed data.
+So let's proceed as follows.  First of all, we will create a vector with of the observed data.
 
 ```r
 obs <- c(6,28,66)
@@ -70,7 +71,7 @@ q
 ```
 #### Random Mating
 
-Now, suppose we turn the question around.  Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see?  There are two ways we can approach this, one mathematical and one graphical.  First, the mathematical one.  Think of the population as orginating from a pool of alleles with frequencies p and q.  If that is the case, then we can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as
+Now, suppose we turn the question around.  Given p and q, as calculated above, and assuming that random mating then occurs, what genotype numbers frequencies would we expect to see?  There are two ways we can approach this, one mathematical and one graphical.  First, the mathematical one.  Think of the population as orginating from a pool of alleles with frequencies p and q.  Literally, think of a pool of G's and T's. If that is the case, what is the chance that we reach into the pool and pull out a G? It turns out that the probability is the frequency of G! What is the chance that we pulling two Gs? These are independent events, so we multiply the probabilities: the frequency of G times frequency of G! And the same thing goes with the other genotypes below.  We can calculate the expected probabilities of the three genotypes (GG, GT, and TT) as
 
 p{GG} = p{G}*p{G} = p^2^  
 p{TT} = p{T}*p{T} = q^2^  
@@ -156,13 +157,21 @@ Aa|101
 aa|30
 
 
-```
-## [1] 0.5975
+```r
+obs <-c(69,101,30)
+p <-(2*obs[1]+obs[2])/(2*sum(obs))
+p
 ```
 
-
+```r
+q <-1-p
+q
 ```
-## [1] 0.3570063 0.4809875 0.1620062
+
+```r
+genos <-c(p^2,2*p*q,q^2)
+genos
+gebis2 <-genos*sum(obs)
 ```
 
 ### And Why is This Important?
@@ -279,9 +288,9 @@ chi
 ## [1] 0.3879836
 ```
 
-But how many degrees of freedom?  Our rule of thumb previously was that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case.  However there is another wrinkle.  In this case we used the actual data to estimate a parameter used in determining our expected values - p.  That costs us another degree of freedom.  So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.  
+But how many degrees of freedom?  One rule of thumb is that degrees of freedom are one less than the number of classes, suggesting that it might be two in this case.  However there is another wrinkle.  In this case we used the actual data to estimate a parameter used in determining our expected values - p.  That costs us another degree of freedom. Another way to think of it is that our genotype frequencies are actually derived from two allelic frequencies (p and q).  So in the case of testing Hardy Weinberg with data from a biallelic locus, we only have one degree of freedom.  
 
-So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)?  One way to do that is what we did with coin flips - generate a bunch of &chi;^2^ distributed random variables and see where the 5% cutoff falls.  In this case, we will do a *one tail test*, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)
+So what is the probability that we would observe this much deviation based on chance alone (in which case we would accept our hypothesis)?  One way to do that is simulation - generate a bunch of &chi;^2^ distributed random variables and see where the 5% cutoff falls.  In this case, we will do a *one tail test*, since the range of our statistic is from zero to infinity (with zero the value obtained if the observed data exactly match the expectation)
 
 
 ```r
@@ -302,7 +311,7 @@ quantile(ch,.95)
 ## 3.851331
 ```
 
-And we see that the data in fact fall within the range expected be observed as a result of chance.
+And we see that the data in fact fall within the range expected we observed as a result of chance.
 
 We can also calculate the probability of this particular &chi;^2^ value as follows:
 
