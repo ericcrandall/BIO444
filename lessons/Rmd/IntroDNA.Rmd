@@ -24,6 +24,7 @@ As an example, we are going to use data from the acp29 locus in *Drosophila mela
 library(rentrez)
 library(ape)
 library(pegas)
+library(strataG)
 
 dat.srch <-entrez_search("popset",term="11245776")
 dat <-entrez_fetch("popset",id=dat.srch$ids,rettype="fasta",retmode=xml)
@@ -106,10 +107,43 @@ acp.pi <-ncol(acp.mat)*acp.div
 acp.pi
 ```
 
+### Haplotype Diversity
+
+A final question we can ask is: how unique is any given "haplotype" in this dataset? A haplotype (think "haploid genotype") here is simply the string of bases that are found on one chromosome, but if we had data from multiple loci, it would still be all of the bases found on one chromosome.
+
+```{r}
+acp.hap <-haplotype(acp.mat)
+acp.hap
+```
+
+So among the 17 sequences in the data set, there are 10 different haplotypes. Now we can calculate haplotype diversity as:
+
+$$h = \frac{N}{N-1}(1 - \sum_{i=1}^n X_i)$$
+
+Where $X_i$ is the relative haplotype frequency of each haplotype in the sample, and N is sample size. There isn't a function in any of our R packages to calculate h, so we will write one ourselves
+
+```{r}
+
+
+hap.diversity<-function (x){ 
+  #adapted from diversity() in StrataG
+  if (!(is.vector(x) | is.factor(x))) 
+    stop("'x' must be a character or numeric vector, or a factor")
+  x <- na.omit(x)
+  n <- length(x)
+  x.freq <- prop.table(table(x))
+  out<- (n/(n-1))*(1- sum(x.freq^2))
+  return(out)
+}
+
+acp.hap.labs<-labelHaplotypes(acp.mat)$haps
+acp.h<-hap.diversity(acp.hap.labs)
+acp.h
+```
 
 ### Summary
 
-In this brief introduction, we have seen how we can quantify DNA sequence variation based on estimates of two parameters - the number of segregating sites and the average pairwise difference between sites.  To an extent, these are analogous to the measures used in the electrophoresis days - the fraction of loci that are polymorphic and average heterozygosity.  However, as we shall see, there is much more that can be learned based on sequence variation, especially when it comes to making inferences about past evolutionary processes.  To get there, we have to consider a few more factors:
+In this brief introduction, we have seen how we can quantify DNA sequence variation based on estimates of three parameters - the number of segregating sites, the average pairwise difference between sites, and haplotype diversity.  To an extent, these are analogous to the measures used in the electrophoresis days - the fraction of loci that are polymorphic and average heterozygosity.  However, as we shall see, there is much more that can be learned based on sequence variation, especially when it comes to making inferences about past evolutionary processes.  To get there, we have to consider a few more factors:
 
 1.  What are the processes that underly generation of variation?  In other words, how can we model the mutational process?
 2.  What are the dynamics of the interaction between mutation and finite population size?
