@@ -12,6 +12,8 @@ author: Dr. Eric Crandall
 - [Introduction to R: Files, Strings, and Programming ](./lessons/R/R_files_strings_programming.html)
 - [Introduction to R: Graphics with ggplot2](./lessons/ggplot/ggplot_all_EDC.html)
 - [Introduction to R: Maps in R](./lessons/Maps_in_R/Maps_in_R.html)
+- [Hardy-Weinberg Equilibrium](./lessons/HW/Equilibria.html)
+- [Mutation and Mutational Models](./lessons/mutation/MutationChapter.html)
 
 
 
