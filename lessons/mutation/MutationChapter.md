@@ -564,6 +564,8 @@ And we can do similar manipulations (code not shown) as before, plotting three t
 
 So we see that the transition probabilities are higher than the transversion, although given sufficient time, once again all frequencies converge on 0.25.
 
+You can now see that we have a mathematical model to predict the number of mutations (and what kind) that will occur to a DNA sequence over time!
+
 ### Choosing models
 
 There are three additional models that are commonly used in modeling the evolutionary process, and each one of them has even more twists that can be specified.  
@@ -630,7 +632,7 @@ fur.mt[with(fur.mt,order(fur.mt$BIC)),]
 ## 1    JC 489 -827.2139 2632.428 2.409301e-37  NaN   NaN 4379.211
 ```
 
-Now we see that it is the HKY model that best fits the data, while the JC model is the worst.  Again, this is as we expected, as the HKY model was explicitly developed to be applicable to mammalian mitochondrial DNA.
+Now we see that it is the HKY model that best fits the data, while the JC model is the worst.  Again, this is as we expected, as the HKY model was explicitly developed to be applicable to mammalian mitochondrial DNA. We will use this method with our DNA data down the line.
 
 ### Summary
 
