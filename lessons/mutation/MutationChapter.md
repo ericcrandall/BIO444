@@ -42,7 +42,8 @@ AGCTCCAGCTGACTA
 ![Autopolyploidy](../images/autopolyploidy.jpg)
 
 And there are many other ways to categorize and label mutations. For this class we will be focused on mutations from the first two categories, and really mostly only the point mutations. Point mutations yield what is called a Single Nucleotide Polymorphism (SNP). 
-My intent here is not to come up with an absolute definition, but rather to emphasize that when one reads about mutation or investigates mutational data, it is important to be certain of the context in which the term is being used. Of course, a very simple molecular definition of the word might be "a change in DNA sequence".  But what kind of change - single base substitution, inversion, deletion, duplication, microsatellite expansion/contraction?  And what do we mean by sequence - base pair, coding region, "gene", chromosomal region?  Each of these have unique properties that must be considered. In the discussion that follows, I will attempt to focus on some general factors that can potentitally affect any mutational change, broadly defined.  Where necessary, I will specify particular features of the process in question that contribute to the analysis.
+
+My intent here is not to come up with an absolute definition, but rather to emphasize that when one reads about mutation or investigates mutational data, it is important to be certain of the context in which the term is being used. Of course, a very simple molecular definition of the word might be "a change in DNA sequence". In the discussion that follows, I will attempt to focus on some general factors that can potentitally affect any mutational change, broadly defined.  Where necessary, I will specify particular features of the process in question that contribute to the analysis.
 
 ### Is Mutation Random or Directed?
 
@@ -84,6 +85,7 @@ hist(colonies,xlab="Number of Colonies",ylab="Number of Plates", main="Simulatio
 ```
 
 ![](MutationChapter_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 But the interesting feature about the Poisson distribution, which we could show mathematically (but won't) is that the expectation is that the mean equals the variance.  Let's see if that's the case
 
 ```r
@@ -228,6 +230,7 @@ hist(u,xlab="N",main="Simulated Poisson Distribution, N=10000, µ=1")
 ```
 
 ![](MutationChapter_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
 Note that the most frequent number of progeny is either zero or 1.  If our new mutant happened to be one of those that had zero progeny, that means that it would go extinct.  What is the probability of that occurring?  It is simply the ratio of the zero class to the total number of reproducing individuals (10000); that can be calculated by
 
 ```r
@@ -238,6 +241,7 @@ z
 ```
 ## [1] 0.36839
 ```
+
 So approximately 36% of the time, *by chance alone*  that mutation will be lost.
 
 
@@ -249,7 +253,7 @@ We start by noting that, while we did it via simulation, we could also have calc
 
 
 ```r
-x1 <-exp(-1)
+x1 <-exp(1*(0-1))
 x1
 ```
 
@@ -279,17 +283,18 @@ So now we see that in two generations, the probability of loss is over 50%.  We 
 fate <-function(c){
 x <-rep(0,100) # create a vector of zeros, which will hold the results of the recursion calculation
 for(i in 1:99){
-  x[i+1] <-exp((1+c)*(x[i]-1))
+  x[i+1] <-exp((c)*(x[i]-1))
 }
 
 return(x)
 }
 ```
-With that function in hand, we can now see what will happen in the case of a neutral mutation, one which confers no advantage or disadvantage (c=0)
+
+With that function in hand, we can now see what will happen in the case of a neutral mutation, one which confers no advantage or disadvantage (c=1)
 
 
 ```r
-x0 <-fate(0) 
+x0 <-fate(1) 
 ```
 We can then plot the results
 
@@ -298,17 +303,19 @@ ggplot(data=as.data.frame(x0), mapping=aes(y=x0, x=0:99)) + geom_line() + xlab("
 ```
 
 ![](MutationChapter_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
 And what we see is that very quickly, the probability of loss of such a mutation *in a constant size population* approaches 1.
 
-But what if the mutation confers an advantage?  Suppose that in the Luria-Delbruck experiment, new mutations that gave resistance to the phage confer, on average, an 8% advantage (or c=.08)  We can plug that into our function and add the results to the plot:
+But what if the mutation confers an advantage?  Suppose that in the Luria-Delbruck experiment, new mutations that gave resistance to the phage confer, on average, an 8% advantage (or c=1.08)  We can plug that into our function and add the results to the plot:
 
 ```r
-x1 <-fate(.08)
+x1 <-fate(1.08)
 
 ggplot(data=as.data.frame(cbind(x0,x1))) + geom_line(aes(x=0:99, y=x0)) +geom_line(aes(x=0:99, y=x1), color="blue") + xlab("Generation") + ylab("Probability") + ggtitle("Probability of Loss of New Mutation")
 ```
 
 ![](MutationChapter_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+
 This suggests that, during the first few generations following the occurrence of the mutation, *the probability of loss of an advantageous mutation, by chance, is not much different from that of a neutral one*.  Furthermore, while we do see that in later generations, that mutation is more likely to survive than the neutral one, the probability of loss is still around 80%.  To illustrate this point, we can calculate the probability of the advantageous mutation surviving 100 generations as 
 
 
@@ -355,18 +362,18 @@ This is a good point to make an important point regarding terminology.  In every
 *Mutation*  
 AAGCTAGCTTA  
 AAGCTAGCTTA  
-AAGC*G*AGCTTA <- mutation  
+AAGC**G**AGCTTA <- mutation  
 AAGCTAGCTTA  
 AAGCTAGCTTA  
 AAGCTAGCTTA  
 
 *Substitution*  
-AAGC*G*AGCTTA  
-AAGC*G*AGCTTA  
-AAGC*G*AGCTTA  
-AAGC*G*AGCTTA  
-AAGC*G*AGCTTA  
-AAGC*G*AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
+AAGC**G**AGCTTA  
 
 ### Conclusions
 
@@ -380,7 +387,7 @@ Point three, on the face of it, may seem paradoxical.  All populations are finit
 
 There are a few general responses we can make at this point.  First, although mutations in a given gene and a given generation may be rare, there are lots of genes in the genome undergoing the process, the total number of mutations occurring can be quite large.  Second, of course, while the probability of loss of a particular advantageous mutation is high, it is not 1, so that some will obviously survive.  And at this point, natural selection can take over, right?
 
-Not so fast.  Before we get to that, we need to consider the issue of population size more closely.  For that, we will now incorporate mutation into our thinking about genetic drift.
+Not so fast.  Before we get to that, we need to consider the issue of population size (and genetic drift) more closely, in a future lecture.
 
 
 
@@ -415,7 +422,7 @@ For our purposes, we're going to assume that at a given time, the probability of
 
 We will start with the simplest model.  In it we assume that there are four possible states at each position (A, G, C, and T), and that there is some rate &alpha; at which one base mutates to one of the other three.  Thus, for example, if we start with an A at time t, at time t+1, the probability of no mutation coccuring would be 
 
-\(p_{a,a}= 1-3\alpha\) (remembering that mutation occurs to each of three bases with rate &alpha;)
+\(p_{a,a}= -3\alpha\) (remembering that mutation occurs to each of three bases with rate &alpha;)
 
 and \(p_{a,c}\), for example, would be &alpha;
 
@@ -534,7 +541,7 @@ Qk
 ## [4,]  0.1666667  0.6666667  0.1666667 -1.0000000
 ```
 
-And we note that the rate of transversions is lower than that of transitions.  And this can be converted to a probability matrix by expontiating
+And we note that the rate of transversions is lower than that of transitions.  And this can be converted to a probability matrix by exponentiating
 
 
 ```r
@@ -553,20 +560,6 @@ Qk.t
 
 And we can do similar manipulations (code not shown) as before, plotting three transition probabilities this time - no change (A->A) a transition (A->G) and a transversion (A_>C)
 
-
-```r
-Qk.t <-lapply(t, function (x) expm(Qk*x))
-pAA <-sapply(Qk.t,function(x) x[1,1])
-pAC <-sapply(Qk.t,function(x) x[1,2])
-pAG <-sapply(Qk.t, function(x) x[1,3])
-p.mat <-cbind(pAA,pAC,pAG)
-matplot(t,p.mat,type="l",lty=1,xlab="Genetic Distance (ut)",ylab="Transition Probability",main="K80 Model")
-abline(h=.25,lty=2)
-text(1.6,.5,"A ->A",cex=.8)
-text(1.6,.1,"A->T",col="red",cex=.8)
-text(0.9,0.18,"A-G",col="green",cex=.8)
-```
-
 ![](MutationChapter_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
 
 So we see that the transition probabilities are higher than the transversion, although given sufficient time, once again all frequencies converge on 0.25.
@@ -575,7 +568,7 @@ So we see that the transition probabilities are higher than the transversion, al
 
 There are three additional models that are commonly used in modeling the evolutionary process, and each one of them has even more twists that can be specified.  
 
-2.  The Felsenstein model, which incorporates base composition
+2.  The Felsenstein model, which incorporates base composition. Jukes-Kantor and K80 assume bases occur at a frequency of 0.25
 3.  The HKY model combines both base composition and transition-transversion differences, along with variable rates, into what is at present the most widely used model.
 4.  The Generalized Time-Reversible model (GTR),which incorporates separate parameters for each different transition or transversion.
 

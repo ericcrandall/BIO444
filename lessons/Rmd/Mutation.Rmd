@@ -44,7 +44,8 @@ AGCTCCAGCTGACTA
 ![Autopolyploidy](../images/autopolyploidy.jpg)
 
 And there are many other ways to categorize and label mutations. For this class we will be focused on mutations from the first two categories, and really mostly only the point mutations. Point mutations yield what is called a Single Nucleotide Polymorphism (SNP). 
-My intent here is not to come up with an absolute definition, but rather to emphasize that when one reads about mutation or investigates mutational data, it is important to be certain of the context in which the term is being used. Of course, a very simple molecular definition of the word might be "a change in DNA sequence".  But what kind of change - single base substitution, inversion, deletion, duplication, microsatellite expansion/contraction?  And what do we mean by sequence - base pair, coding region, "gene", chromosomal region?  Each of these have unique properties that must be considered. In the discussion that follows, I will attempt to focus on some general factors that can potentitally affect any mutational change, broadly defined.  Where necessary, I will specify particular features of the process in question that contribute to the analysis.
+
+My intent here is not to come up with an absolute definition, but rather to emphasize that when one reads about mutation or investigates mutational data, it is important to be certain of the context in which the term is being used. Of course, a very simple molecular definition of the word might be "a change in DNA sequence". In the discussion that follows, I will attempt to focus on some general factors that can potentitally affect any mutational change, broadly defined.  Where necessary, I will specify particular features of the process in question that contribute to the analysis.
 
 ### Is Mutation Random or Directed?
 
@@ -77,6 +78,7 @@ colonies
 hist(colonies,xlab="Number of Colonies",ylab="Number of Plates", main="Simulation of Adaptive Mutation") 
 
 ```
+
 But the interesting feature about the Poisson distribution, which we could show mathematically (but won't) is that the expectation is that the mean equals the variance.  Let's see if that's the case
 ```{r}
 mean(colonies)

@@ -31,7 +31,7 @@ We need to think a bit about the difference here.  If, for example, we assume th
 
 ### Departure from Hardy Weinberg
 
-Let's look at some real data.  In the human data we looked previously, we saw that departures from Hardy Weinberg were minimal.  Let's now look at another example, some microsatellite data from the legume *Medicago trunculata* [@Ronfort2006].  The data are included in TPG; we will se them to do the following:
+Let's look at some real data.  In the human data we looked previously, we saw that departures from Hardy Weinberg were minimal.  Let's now look at another example, some microsatellite data from the legume *Medicago trunculata* (Ronfort 2006).  The data are included in TPG; we will se them to do the following:
 
 1.  We look for departures from Hardy Weinberg
 2.  We will examine some sample loci to see what's going on.

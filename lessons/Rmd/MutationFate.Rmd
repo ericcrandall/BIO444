@@ -27,11 +27,13 @@ N <-100000
 u <-rpois(N,1)
 hist(u,xlab="N",main="Simulated Poisson Distribution, N=10000, µ=1") 
 ```
+
 Note that the most frequent number of progeny is either zero or 1.  If our new mutant happened to be one of those that had zero progeny, that means that it would go extinct.  What is the probability of that occurring?  It is simply the ratio of the zero class to the total number of reproducing individuals (10000); that can be calculated by
 ```{r}
 z <-length(u[u==0])/length(u)
 z
 ```
+
 So approximately 36% of the time, *by chance alone*  that mutation will be lost.
 
 
@@ -42,7 +44,7 @@ For this, we turn away from our simulation approach.  It turns out that R.A. Fis
 We start by noting that, while we did it via simulation, we could also have calculated the probability associated with the zero class in a Poisson distribution with mean 1 by the formula e^c(x-1)^, where x is the probability of leaving zero ancestors in the previous generation and c is the mean number of progeny (in our case 1)
 
 ```{r}
-x1 <-exp(-1)
+x1 <-exp(1*(0-1))
 x1
 ```
 
@@ -62,30 +64,33 @@ So now we see that in two generations, the probability of loss is over 50%.  We 
 fate <-function(c){
 x <-rep(0,100) # create a vector of zeros, which will hold the results of the recursion calculation
 for(i in 1:99){
-  x[i+1] <-exp((1+c)*(x[i]-1))
+  x[i+1] <-exp((c)*(x[i]-1))
 }
 
 return(x)
 }
 ```
-With that function in hand, we can now see what will happen in the case of a neutral mutation, one which confers no advantage or disadvantage (c=0)
+
+With that function in hand, we can now see what will happen in the case of a neutral mutation, one which confers no advantage or disadvantage (c=1)
 
 ```{r}
-x0 <-fate(0) 
+x0 <-fate(1) 
 ```
 We can then plot the results
 ```{r}
 ggplot(data=as.data.frame(x0), mapping=aes(y=x0, x=0:99)) + geom_line() + xlab("Generation") + ylab("Probability") + ggtitle("Probability of Loss of New Mutation")
 ```
+
 And what we see is that very quickly, the probability of loss of such a mutation *in a constant size population* approaches 1.
 
-But what if the mutation confers an advantage?  Suppose that in the Luria-Delbruck experiment, new mutations that gave resistance to the phage confer, on average, an 8% advantage (or c=.08)  We can plug that into our function and add the results to the plot:
+But what if the mutation confers an advantage?  Suppose that in the Luria-Delbruck experiment, new mutations that gave resistance to the phage confer, on average, an 8% advantage (or c=1.08)  We can plug that into our function and add the results to the plot:
 ```{r}
-x1 <-fate(.08)
+x1 <-fate(1.08)
 
 ggplot(data=as.data.frame(cbind(x0,x1))) + geom_line(aes(x=0:99, y=x0)) +geom_line(aes(x=0:99, y=x1), color="blue") + xlab("Generation") + ylab("Probability") + ggtitle("Probability of Loss of New Mutation")
 
 ```
+
 This suggests that, during the first few generations following the occurrence of the mutation, *the probability of loss of an advantageous mutation, by chance, is not much different from that of a neutral one*.  Furthermore, while we do see that in later generations, that mutation is more likely to survive than the neutral one, the probability of loss is still around 80%.  To illustrate this point, we can calculate the probability of the advantageous mutation surviving 100 generations as 
 
 ```{r}
@@ -142,6 +147,6 @@ Point three, on the face of it, may seem paradoxical.  All populations are finit
 
 There are a few general responses we can make at this point.  First, although mutations in a given gene and a given generation may be rare, there are lots of genes in the genome undergoing the process, the total number of mutations occurring can be quite large.  Second, of course, while the probability of loss of a particular advantageous mutation is high, it is not 1, so that some will obviously survive.  And at this point, natural selection can take over, right?
 
-Not so fast.  Before we get to that, we need to consider the issue of population size (and genetic drift) more closely.
+Not so fast.  Before we get to that, we need to consider the issue of population size (and genetic drift) more closely, in a future lecture.
 
 

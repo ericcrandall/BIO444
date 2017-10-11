@@ -38,7 +38,7 @@ For our purposes, we're going to assume that at a given time, the probability of
 
 We will start with the simplest model.  In it we assume that there are four possible states at each position (A, G, C, and T), and that there is some rate &alpha; at which one base mutates to one of the other three.  Thus, for example, if we start with an A at time t, at time t+1, the probability of no mutation coccuring would be 
 
-\(p_{a,a}= 1-3\alpha\) (remembering that mutation occurs to each of three bases with rate &alpha;)
+\(p_{a,a}= -3\alpha\) (remembering that mutation occurs to each of three bases with rate &alpha;)
 
 and \(p_{a,c}\), for example, would be &alpha;
 
@@ -110,7 +110,7 @@ Qk <- b*matrix(c(-2-k,1,k,1,1,-2-k,1,k,k,1,-2-k,1,1,k,1,-2-k),ncol=4)
 Qk
 ```
 
-And we note that the rate of transversions is lower than that of transitions.  And this can be converted to a probability matrix by expontiating
+And we note that the rate of transversions is lower than that of transitions.  And this can be converted to a probability matrix by exponentiating
 
 ```{r}
 Qk.t <-expm(Qk)
@@ -119,7 +119,7 @@ Qk.t
 
 And we can do similar manipulations (code not shown) as before, plotting three transition probabilities this time - no change (A->A) a transition (A->G) and a transversion (A_>C)
 
-```{r}
+```{r, echo=F}
 Qk.t <-lapply(t, function (x) expm(Qk*x))
 pAA <-sapply(Qk.t,function(x) x[1,1])
 pAC <-sapply(Qk.t,function(x) x[1,2])
@@ -138,7 +138,7 @@ So we see that the transition probabilities are higher than the transversion, al
 
 There are three additional models that are commonly used in modeling the evolutionary process, and each one of them has even more twists that can be specified.  
 
-2.  The Felsenstein model, which incorporates base composition
+2.  The Felsenstein model, which incorporates base composition. Jukes-Kantor and K80 assume bases occur at a frequency of 0.25
 3.  The HKY model combines both base composition and transition-transversion differences, along with variable rates, into what is at present the most widely used model.
 4.  The Generalized Time-Reversible model (GTR),which incorporates separate parameters for each different transition or transversion.
 
