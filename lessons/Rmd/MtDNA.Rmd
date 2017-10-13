@@ -130,10 +130,27 @@ kable(data.frame(Haplotype=as.character(haplo),Breed=sorted))
 
 So looking at these results, we can't say that we've learned a lot about these dog breeds.  But after all, our sample size, both in terms of haplotypes and sequenced bases, is quite small.  Nevertheless, it illustrates the potential of the approach.  
 
-### GeOMe Data
+## GeOMe Data
 
 Let' try this with GeOMe data!
 
+First thing is to download the data:
+1. Go to https://www.geome-db.org/query
+2. Search for your species and marker
+3. Download the CSV and the Fasta
+4. Set up a project directory on your computer, with these raw data files in a folder called "data". 
+  * Name them appropriately, and add "raw" to the filename. 
+  * Also put the fasta file of your class sequences in this same folder with "raw" in the filename, and all sequences named "Dongsha"
+  * Don't ever change these raw files!
+5. Import both fasta files into a dedicated folder in Geneious, allowing it to rename the sequences with an appended number to make them unique.
+6. Do a multiple alignment to combine the two fasta files.
+  * Inspect the alignment to ensure it did a decent job. 
+  * Trim the alignment as necessary to make all sequences the same length.
+7. Export this trimmed alignment to a new fasta file with your species name and "aligned"
+5. Change the names of the sequences in your fasta file to contain only the first 7 characters of the locality.
+6. Import your fasta file into geneious
+
+### Data Import
 ```{r}
 library(geomedb)
 library(stringr)
@@ -143,7 +160,8 @@ library(strataG)
 #linckia
 #write.dna(linckia,"test.fasta",format = "fasta")
 
-pcoel<-read.FASTA("../Data/pcoelestis.fasta")
+pcoel<-read.FASTA("../Data/pcoelestis_aligned.fasta")
+
 
 #renaming a geome file - save for posterity
 # for technical reasons, pnod is a different flavor of dnabin object, so we have to use rownames() instead of names()
@@ -157,10 +175,11 @@ image.DNAbin(pcoel)
 
 
 
-
+### Haplotype Network
 And make a haplotype network using code from [here](https://arundurvasula.wordpress.com/2016/02/24/haplotype-networks-in-r/)
 ```{r}
 
+# a little regular-expression kung-fu to chop off the numbers, leaving just the population name
 pop<-gsub(names(pcoel),pattern = "_\\d+",replacement="")
 
 d <- dist.dna(pcoel)
@@ -177,4 +196,62 @@ plot(net,size=attr(net, "freq"), scale.ratio=10, pie=ind.hap,legend=F, labels=F,
 ```
 
 
-#calculate nuc diversity, haplotype diversity, n, n haplotypes
+
+
+### Diversity Statistics
+
+#### Haplotypes and Haplotype Diversity
+```{r}
+pcoel_g<-sequence2gtypes(pcoel,strata=pop)
+pcoel_g<-labelHaplotypes(pcoel_g)
+
+ploidy(pcoel_g)
+
+#num.alleles give you the number of haplotypes, and heterozygosity gives you haplotype diversity (i.e. heterozygosity for a haploid dataset) 
+
+pcoel_g
+
+
+```
+
+#### Nucleotide Diversity
+For this we need the pegas package, and we need to write our own function, because the nuc.div() function doesn't stratify the data by population.
+
+```{r}
+library(pegas)
+
+stratastat<-function(x,pop=pop,fun=nuc.div){
+  #this function will calculate stats for a DNAbin object (x), stratified across populations given in pop. 
+  # Some functions this will work with: nuc.div(), theta.s(), tajima.test() from pegas, FusFs(), exptdHet() from strataG,
+stats<-NULL
+for(p in unique(pop)){
+  stat<-fun(pcoel[grep(p,names(pcoel))])
+  stats<-c(stats,stat)
+}
+names(stats)<-unique(pop)
+return(stats)
+}
+stratastat(pcoel,pop=pop,fun=nuc.div)
+stratastat(pcoel,pop=pop,fun=fusFs)
+stratastat(pcoel,pop=pop,fun=tajima.test)
+
+```
+# Maps
+
+1. Download the CSV output from GeOMe
+2. Edit in Excel to add info from Dongsha (Latitude: 20.698691	Longitude: 116.726274). Save as CSV.
+3. Make sure that the number of entries in the metadata file is equal to the number of sequences you have.
+
+```{r}
+library(ggmap)
+pcoel_m<-read.csv("../Data/pcoel_metadata.csv")
+
+#find the midpoint of all sampled points
+samp_mean<-sapply(pcoel_m[,c("decimalLongitude","decimalLatitude")],mean)
+pmap <- get_map(location = samp_mean, maptype = "satellite", source = "google",zoom=3)
+
+pcoel_map<-ggmap(pmap) + geom_count(data = pcoel_m, mapping = aes(x = decimalLongitude, y = decimalLatitude), color="red") 
+
+pcoel_map
+
+```{r}
