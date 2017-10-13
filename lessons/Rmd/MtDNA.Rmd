@@ -137,40 +137,34 @@ Let' try this with GeOMe data!
 ```{r}
 library(geomedb)
 library(stringr)
+library(strataG)
 
 #linckia<-queryFasta(marker="CO1",query="+genus:Linckia +species:laevigata")
 #linckia
 #write.dna(linckia,"test.fasta",format = "fasta")
 
-pnod<-read.dna("../Data/pnodosus.fasta",format="fasta",as.matrix=F)
-pnod_aln<-muscle(pnod)
+pcoel<-read.FASTA("../Data/pcoelestis.fasta")
 
+#renaming a geome file - save for posterity
 # for technical reasons, pnod is a different flavor of dnabin object, so we have to use rownames() instead of names()
-
-rownames(pnod_aln)<-str_extract(string=rownames(pnod_aln),pattern="\\[locality = .+?\\]")
-rownames(pnod_aln)<-str_replace(string=rownames(pnod_aln),pattern="\\[locality = (.+?)\\]",replacement="\\1")
+#rownames(pnod_aln)<-str_extract(string=rownames(pnod_aln),pattern="\\[locality = .+?\\]")
+#rownames(pnod_aln)<-str_replace(string=rownames(pnod_aln),pattern="\\[locality = (.+?)\\]",replacement="\\1")
 #ignore this final line - this is a unique problem to this species
-rownames(pnod_aln)<-str_replace_all(string=rownames(pnod_aln),pattern="\\\"",replacement="")
+#rownames(pnod_aln)<-str_replace_all(string=rownames(pnod_aln),pattern="\\\"",replacement="")
 
-image.DNAbin(pnod_aln)
+image.DNAbin(pcoel)
 ```
 
 
-Now to trim it
-```{r}
-pnod_aln_trim<-pnod_aln[,100:800]
 
-image.DNAbin(pnod_aln_trim)
-```
 
 And make a haplotype network using code from [here](https://arundurvasula.wordpress.com/2016/02/24/haplotype-networks-in-r/)
 ```{r}
-write.fasta(pnod_aln_trim,"../Data/pnodosus_aln_trim.fasta")
 
-pop<-rownames(pnod_aln_trim)
+pop<-gsub(names(pcoel),pattern = "_\\d+",replacement="")
 
-d <- dist.dna(pnod_aln_trim)
-h <- pegas::haplotype(pnod_aln_trim)
+d <- dist.dna(pcoel)
+h <- pegas::haplotype(pcoel)
 h <- sort(h, what = "label")
 
 net <- pegas::haploNet(h)
@@ -178,6 +172,9 @@ i<-stack(setNames(attr(h, "index"), rownames(h)))
 ind.hap<-table(hap=i$ind, pop=pop)
 
 #play with scale.ratio to get appropriate branch lengths
-plot(net,size=attr(net, "freq"), scale.ratio=20, pie=ind.hap,legend=F, labels=F)
+plot(net,size=attr(net, "freq"), scale.ratio=10, pie=ind.hap,legend=F, labels=F,threshold=0, show.mutation=2)
 #legend("topleft", colnames(ind.hap), col=rainbow(ncol(ind.hap)), pch=19, ncol=2)
 ```
+
+
+#calculate nuc diversity, haplotype diversity, n, n haplotypes
