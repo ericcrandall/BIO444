@@ -61,15 +61,19 @@ First, we have seen that the data set contains 17 sequences of 703 bases.  We ne
 length(seg.sites(acp29))
 ```
 
-There are 15.  So now we will use ms to simulate that, and then send the results to ms2dna to produce simulated bases (rather than 1's and zeros).  The results are stored in a fasta file (called test.fasta) Note that in this case, we are not using ms as implemented in phyclust; rather we are making a system call directly to ms, rerouting the outcome to ms2dna, which converts the output to simulated DNA sequences, and having that saved as a fasta file.
+There are 15.  So now we will use ms to simulate a tree with 15 segregating sites and 17 samples to mimic the real dataset, and then seqgen to generate DNA data along the tree using the HKY model of mutation. 
 
 ```{r}
-system("ms 17 1 -s 15 -r 0 703 -seed 1 2 3 | ms2dna >test.fasta") # numbers set to mimic acp data; r parameter is essential
+test.tree<-ms(nsam=17, nreps=1, opts="-s 15 -r 0 702 -T") # numbers set to mimic acp data; r parameter is essential
+test.tree2<-read.tree(text=test.tree) #pluck out the tree
+test.dna<-seqgen(rooted.tree=test.tree2, opts="-mHKY -l40 -s0.2 -q") # simulate dna sequences along the tree
+
+test.dna
+#test.dna2<-read.seqgen(text=test.dna)
 ```
+
 Now we will read that file and look at its SFS., compared with that of acp
 ```{r,fig.height=10}
-test.dna <-read.FASTA("test.fasta")
-
 par(mfrow=c(2,1))
 test.sfs <-site.spectrum(test.dna)
 plot(spec.acp,main="Observed")

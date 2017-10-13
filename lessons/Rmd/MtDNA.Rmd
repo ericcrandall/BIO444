@@ -152,8 +152,8 @@ First thing is to download the data:
 
 ### Data Import
 ```{r}
-library(geomedb)
-library(stringr)
+#library(geomedb)
+#library(stringr)
 library(strataG)
 
 #linckia<-queryFasta(marker="CO1",query="+genus:Linckia +species:laevigata")
@@ -176,7 +176,7 @@ image.DNAbin(pcoel)
 
 
 ### Haplotype Network
-And make a haplotype network using code from [here](https://arundurvasula.wordpress.com/2016/02/24/haplotype-networks-in-r/)
+Make a haplotype network using code from [here](https://arundurvasula.wordpress.com/2016/02/24/haplotype-networks-in-r/)
 ```{r}
 
 # a little regular-expression kung-fu to chop off the numbers, leaving just the population name
@@ -236,9 +236,10 @@ stratastat(pcoel,pop=pop,fun=fusFs)
 stratastat(pcoel,pop=pop,fun=tajima.test)
 
 ```
-# Maps
 
-1. Download the CSV output from GeOMe
+### Maps
+
+1. Download the CSV output from GeOMe. Place in your data folder.
 2. Edit in Excel to add info from Dongsha (Latitude: 20.698691	Longitude: 116.726274). Save as CSV.
 3. Make sure that the number of entries in the metadata file is equal to the number of sequences you have.
 
