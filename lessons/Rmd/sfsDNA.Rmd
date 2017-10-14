@@ -1,7 +1,6 @@
 ---
 title: <center>Site Frequency Spectra</center>
 date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
-bibliography: TPG.bib
 output:
   html_document:
     css: Chapter.css
@@ -72,27 +71,4 @@ test.dna
 #test.dna2<-read.seqgen(text=test.dna)
 ```
 
-Now we will read that file and look at its SFS., compared with that of acp
-```{r,fig.height=10}
-par(mfrow=c(2,1))
-test.sfs <-site.spectrum(test.dna)
-plot(spec.acp,main="Observed")
-plot(test.sfs, main="Simulated")
-```
-
-So is what we observe consistent with neutral expectations?  Based on a single simulation, that's hard to say.  Suppose we repeat the simulation 10 times:
-
-
-```{r, fig.height=15}
-#par(mfrow=c(5,2))
-for(i in 1:10){
-  system("ms 17 1 -s 15 -r 0 703 | ms2dna >test.fasta") # numbers set to mimic acp data; r parameter is essential
-  test.dna <-read.FASTA("test.fasta")
-  test.sfs <-site.spectrum(test.dna)
-plot(test.sfs,main=paste("Simulation", i, sep=" "))
-}
-par(mfrow=c(1,1))
-```
-
-We see that we get a variety of spectra.  So how to sort through them?  Before we can address that, we need to turn to coalescent theory, which we will do in a future lesson.
-
+Cool!

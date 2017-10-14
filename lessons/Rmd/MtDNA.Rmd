@@ -13,6 +13,7 @@ output:
 library(knitr)
 library(rentrez)
 library(pegas)
+library(stringr)
 ```
 
 
@@ -153,7 +154,7 @@ First thing is to download the data:
 ### Data Import
 ```{r}
 #library(geomedb)
-#library(stringr)
+library(stringr)
 library(strataG)
 
 #linckia<-queryFasta(marker="CO1",query="+genus:Linckia +species:laevigata")
@@ -192,9 +193,16 @@ ind.hap<-table(hap=i$ind, pop=pop)
 
 #play with scale.ratio to get appropriate branch lengths
 plot(net,size=attr(net, "freq"), scale.ratio=10, pie=ind.hap,legend=F, labels=F,threshold=0, show.mutation=2)
-#legend("topleft", colnames(ind.hap), col=rainbow(ncol(ind.hap)), pch=19, ncol=2)
+
+legend("topleft", colnames(ind.hap), col=rainbow(ncol(ind.hap)), pch=19, ncol=2)
 ```
 
+### Site Frequency Spectrum
+
+```{r}
+pcoel_spectrum<-site.spectrum(pcoel)
+plot(pcoel_spectrum)
+```
 
 
 
@@ -205,7 +213,6 @@ plot(net,size=attr(net, "freq"), scale.ratio=10, pie=ind.hap,legend=F, labels=F,
 pcoel_g<-sequence2gtypes(pcoel,strata=pop)
 pcoel_g<-labelHaplotypes(pcoel_g)
 
-ploidy(pcoel_g)
 
 #num.alleles give you the number of haplotypes, and heterozygosity gives you haplotype diversity (i.e. heterozygosity for a haploid dataset) 
 
@@ -233,7 +240,7 @@ return(stats)
 }
 stratastat(pcoel,pop=pop,fun=nuc.div)
 stratastat(pcoel,pop=pop,fun=fusFs)
-stratastat(pcoel,pop=pop,fun=tajima.test)
+
 
 ```
 
@@ -249,10 +256,12 @@ pcoel_m<-read.csv("../Data/pcoel_metadata.csv")
 
 #find the midpoint of all sampled points
 samp_mean<-sapply(pcoel_m[,c("decimalLongitude","decimalLatitude")],mean)
-pmap <- get_map(location = samp_mean, maptype = "satellite", source = "google",zoom=3)
+pmap <- get_map(location = samp_mean, maptype = "terrain", source = "google",zoom=3)
 
 pcoel_map<-ggmap(pmap) + geom_count(data = pcoel_m, mapping = aes(x = decimalLongitude, y = decimalLatitude), color="red") 
 
 pcoel_map
 
-```{r}
+```
+
+
