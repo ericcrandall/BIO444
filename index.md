@@ -14,6 +14,7 @@ author: Dr. Eric Crandall
 - [Introduction to R: Maps in R](./lessons/Maps_in_R/Maps_in_R.html)
 - [Hardy-Weinberg Equilibrium](./lessons/HW/Equilibria.html)
 - [Mutation and Mutational Models](./lessons/mutation/MutationChapter.html)
+- [DNA Data: Haplotypes, Site Frequency Spectrum, Diversity](./lessons/intro2dna/Introd2DNA.html)
 
 
 

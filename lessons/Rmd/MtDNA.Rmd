@@ -143,13 +143,13 @@ First thing is to download the data:
   * Name them appropriately, and add "raw" to the filename. 
   * Also put the fasta file of your class sequences in this same folder with "raw" in the filename, and all sequences named "Dongsha"
   * Don't ever change these raw files!
-5. Import both fasta files into a dedicated folder in Geneious, allowing it to rename the sequences with an appended number to make them unique.
-6. Do a multiple alignment to combine the two fasta files.
+5. Change the name of each sequence to just a 7 letter string that denotes locality. Keep track of your locality abbreviations somewhere.
+6. Import both fasta files into a dedicated folder in Geneious, allowing it to rename the sequences with an appended number to make them unique.
+7. Do a multiple alignment to combine the two fasta files.
   * Inspect the alignment to ensure it did a decent job. 
   * Trim the alignment as necessary to make all sequences the same length.
-7. Export this trimmed alignment to a new fasta file with your species name and "aligned"
-5. Change the names of the sequences in your fasta file to contain only the first 7 characters of the locality.
-6. Import your fasta file into geneious
+8. Export this trimmed alignment to a new fasta file with your species name and "aligned"
+9. Import your fasta file into geneious
 
 ### Data Import
 ```{r}

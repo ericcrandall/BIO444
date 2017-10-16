@@ -43,7 +43,11 @@ We see that there are 17 sequences, each 702 base pairs in length.  We're going 
 
 ```{r}
 names(acp29) <-c(1:17)
-acp.mat <-muscle(acp29) # makes the data a little easier to work with
+acp.mat <-muscle(acp29) # align the data with muscle
+
+#or alternatively, read it in from here
+#acp.mat<-read.dna("https:ericcrandall.github.io/BIO444/lessons/Data/acp29_aligned.fasta",format="fasta")
+
 ```
 
 Note that our data (acp.mat) is now a DNAbin object, which is simply a matrix of sequences - one row per sequence and one column per position.  This is a data type used extensively in ape and related packages. 
