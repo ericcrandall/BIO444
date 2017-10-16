@@ -10,6 +10,7 @@ output:
        toc_depth: 5
        code_folding: show
 ---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 ```{r child="../Rmd/IntroDNA.Rmd"}
 
 ```
