@@ -20,12 +20,14 @@ The most basic level of genetic variation is, of course, that of DNA sequence.
 
 As an example, we are going to use data from the acp29 locus in *Drosophila melanogaster*,  Popset [11245776](http://www.ncbi.nlm.nih.gov/popset/11245776), downloaded as a FASTA file.  We will use the `rentrez` package to access the data directly:
 
-```{r,eval=T,echo=FALSE}
+```{r,eval=T,echo=FALSE, message=F}
 library(rentrez)
 library(ape)
 library(pegas)
 library(strataG)
+```
 
+```{r}
 dat.srch <-entrez_search("popset",term="11245776")
 dat <-entrez_fetch("popset",id=dat.srch$ids,rettype="fasta",retmode=xml)
 write(dat,file="../Data/acp29.fasta")
@@ -36,9 +38,9 @@ acp29
 
 Note that at this point, we have saved the downloaded data as a local file, which we will be able to access in the future.
 
-We see that there are 17 sequences, each 702 base pairs in length.  We're going to do two processing steps, one trivial an one critical:  
+We see that there are 17 sequences, each 702 base pairs in length.  We're going to do two processing steps, one trivial and one critical:  
 
-1.As a cleanup for now, we will rename them as simply 1 through 17.  
+1. As a cleanup for now, we will rename them as simply 1 through 17.  
 2.  We want to be sure they are properly aligned.  To do so, we will use the add-on program `muscle` (which must be indepenently installed so that it can be called from R).
 
 ```{r}
@@ -58,7 +60,7 @@ To do this, we will use the image.DNAbin function, part of the package "ape"
 ```{r}
 image.DNAbin(acp.mat,cex=.8)
 ```
-And with this, we can, at least qualitatively, address our question.  The fact that most bases are identical in all 17 sequences tells us that the sequence alignment looks good; the fact that there are some exceptions to this says that there are is in fact variation.
+And with this, we can, at least qualitatively, address our question.  The fact that most bases are identical in all 17 sequences tells us that the sequence alignment looks good; the fact that there are some exceptions to this says that there is in fact variation.
 
 But how much variation?  There are two measures that we will use extensively for this:
 
@@ -98,7 +100,11 @@ Now let's see how many segregating sites there are.
 ss <-length(seg.sites(acp.mat[seqs,]))
 ss
 ```
-And we see there are `r ss`.  If we reran the above block of code, we could select two other sequences, and we'd get another number.  In fact, there are n(n-1)/2 such comparisons; the average of them is our measure of diversity.  Again, there is an R function (in the package pegas) that gets at this
+And we see there are `r ss`.  If we reran the above block of code, we could select two other sequences, and we'd get another number.  In fact, there are n(n-1)/2 such comparisons; the average of them is our measure of diversity.  
+$$\pi =  \sum_{ij}x_ix_j\pi_{ij}$$
+Where $x_i$ and $x_j$ are the respective frequencies of the ith and jth sequences in the sample and $\pi_{ij}$ is the number of nucleotide differences between these two sequences.
+
+Again, there is an R function (in the package pegas) that gets at this
 
 ```{r}
 acp.div <-nuc.div(acp.mat)
@@ -124,7 +130,7 @@ So among the 17 sequences in the data set, there are 10 different haplotypes. No
 
 $$h = \frac{N}{N-1}(1 - \sum_{i=1}^n X_i)$$
 
-Where $X_i$ is the relative haplotype frequency of each haplotype in the sample, and N is sample size. There isn't a function in any of our R packages to calculate h, so we will write one ourselves
+Where $X_i$ is the relative haplotype frequency of each haplotype in the sample, and N is sample size. There is a function in the strataG package to calculate h, but we will write one ourselves
 
 ```{r}
 
@@ -143,6 +149,17 @@ hap.diversity<-function (x){
 acp.hap.labs<-labelHaplotypes(acp.mat)$haps
 acp.h<-hap.diversity(acp.hap.labs)
 acp.h
+
+
+```
+
+Let's check ourselves before we wreck ourselves:
+
+```{r}
+library(strataG)
+acp29g<-sequence2gtypes(acp.mat)
+acp29g<-labelHaplotypes(acp29g)
+acp29
 ```
 
 ### Summary

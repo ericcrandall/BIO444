@@ -10,13 +10,13 @@ output:
 
 ## The Site Frequency Spectrum
 
-Thus far, we have talked about the use of nucleotide diversity (π) and number of segregating sites (S) as possible summary statistics for characterizing DNA sequence variation.  However, there is more that can be extracted from a typical data set.  In particular, neither of these address the question of allele frequencies.  But when we are talking about DNA sequences, what do we mean by "allele"?  Let's consider sites as loci; further we can assume that each site has one of two states - ancestral or derived. Furthermore, we assume that a particular site only undergoes a single mutation, so that all sequence differences we observe when we compare two sequences are the result of unique mutational events.  This is what is known as the *infinite sites model*.   
+Thus far, we have talked about the use of nucleotide diversity (π) and number of segregating sites (S) as possible summary statistics for characterizing DNA sequence variation.  However, there is more that can be extracted from a typical data set.  In particular, neither of these address the question of allele frequencies.  But when we are talking about DNA sequences, what do we mean by "allele"?  Let's consider sites as loci; further we can assume that each site has one of two states - ancestral or derived. Furthermore, we assume that a particular site only undergoes a single mutation, so that all sequence differences we observe when we compare two sequences are the result of unique mutational events.  This is what is known as the *infinite sites model*, and it is the basic model upon which the models of multiple mutation (Jukes Cantor, K80 etc.) are built on.   
 
 Thus, we might want to use as a measure site-based allele frequencies as the fraction of sequences that contain the derived allele at that site.  Let's do so by simulating a simple data set.  To do so, we are going to us Rick Hudson's program `ms` for the first time.  It is an incredibly powerful program, but its basic function is simple - given some parameters such as &theta; or S, it will generate samples that would be generated based on the infinite sites model.  It is distributed as c++ code that can be compiled and run from the command line; fortunately for us it has been incorporated into the r package `phyclust`, which is loaded along with `TeachingPopGen`.  
 
 So we are going illustrate site frequency spectra, we will use ms to generate 10 samples with 10 segregating sites.  These will be coded as 0's and 1's, indicating ancestral and derived alleles, but remember, in real life each allele would be a nucleotide (A, G, C or T), and two such alleles (one ancestral and one derived) would be segregating at each position.  
 
-```{r}
+```{r, message=F}
 library(TeachingPopGen)
 set.seed(123)  
 rand <-ms(nsam=10, nreps=1,opts="-s 10")  
