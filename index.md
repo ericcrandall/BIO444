@@ -15,12 +15,11 @@ author: Dr. Eric Crandall
 - [Hardy-Weinberg Equilibrium](./lessons/HW/Equilibria.html)
 - [Mutation and Mutational Models](./lessons/mutation/MutationChapter.html)
 - [DNA Data: Haplotypes, Site Frequency Spectrum, Diversity](./lessons/intro2dna/Intro2DNA.html)
+- [Evolution in Finite Populations: Genetic Drift](./lessons/finite/FinitePopulations.html)
+- [Measurement and Interpretation of Population Structure](./lessons/structure/PopulationStructure.html)
 
+This site is authored on [Github Pages](https://pages.github.com)
 
-
-This site is authored on [Github Pages](https://pages.github.com), the sites uses [Jekyll](https://jekyllrb.com/), a
-[ruby](https://www.ruby-lang.org/en/) [gem](https://rubygems.org/), to
-convert Markdown files to html.
 
 
 ---

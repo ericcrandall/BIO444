@@ -33,7 +33,7 @@ Let's look at some real data.  In the pretend data we looked previously, we saw 
 2.  We will examine some sample loci to see what's going on.
 
 So first we can look at the data and see what it consists of
-```{r}
+```{r, message=F, warning=F}
 library(TeachingPopGen)
 
 data(Medicago)
@@ -81,7 +81,7 @@ So quite obviously, for this locus (and, as it turns out for all of the others a
 
 ### The Sampling Effect of reproduction
 
-We are all familiar with sampling, in the context of collecting data from a sample of a larger population and using those data to estimate parameters for the population as a whole.  It is important to understand, however, that in population genetics, there is also the *biological* sampling that takes place during reproduction.  That is, in a finite population, while an essentially infinite number of gametes can be produced (and for a ballelic locus, allele frequencies of p and q), only a limited number of those gametes actually give rise to the next generation.  In a diploid population with constant size N, that number, of course, will be 2N. This model is what is known as a *Wright-Fisher Population*.   And such a population, the parameters about which  we've been talking - notably allele frequencies and linkage disequilibrium, will be subject to the sampling "error" that results (we've already seen this in simulated data).  So the question we will be dealing with is how that biological sampling process, a random one, affects the genetics of the evolutionary process.
+We are all familiar with sampling, in the context of collecting data from a sample of a larger population and using those data to estimate parameters for the population as a whole.  It is important to understand, however, that in population genetics, there is also the *biological* sampling that takes place during reproduction.  That is, in a finite population, while an essentially infinite number of gametes can be produced (and for a biallelic locus, allele frequencies of p and q), only a limited number of those gametes actually give rise to the next generation.  In a diploid population with constant size N, that number, of course, will be 2N. This model is what is known as a *Wright-Fisher Population*.   And such a population, the parameters about which  we've been talking - notably allele frequencies and linkage disequilibrium, will be subject to the sampling "error" that results (we've already seen this in simulated data).  So the question we will be dealing with is how that biological sampling process, a random one, affects the genetics of the evolutionary process.
 
 ### Nonrandom Mating - an Extreme Case
 
@@ -110,7 +110,7 @@ So what we are seeing is an extreme form of genetic drift, the result of which i
 2.  A decline in overall heterozygosity
 3.  Random fixation or loss of alleles.
 
-### A More realistic Example
+### A More Realistic Example
 
 Now, suppose we start with a set of replicate populations, each with 16 individuals that are all heterozygotes for some gene.  What do we expect to happen?  Below are the results of simulating that experiment (the rather crude R code used is hidden)
 
@@ -177,12 +177,14 @@ This gives us a plot that shows very little change.  In addition to the plot, ho
 ```{r}
 sim2.out <-driftPlot(rep(1000,100))
 ```
+
 And we see that there is more scatter in the trajectories of the replicate populations.  Now let's run it one more time with N=100 and analyze the results more closely
 
 ```{r}
 set.seed(9987)
 sim3.out <-driftPlot(rep(100,100))
 ```
+
 One thing should immediately jump out - we have populations that have gone to either fixation or loss, and the variance among replicates has grown large.  What about the mean value of p for all populations?  Here is where we use the matrix output of the drifPlot function.  In the plot statement below, we use the apply function, which works as follows
 
 1.  Starts with a matrix or data frame
@@ -211,6 +213,9 @@ plot(Fhat, main="Mean Heterozygosity among Replicates",xlab="Generation",ylab="H
 It declines monotonically
 
 These two observations lead to concept of "Effective Population size" , or N<sub>e</sub>, which is defined as *the size of a Wright-Fisher population that would exhibit the same amount of genetic drift (as measured either by increase in variance or decrease in expected heterozygosity) as observed in an actual population.*     
+This also gives us an idea of what will happen to a set of populations if they are left to drift on their own - they all will become genetically different from one another. This departure from random mating is called population structure and is measured using F<sub>st<sub>.
+
+![Population Structure](../images/drifting_populations.jpg)
 
 
 ### Summary
@@ -220,5 +225,4 @@ What we have done is to develop an understanding of the basics of genetic drift,
 1.  Our definition is based on what we saw by simulating allele frequency dynamics in replicate populations.  How can use real data gathered from a sample of a single population, to arrive at an estimate of Ne?
 2.  We've seen now, both in the Buri experiment and in our last simulation, that the long-term effect of genetic drift is fixation or loss of an allele, meaning a net loss of genetic variation with time.  However, we also know that mutation is acting in the opposite fashion to introduce new variation.  How do these two stochastic processes interact?
 
-These questions will occupy much of our attention in the next several weeks.
 

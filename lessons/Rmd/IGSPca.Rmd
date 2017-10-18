@@ -11,7 +11,7 @@ output:
 
 
 
-```{r, messages=F, warning=F}
+```{r, message=F, warning=F}
 library(hierfstat)
 library(knitr)
 library(scatterplot3d)

@@ -404,16 +404,8 @@ Fst.var</code></pre>
 </div>
 <div id="hierarchical-f-statistics" class="section level2">
 <h2>Hierarchical F-statistics</h2>
-<pre class="r"><code>library(hierfstat)</code></pre>
-<pre><code>## 
-## Attaching package: 'hierfstat'</code></pre>
-<pre><code>## The following object is masked from 'package:adegenet':
-## 
-##     read.fstat</code></pre>
-<pre><code>## The following objects are masked from 'package:ape':
-## 
-##     pcoa, varcomp</code></pre>
-<pre class="r"><code>library(knitr)</code></pre>
+<pre class="r"><code>library(hierfstat)
+library(knitr)</code></pre>
 <div id="an-example---the-idaho-giant-salamander-igs" class="section level3">
 <h3>An example - The Idaho Giant Salamander (IGS)</h3>
 <p>In our previous unit, we saw how we could quantify population subdivision based on variation in allele frequencies among subpopulations. However, we only considered the simplest possible case, one in which there are some number of populations, and we want to assess how well they are differentiated from one another. But consider another possibility - suppose we’d like to look at multiple levels of division - for example among populations within a region, among regions within a continent, etc. A wonderful paper on Idaho Giant Salamanders (Mullen et al. 2010) does just that (albeit on a smaller scale). This is the creature:</p>
