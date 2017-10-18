@@ -1,0 +1,116 @@
+---
+title: "<center>Nested F Statistics - The Case of the Idaho Giant Salamander</center>"
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+csl:  "genetics.csl.txt"
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+## Hierarchical F-statistics
+
+```{r,messages=F, warning=F}
+library(hierfstat)
+library(knitr)
+```
+
+### An example - The Idaho Giant Salamander (IGS)
+In our previous unit, we saw how we could quantify population subdivision based on variation in allele frequencies among subpopulations. However, we only considered the simplest possible case, one in which there are some number of populations, and we want to assess how well they are differentiated from one another.  But consider another possibility - suppose we'd like to look at multiple levels of division - for example among populations within a region, among regions within a continent, etc.  A wonderful paper on Idaho Giant Salamanders (Mullen et al. 2010) does just that (albeit on a smaller scale).  This is the creature:
+
+![IDS1](../images/idaho-giant.jpg)
+
+And the habitat they examined in Northern Idaho was ideal for nested Fst analysis.  They looked at three river basins - the Lochsa, the St. Joe, and the St. Regis.  Each of those basins consist of multiple catchments, each one of which is fed by a number of streams.  A schematic of a typical basin is shown below:
+
+![IDS2](../images/mullen_map.jpg)
+
+(Figure 2 from Mullen et al., 2010)
+
+More detail can be seen in their Figure 3, which shows the overall region, as well as details of the three basins:
+
+![IDS3](../images/mullen_map3.jpg)
+
+What Mullen et al set out to do was to ask which of the four models illustrated below best describes the population structure of these salamanders (their Figure 1).
+
+![IDS4](../images/mullen1.jpg)
+
+* The Null model is one in which there is no diversification - in essence the subpopulations form one panmictic population
+* The Death Valley model supposes that the subpopulations are completely isolated and have been subject to independent genetic drift.
+* The Stream Hierarchy model suggests that as aquatic animals, they are capable of moving through connected waterways but not over land.
+*  The Head Water Hierarchy model proposes that animals are restricted to the headwater regions of individual streams, and whatever gene flow occurs does so terrestrially.
+
+So which of these best fits the data?
+
+### The Analysis
+
+To do our analyses, we will use data made available on Dryad.  It consists of microsatellite data for 14 loci, scored in 15 samples from each stream in the study design.  We will use the hierfstat package to do so; this package, while powerful, has a rather steep learning curve, and furthermore requires much in the way of data manipulation before it can be used constructively.  Accordingly, the data have been processed appropriately and included in TPG. We will use a different package (StrataG) to analyze our sequence data.
+
+To start with, we can look at the data:
+
+```{r}
+data(IGS)
+head(IGS)
+
+```
+
+And we see it's a data frame, consisting of three columns (as factors) identifying basin, catchment and stream, followed by diploid genotypes for nine microsatellite loci, with each allele given a single number.  We can now, with a little more manipulation, get the numbers we want.
+
+First, we are coing to convert the basin, catchment and stream id's to numbers
+```{r}
+basin <-as.numeric(IGS$Basin)
+catch <-as.numeric(IGS$Catchment)
+stream <-as.numeric(IGS$Stream)
+```
+Now we are going to subset the data so that it just contains the genetic data (that is, we will exclude the first three columns):
+```{r}
+loci <-data.frame(IGS[,4:12])
+```
+Now, we will do our nested F statistic analysis of the data. We will use the function varcomp.glob() to do so.  The syntax may look a bit arcane, but it does make some sense.  What we are telling it to do is to apply our three levels (basin, catchment, stream) in that order to the data frame containing the genetic data (loci) and do all of the calculations:
+
+```{r,message=FALSE}
+f.out <-varcomp.glob(data.frame(basin,catch,stream),loci)
+```
+And we can see the results as
+```{r}
+kable(f.out$F)
+```
+
+What we are most interested in are the numbers on the diagonal.  So, for example, the first cell of the first column provides a measure of differentiation among basins relative to the total, the second element of the second column reflects differentiation among catchment relative to basin and so forth.  To make that clearer, those values are rearranged below:
+
+```{r}
+f.diag <-diag(f.out$F)
+lev <-c("Among Basins (Fct)","Within Basins Among Catchments (Fbc)","Within Catchments among Streams (Fcs)","Within Streams (Fis)")
+fin <-data.frame(Level=lev,F=round(f.diag,3))
+kable(fin)
+```
+
+Looking at these results qualitatively, we might conclude that there is significant differentiation among basin and within catchments among streams, but significantly less among streams within catchments.  And of course, the value of Fis suggests a probably insignificant excess of heterozygotes at the local level.
+
+
+#### Testing for significance
+
+We have so far been assessing our results qualitatively, and for many purposes that is sufficient.  However, hierfstat does provide one test of significance, in which a test statistic calculated from the data is compared to data sets generated by randomly permuting the actual data (in this case, randomly assigning salamander genotypes to different streams).  The statistic calculated, G, is a likelihood ratio, comparing the likelihood of observing the particular data (actual or randomized) to that expected based on overall allele frequencies (i. e. no subdivision).  
+
+As an example, we will ask whether the observed differentiation among streams within catchments (`r f.diag[3]`) is significant.  We do the test as follows:
+
+```{r}
+sig.str <-test.within(loci,test=stream,within=catch,nperm=1000)
+```
+
+The last number in the first element of the list returned is the observed value, so we can compare it to the ones from the randomized permutations.  Thus, we can compare our observed see where our value lies relative to the upper and lower 2.5% of the values generated with the permuted data as follows:
+
+```{r}
+
+obs <-sig.str[[1]][1000]
+dst <-sig.str[[1]][1:999]
+obs
+quantile(dst,c(.025,.975))
+```
+
+And we see that, based on this analysis, the distribution of genotypes among streams departs significantly from that expected if they were distributed randomly among them.
+
+### Conclusion
+
+So what have we accomplished so far? In the case of the Idaho Giant Salamander, differentiation among catchments is the most striking, suggesting limited or no gene flow among them, akin to the Death Valley Model.  In contrast, when we look within catchments, while significant differentiation exists among streams, its lower level is consistent with more gene flow, perhaps consistent with the stream hierarchy model.  But at this point, we are basing everything on an overall assessment of population structure.  What we have not done is to look at particular comparisons.  For example, how does differentiation among streams within one particular catchment compare with another?   
+

@@ -1,0 +1,30 @@
+---
+title: <h1>Population Structure</h1>
+author: <h2></h2>
+date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
+csl: ../genetics.csl.txt 
+output: 
+    html_document:
+       theme: paper
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
+
+```{r, child="../Rmd/FstIntro.Rmd"}
+
+```
+
+```{r, child = "../Rmd/IGSFst.Rmd"}
+
+```
+
+```{r,child="../Rmd/FstHuman.Rmd"}
+
+```
+
+```{r, child="../Rmd/IGSPca.Rmd"}
+
+```
+

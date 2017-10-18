@@ -1,0 +1,132 @@
+---
+title: <h1>Principal Components Analysis </h1>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: ~/Dropbox/Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+
+```{r, messages=F, warning=F}
+library(hierfstat)
+library(knitr)
+library(scatterplot3d)
+data(IGS)
+```
+
+##  Detecting Population Structure with Principal Components Analysis
+
+In what we have done so far, we have been able to partition genetic variation among levels - x percent within populations, y percent among populations within regions, etc.  But what we haven't been able to do is to establish relatedness among populations.  So, for example, given some observed value of Fst, we do not know which populations differ from which others and by how much.  Furthermore, we are imposing our expectation of how the population should be structured on the data - wouldn't it be nice if we could "let the data do the talking" and empirically determine appropriate grouings.  This is what we will do in what follows, with Principal Components analysis.
+
+### The essence of PCA
+
+PCA is, in simplest term, a way to reduce the dimensionality of multivariate data.  In a genetic context, we could have populations with allele frequencies at multiple loci or (even better) individual multilocus genotypes.  How do we take such variation and make sense of it, either visually or mathematically?
+
+
+We're going to start with a simple hypothetical example, in which we look at allele frequencies for two loci in eight populations:
+
+```{r}
+dat.samp <-data.frame(sample=1:8, p1=c(.32,.36,.58,.59,.78,.75,.85,.83),p2=c(.4,.55,.42,.78,.60,.90,.80,.95))
+dat.samp
+```
+
+Now, let's make an xy plot of the data:
+
+```{r}
+plot(dat.samp$p1,dat.samp$p2,ylim=c(0,1),xlim=c(0,1),xlab="p1",ylab="p2")
+segments(.36,.4,.85,.88,lty=2,col="red")
+segments(.57,.8,.75,.5,lty=2,col="blue")
+```
+
+When we look at these data, we see that the variation in it can be seen as having two dimensions, however those dimensions are not in the same orientation as the x and y axes of the graph.  Rather, they are tilted, as is roughly visualized by the red and blue lines.  So what we can imagine (and what pca does) is to rotate the data, and to center it on zero, such that now we have two axes that represent the variation in the data
+
+```{r}
+dat.pr <-prcomp(dat.samp[,2:3])
+biplot(dat.pr,var.axes=FALSE)
+summary(dat.pr)
+```
+
+This is nothing special - we've rescaled the data such that we now can describe it in terms of two variance components, one of which (component 1) explains 86% of the variation in the data and the second explains 13%
+
+But what if we add a third set of frequencies to the data?
+
+```{r}
+p3 <-c(.3,.4,.2,.3,.7,.8,.5,.6)
+dat.samp3 <-cbind(dat.samp,p3)
+
+
+```
+Once again, we can plot the data, this time in three dimensions:
+
+```{r}
+scatterplot3d(dat.samp3[,2:4])
+```
+
+And now, how can we make any sense of it?  This is where PCA begins to show its usefulness:
+
+```{r}
+samp3.pr <-prcomp(dat.samp3[,2:4])
+biplot(samp3.pr,var.axes=FALSE)
+summary(samp3.pr)
+```
+
+Note that now, while the eight samples are relatively evenly distributed along PC1, PC2 clearly separates the samples into two groups - 1,2,5, and 6 vs. 3,4,7, and 8.
+
+PCA is an example of what data scientists call "unsupervised learning". If you are interested in learning more, this video is an excellent overview of the method:
+
+<iframe width="100%" height="480" src="https://www.youtube.com/embed/ipyxSYXgzjQ" frameborder="0" allowfullscreen></iframe>
+
+### Some real data
+
+But enough of hypotheticals.  Let's see what we can do with genotype data, using the Idaho Giant Salamander data as our source:
+
+```{r}
+head(IGS)
+```
+
+Notice that we are now working with individual genotypes, coded as 2 numbers.  The important point to note is that when we do our PCA's *the location information will not be incorporated into our analysis*.  What we will do is to color code the  the points on the plots, so that we can relate the PCA results to geography:
+
+
+
+```{r}
+dat.basin <-IGS[,c(2,4:12)]
+basin.pca <-indpca(dat.basin)
+plot(basin.pca,cex=0.5,col=c(rep(1,180),rep(2,90),rep(3,91)),ax1=1,ax2=2)
+```
+
+And we can see that in fact the three basins do group separately, although the St. Joe and St. Regis overlap to a greater extent than does Lochsa with either of the others.
+
+What is plotted is, of course, the first two PC's, the ones that explain the greatest of the variance.  In fact, given the multidimensionality of the data, there are many more PC's we could look at.  What we need to ask is How much of the variance are we explaining?  We can plot 
+
+```{r}
+barplot(100*basin.pca$ipca$eig/sum(basin.pca$ipca$eig),xlab="Principal Component",ylab="Percent Variance Explained")
+```
+
+In this case, taken together, the first two PC's explain only about 17% of the variation between them - not an ideal situation.  We could explore this further, but for now we'll take another approach - use the same pca results but color the points by catchment:
+
+```{r}
+catch.freq <-table(IGS$Catchment)
+
+
+test <-sapply(1:8, function(x) rep (x,catch.freq[x]))
+col.catchment <-unlist(test)
+plot(basin.pca,cex=0.5,col=col.catchment,ax1=1,ax2=2)
+```
+
+So we see that there is some degree of clustering by catchment, however the major division remains that between basins on axis 1.  Could we learn more by looking at additional components?  Remember that we just saw that they do explain significant amounts of variation.  Let's keep axis 1 in our comparison but now plot it against axis 3
+
+```{r}
+plot(basin.pca,cex=0.5,col=col.catchment,ax1=1,ax2=3)
+```
+
+This is a bit more informative - certainly the data suggest further exploration is in order, and it provides a nice visualization of our earlier hierarchical Fst result..
+
+
+
+### Conclusions
+
+PCA is often a great way to start doing this sort of analysis, and you will encounter it in the literature frequently.  Here we used genotypes as input; we could also use a distance matrix composed, for example, of pairwise Fst measures.  But remember - those are based on our assumptions about population structure - what we have done here is not.  But even so, the output we have is of rather limited informativeness.  To refine our analysis further, we need a much better way of assigning genotypes to groups, and then using the results to construct meaningful biological hypotheses.
