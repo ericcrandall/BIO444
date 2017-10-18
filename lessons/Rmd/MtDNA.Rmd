@@ -135,7 +135,7 @@ So looking at these results, we can't say that we've learned a lot about these d
 
 Let' try this with GeOMe data!
 
-First thing is to download the data:
+First thing is to download the data:  
 1. Go to https://www.geome-db.org/query  
 2. Search for your species and marker  
 3. Download the CSV and the Fasta  
@@ -149,7 +149,7 @@ First thing is to download the data:
   * Inspect the alignment to ensure it did a decent job.   
   * Trim the alignment as necessary to make all sequences the same length.  
 8. Export this trimmed alignment to a new fasta file with your species name and "aligned"  
-9. Import your fasta file into geneious  
+9. Import your fasta file into R 
 
 ### Data Import
 ```{r}

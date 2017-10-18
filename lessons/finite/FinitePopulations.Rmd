@@ -2,7 +2,6 @@
 title: <h1>Finite Populations</h1>
 author: <h2></h2>
 date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
-bibliography: ../TPG.bib
 csl: ../genetics.csl.txt 
 output: 
     html_document:
@@ -11,6 +10,7 @@ output:
        toc_depth: 5
        code_folding: show
 ---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 
 ```{r, child="../Rmd/DriftIntro.Rmd"}
 
@@ -24,4 +24,3 @@ output:
 
 ```
 
-## References

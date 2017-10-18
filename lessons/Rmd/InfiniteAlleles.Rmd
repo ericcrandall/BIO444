@@ -18,7 +18,7 @@ library(TeachingPopGen)
 
 ## Combining Drift and Mutation
 
-Gaving looked at drift and mutation independently, we now need to examine them jointly.  In doing so, we want to bear in mind a few things:
+Having looked at drift and mutation independently, we now need to examine them jointly.  In doing so, we want to bear in mind a few things:
 
 1.  In any finite population, the fate of a particular allele is ultimately fixation or loss.
 2.  The fate of most new mutations is also loss, however if it does persist, then it becomes subject to drift dynamics.
@@ -34,30 +34,30 @@ Note that the model was first developed during the isozyme era, when all we coul
 
 ### Probability of identity by descent
 
-So given this model, P{ibd}, which we will call Ft, becomes a critical parameter.  Because identity in state implies identity by descent, Ft is best thought of as the homozygosity (∑Pi^2^ ) of the population.  Given a population with some level of homozygosity Ft, we consider first what we would predict F<sub>(t+1)</sub> to be.  This is fairly simple:
+So given this model, P{ibd}, which we will call $F_t$, becomes a critical parameter.  Because identity in state implies identity by descent, $F_t$ is best thought of as the homozygosity $\sum{p_i^2}$ of the population.  Given a population with some level of homozygosity Ft, we consider first what we would predict $F_{t+1}$ to be.  This is fairly simple:
 
 
 
-\(F_{t+1}=Pr\{two\,identical\,alleles\}+Pr\{two\,different alleles\}*F_{t}\)
+$$ F_{t+1}=Pr\{two\,identical\,alleles\}+Pr\{two\,different alleles\}*F_{t}$$
  
-\(=\frac{1}{2N}+(1-\frac{1}{2N})*F_{t}\)
+$$=\frac{1}{2N}+(1-\frac{1}{2N})*F_{t}$$
  
- Now, suppose we add mutation into the equation.  In the case of the 1/2N individuals who received two copies of the same allele, they will be homozygous only if neither allele underwent mutation; the probability of that occurring is (1-µ)(1-µ) or (1-µ)^2^.  In the case of the others, they will be homozygous only if the two alleles they possess happen to be identical by descent ***and*** neither have undergone mutation; again, the latter probability is simply (1-µ)^2^.  
+ Now, suppose we add mutation into the equation.  In the case of the 1/2N individuals who received two copies of the same allele, they will be homozygous only if neither allele underwent mutation; the probability of that occurring is $(1-µ)(1-µ)$ or $(1-µ)^2$.  In the case of the others, they will be homozygous only if the two alleles they possess happen to be identical by descent ***and*** neither have undergone mutation; again, the latter probability is simply $(1-µ)^2$.  
  
  So we can now add modify our equation above to be
  
  
- \(F_{t+1} = \frac{1}{2N}(1-\mu)^2+(1-\frac{1}{1-2N})F_{t}(1-\mu)^2\)
+$$F_{t+1} = \frac{1}{2N}(1-\mu)^2+(1-\frac{1}{1-2N})F_{t}(1-\mu)^2$$
  
- And finally, we can ask what happens at equilibrium, when F<sub>(t+1)</sub> = F<sub>(t)</sub>.  We needn't go through the algebra, but if we do, and assume all terms containing µ^2^ and u/N ≈ 0, then we come to the following:
+ And finally, we can ask what happens at equilibrium, when $F_{t+1} = F_t$.  We needn't go through the algebra, but if we do, and assume all terms containing $µ^2$ and u/N ≈ 0, then we come to the following:
  
-\(\hat{F} = \frac{1}{1+4N\mu}\)
+$$\hat{F} = \frac{1}{1+4N\mu}$$
  
  To be more precise, however, we need to remember from our look at drift that in real populations, the predictor of heterozygosity dynamics is not N, but rather the effective population size Ne, so we need to rewrite this as 
  
-\(\hat{F} = \frac{1}{1+4N_{e}\mu}\)
+$$\hat{F} = \frac{1}{1+4N_{e}\mu}$$
 
-The term 4Neµ is an incredibly important one as we will see - in fact it has earned its own greek letter designation - &theta;.  
+The term 4Neµ is an incredibly important one as we will see - in fact it has earned its own greek letter designation - $\theta$.  
 
 ### What does this mean?
 
@@ -74,11 +74,11 @@ plot(th,f, type="l", xlab="Theta",ylab="Proportion",main="Homozygosity and Heter
 lines(th,1-f, lty=2)
 ```
 
-So we see, not surprisingly, that as &theta; increases (that is, mutation rate and/or population size increase), so does heterozygosity.
+So we see, not surprisingly, that as $\theta$; increases (that is, mutation rate and/or population size increase), so does heterozygosity.
 
 #### Estimating theta from real data
 
-For the following, we will use some allozyme frequency data for the Adk-1 locus in *Drosophila willistoni* [@Ayala1974; cited in @Hartl2006].
+For the following, we will use some allozyme frequency data for the Adk-1 locus in *Drosophila willistoni* Ayala 1974; cited in Hartl 2006.
 
 ```{r}
 freqs <-c(.574,.309,.114,.003) # frequencies of four alleles
@@ -108,25 +108,24 @@ th.eq
 ```
 
 
-We do see that homozygosity is lower and &theta; higher, but which is more consistent with the infinite alleles model?  To do that, we need to determine the expected distribution of allele frequencies and then compare our experimental results to them.  This is where the work we did earlier with simulating distributions comes into play.  
+We do see that homozygosity is lower and $\theta$ higher, but which is more consistent with the infinite alleles model?  To do that, we need to determine the expected distribution of allele frequencies and then compare our experimental results to them.  This is where the work we did earlier with simulating distributions comes into play.  
 
 ### The Ewens Formula and Sampling distribution.
 
-So we want to ask the following question:  "Given a sample of size n with k different alleles, how do the frequencies of those alleles compare to those expected in an equilibrium population under the infinite sites model"?  In a seminal paper, Ewens [-@Ewens1972]  addressed this issue.  First, he showed that the expected number of alleles (k) was the following:
-
-\(E(k)=\int_{0}^{1} x^{-1}(1-x)^\theta\{1-(1-x)^{2n}\}dx\)
-
-\(=\frac{\theta}{\theta}+\frac{\theta}{\theta+1} + . . . +
-\frac{\theta}{\theta+2n-1}\)
+So we want to ask the following question:  "Given a sample of size n with k different alleles, how do the frequencies of those alleles compare to those expected in an equilibrium population under the infinite sites model"?  In a seminal paper, Ewens (1972)  addressed this issue.  First, he showed that the expected number of alleles (k) was the following:
 
 
-The remarkable part of this equation is that k is simply a function of &theta; and the sample size (n).  We saw how we could calculate &theta; from our data; it would now be possible to establish the expected number of alleles and sample size, given varying values of theta.  But as is the case with any expectation, we need to examine its distribution.  Here, Watterson [-@Watterson1977] provided an approach.  Put simply, he suggested that we could do the following:
+$$E(k) =\frac{\theta}{\theta}+\frac{\theta}{\theta+1} + . . . +
+\frac{\theta}{\theta+2n-1}$$
 
-1.  Calculate F<sub>t</sub>,  expected homozygosity or ∑p<sub>i</sub>^2^, in the normal way from our experimental data.  Note that under the infinite alleles model, homozygosity implies identity by descent, so for this case, in fact this is our old familiar value of F.
-2.  Based on n and k (the number of samples and the number of alleles in our data) simulate the expected distribution of F<sub>t</sub> (just as we did earlier for the binary and normal distributions)
+
+The remarkable part of this equation is that k is simply a function of $\theta$ and the sample size (n).  We saw how we could calculate $\theta$ from our data; it would now be possible to establish the expected number of alleles and sample size, given varying values of theta.  But as is the case with any expectation, we need to examine its distribution.  Here, Watterson (1977) provided an approach.  Put simply, he suggested that we could do the following:
+
+1.  Calculate $F_t$,  expected homozygosity or $\sum{p_i^2}$, in the normal way from our experimental data.  Note that under the infinite alleles model, homozygosity implies identity by descent, so for this case, in fact this is our old familiar value of F.
+2.  Based on n and k (the number of samples and the number of alleles in our data) simulate the expected distribution of $F_t$ (just as we did earlier for the binary and normal distributions)
 3.  Compare our observed value to that distribution and ask if the deviation from expectation is significant at the .05 level.
 
-The problem at the time (1980 or thereabouts) was that in all of this, we are assuming that we can detect every allele, and with electrophoresis as our tool, that is not possible.  However, Jerry Coyne in Richard Lewontin's lab developed a technique known as sequential electrophoresis, that came close to meeting this assumption.  Keith et al [-@Keith1985] applied the technique to the Xdh locus in 89 homozygous lines of *Drosophila pseudoobscura* and obtained the following results:
+The problem at the time (1980 or thereabouts) was that in all of this, we are assuming that we can detect every allele, and with electrophoresis as our tool, that is not possible.  However, Jerry Coyne in Richard Lewontin's lab developed a technique known as sequential electrophoresis, that came close to meeting this assumption.  Keith et al 1985 applied the technique to the Xdh locus in 89 homozygous lines of *Drosophila pseudoobscura* and obtained the following results:
 
 ```{r}
 Xdh <- c(52,9,8,4,4,2,2,1,1,1,1,1,1,1,1) # vector of observed allele numbers
@@ -141,19 +140,19 @@ There are thus `r k` alleles in a sample of `r n` total alleles.  We can quickly
 barplot(Xdh/n, xlab="Allele",ylab="Frequency", main="Observed Distribution of Xdh Alleles",names.arg=c(1:k))
 ```
 
-Now, per Watterson, we can calculate F<sub>t</sub> from the data and address the following:
+Now, per Watterson, we can calculate $F_t$ from the data and address the following:
 
 1.  For 1000 simulated equilibrium populations, how is F distributed?
 2.  How does this compare to observed F in actual population?
 
-First, we will calculate F<sub>t</sub> from the data:
+First, we will calculate $F_t$ from the data:
 
 ```{r}
 Fx <-fhat(Xdh)
 Fx
 ```
 
-Now, we can look at how our observed F<sub>t</sub> compares to the distribution of 1000 simulated values, providing the function Ewens with n, k, and our expected homozygosity:
+Now, we can look at how our observed $F_t$ compares to the distribution of 1000 simulated values, providing the function Ewens with n, k, and our expected homozygosity:
 ```{r}
 par(xpd=FALSE)
 Ewens(n,k,Fx)
@@ -174,7 +173,7 @@ To address that, let's look at what happens when, for the same number of alleles
 
 As one final example, let's use a data set that is exhaustive with respect to allele detection and where we have *a priori* expectations with respect to evolutionary history.  Lactase persistence, the ability to digest lactose post-weaning, is well recognized as a gene that has been subject to selection in human populations in which dairy is part of the diet.  Thus, we can compare dairy-adapted populations with those in which it hasn't occurred and ask the same question - is the distribution of allele frequencies in these populations consistent with the neutral infinite alleles model, and if not, are departures consistent with our expectations based on known histories of selection?
 
-To address this, we will look at  data from HapMap - SNP's in a 50,000 kb region including the *lct* gene.  We will use data from two dairy-adapted populations (CEU and MKK) and one non-adapted one (YRI).  In this analysis, we are going to make the simplifying assumption that recombination is not a factor - clearly this is not strictly true, but given the small size of the region in question, its contribution to patterns of variation is likely small.
+To address this, we will look at data from HapMap - SNPs in a 50,000 kb region including the *lct* gene.  We will use data from two dairy-adapted populations (Central European; CEU and Masaii; MKK) and one non-adapted one (Yoruba;YRI).  In this analysis, we are going to make the simplifying assumption that recombination is not a factor - clearly this is not strictly true, but given the small size of the region in question, its contribution to patterns of variation is likely small.
 
 First we will read the data and, for processing ease, combine them into a list.  Note that the data have been previously processed
 
@@ -203,7 +202,7 @@ The order of the plots is the same as in the previous figure, and we see that in
 
 ### Conclusions
 
-What we've been doing here is laying groundwork for what follows.  As noted at the outset, all of our logic has been based on the "look forward" approach.  We have used a combination of theory and simulations to generate predictions regarding expectations under a particular model, and then have compared those expectations with observations from real populations.  In so doing, we have seen the importance of identity by descent as an analytical statistic for finite populations and introduced the neutral parameter &theta;, one that we will use extensively in the future.
+What we've been doing here is laying groundwork for what follows.  As noted at the outset, all of our logic has been based on the "look forward" approach.  We have used a combination of theory and simulations to generate predictions regarding expectations under a particular model, and then have compared those expectations with observations from real populations.  In so doing, we have seen the importance of identity by descent as an analytical statistic for finite populations and introduced the neutral parameter $\theta$, one that we will use in the future.
 
 But it bears repeating that most of the analytical approaches we have used so far were developed prior to the advent of population-level DNA sequencing.  In essence, as in the lactase case we are still treating alleles as discrete units.  In so doing, we are ignoring much of the information that is there, in particular, given two sequences, how many differences are there between them?  What sites vary and what sites don't?  As we shall see, once we take those factors into consideration, we can move beyond the "what-ifs" of the look forward approach and instead ask "what did" by looking backwards in time from the data at hand.
 

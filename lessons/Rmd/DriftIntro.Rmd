@@ -11,10 +11,6 @@ output:
 ---
 
 
-```{r,echo=FALSE}
-library(TeachingPopGen)
-```
-
 ## The Basics
 
 Of all of the assumptions of Hardy-Weinberg, the one that is always violated is that of infinite population size.  While many populations are so large that we needn't be concerned about it too much, in fact many others are sufficiently small that we need to explore this further.  And in fact, we shall see that that population size, in concert with mutation rate, are two of the most critical parameters in determining the genetic structure of real populations
@@ -27,17 +23,19 @@ Before getting into the heart of the matter, we're going to take a short detour 
 1.  They are identical in state - are same in sequence or whatever, regardless of ancestry
 2.  They are identical by descent - identical by virtue of having descended from a common ancestor.
 
-We need to think a bit about the difference here.  If, for example, we assume that a particular allele can only arise once (by a single mutation), then the distinction goes away - if we know enough about ancestry we will find the last common one.  On the other hand, if particular mutations can arise multiple times, then the second possibility comes into the picture.  For now, however (and for the next few weeks), we are going to assume that identity in state does in fact imply identity by descent - that is, every new mutation is unique, and thus identical alleles are identical by descent.
+We need to think a bit about the difference here.  If, for example, we assume that a particular allele can only arise once (by a single mutation), then the distinction goes away - if we know enough about ancestry we will find the last common one.  On the other hand, if particular mutations can arise multiple times, then the second possibility comes into the picture.  For now, however, we are going to assume that identity in state does in fact imply identity by descent - that is, every new mutation is unique, and thus identical alleles are identical by descent.
 
 ### Departure from Hardy Weinberg
 
-Let's look at some real data.  In the human data we looked previously, we saw that departures from Hardy Weinberg were minimal.  Let's now look at another example, some microsatellite data from the legume *Medicago trunculata* [@Ronfort2006].  The data are included in TPG; we will se them to do the following:
+Let's look at some real data.  In the pretend data we looked previously, we saw that departures from Hardy Weinberg were minimal.  Let's now look at another example, some microsatellite data from the legume *Medicago trunculata* Ronfort (2006).  The data are included in TPG; we will se them to do the following:
 
 1.  We look for departures from Hardy Weinberg
 2.  We will examine some sample loci to see what's going on.
 
 So first we can look at the data and see what it consists of
 ```{r}
+library(TeachingPopGen)
+
 data(Medicago)
 Medicago
 ```
@@ -105,6 +103,7 @@ barplot(g,names.arg =c("0","1","2"), xlab="# a alleles",ylab="Frequency", col=co
 }
 
 ```
+
 So what we are seeing is an extreme form of genetic drift, the result of which is a set of populations where a is either lost or fixed.  Note, however, that if we were to look at the frequency of the alleles across all populations combined, they would not have changed - p = q = 0.5.  But in such a combined population, of course, the number of heterozygotes would be very low.  So what we see are the following:
 
 1.  An increase in the variance of allele frequencies across populations
@@ -148,10 +147,10 @@ persp(xx, xlab="Generation", ylab="Number of A Alleles", zlab="Number of Populat
 
 ```
 
-And what we see is that while initially all populations were heterozygous, by the end, all are fixed for one of the two alleles.  So does this happen in real life?   @Buri1956 performed just this experiment, using populations of *Drosophila melanogaster* that were initially heterozygous for two alleles of the *bw* locus, one that affects eye color.   His results are shown below
+And what we see is that while initially all populations were heterozygous, by the end, all are fixed for one of the two alleles.  So does this happen in real life?   Buri (1956) performed just this experiment, using populations of *Drosophila melanogaster* that were initially heterozygous for two alleles of the *bw* locus, one that affects eye color.   His results are shown below
 
 
-![Buri](https://dl.dropbox.com/u/9752688/ZOO%20422P/R/Buri.jpg)
+![Buri](../images/Buri.jpg)
 
 So we see that in the laboratory, we get results very similar to those we predicted.  So what has happened? As in the case of our initial hypothetical example, we see an increase in allele frequency variance among replicate populations, an overall decline in heterozygosity, and random fixation and loss of alleles.  
 
@@ -211,7 +210,7 @@ plot(Fhat, main="Mean Heterozygosity among Replicates",xlab="Generation",ylab="H
 
 It declines monotonically
 
-These two observations lead to concept of "Effective Population size" , or N<sub>e</sub>, which is defined as *the size of a Wright-Fisher population that would exhibit the same amount of either increase in variance or level of genetic drift as observed in an actual population.*     
+These two observations lead to concept of "Effective Population size" , or N<sub>e</sub>, which is defined as *the size of a Wright-Fisher population that would exhibit the same amount of genetic drift (as measured either by increase in variance or decrease in expected heterozygosity) as observed in an actual population.*     
 
 
 ### Summary
