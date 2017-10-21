@@ -1,0 +1,158 @@
+---
+title: "Measuring structure in mtDNA data"
+author: "Eric D. Crandall"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+  md_document:
+    toc: yes
+    variant: markdown_github
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+### Read in the data
+
+```{r, message=F,warning=F}
+library(strataG)
+library(gdistance)
+library(ggplot2)
+
+pcoel<-read.FASTA(file="../data/pcoelestis_aligned.fasta")
+
+#put them in alphabetical order
+pcoel<-pcoel[order(names(pcoel))]
+
+image.DNAbin(pcoel)
+
+pop<-gsub(names(pcoel),pattern = "_\\d+",replacement="") #create a vector of population assignments by stripping off the individual identifiers
+pcoel<-as.matrix(pcoel)
+pcoel_g<-sequence2gtypes(pcoel,strata=pop)
+
+pcoel_g2<-labelHaplotypes(pcoel_g)
+pcoel_g2
+
+```
+
+### F-Statistics with DNA data
+
+Thus far we have learned about calculating F<sub>st</sub> under the infinite sites model, i.e., we consider each allele to be different from each other allele, and always different by the same amount (whether that is one mutation or twenty mutations). What if we could measure the number of differences between each allele (or haplotype)? With DNA data we can! How can we incorporate this additional information into a similar measure of subpopulation differentiation?
+
+Slightly different measures have been devised by different authors (as usual!), but the simplest of these to comprehend in light of our previous discussion is probably that of Nei (1982). What he did was to define a similar measure of population differentiation as F<sub>st</sub>, but this time using a measure of nucleotide diversity (π) within a population, in place of heterozygosity (H) or haplotype diversity (h). Recall, if we define $\pi_{ij}$ as the genetic distance between haplotype i and haplotype j (measured either by the simple proportion of nucleotide differences, or by some more complicated method, e.g., Jukes-Cantor, Kimura 2-parameter, etc.), then the nucleotide diversity within the total population is:
+
+$$\pi =  \sum_{ij}x_ix_j\pi_{ij}$$
+Where $x_i$ and $x_j$ are the respective frequencies of the ith and jth sequences in the sample and $\pi_{ij}$ is the number of nucleotide differences between these two sequences.
+
+That is, the distances between haplotype pairs are simply weighted by how common they are, to arrive at an average. If we also define $\pi_s$ as the average nucleotide diversity within subpopulations, then we can derive a familiar expression for an F<sub>st</sub> –like nucleotide measure of subpopulation differentiation:
+$$ \Phi_{ST} = \frac{\pi_T-\pi_S}{\pi_T} = \frac{\pi_B}{\pi_T}$$
+![PHI_ST Figure from Shane Lavery](../images/phi_st.jpg)
+This statistic could also be called $F_{ST}$ , but it was originally described by Nei (1982) as $\gamma_{ST}$ . A related statistic derived by Lynch & Crease (1990) was called $N_{ST}$ , one derived for mtDNA data by Takahata and Palumbi (1985), $G_{ST}$ , and one by Excoffier et al. (1992, see below), $\Phi_{ST}$ (phi-st). Although each of these statistics for nucleotide data is calculated slightly differently, in reality they are all trying to estimate the same parameter - the proportion of nucleotide diversity among subpopulations, relative to the total – and their values are usually quite similar, particularly with larger sample sizes. The same things can be said for all the different ways of calculating $F_{ST}$from allelic data. Given the multitude of different descriptor variables used by different authors, and the fact that within the two classes they are trying to estimate essentially the same parameters, my convention is to refer to the allelic form of the statistic as $F_{ST}$ , and the nucleotide diversity form as $\Phi_{ST}$ , and simply mention somewhere whose formulae or program you used to calculate them.
+
+For our purposes now, we will first be calculating **pairwise** $\Phi_{ST}$. For pairwise F-statistics, we are taking every pair of populations, and calculating $\pi_B$ and $\pi_T$ and getting $\Phi_ST$ for each pair. In this way, we create a distance matrix of genetic distance between each pair of populations.
+
+```{r}
+pairwise_phi<-pairwiseTest(pcoel_g,stats="phist",nrep=1000,quietly=T,model="raw")
+
+pairwise_F<-pairwiseTest(pcoel_g,stats="Fst",nrep=1000,quietly=T)
+
+
+head(pairwise_phi)
+
+# PhiST in lower triangle, p-value in upper triangle
+kable(head(pairwise_phi$pair.mat$PHIst))
+```
+
+
+
+### Isolation By Distance
+
+Up to now, we have not let geographic distance into the picture. In general, organisms will disperse to nearby populations more frequently than they disperse to distant populations.  This would certainly seem to be the case for marine organisms that disperse via pelagic larvae. A more realistic model of $F_{ST}$, particularly for a series of populations, would involve migration rate as an inverse function of the distance between pairs of populations. In other words, $F_{ST}$ should be lower between nearby populations and higher between distant populations.
+
+Rather than use the modeling approach we have previously, we will instead apply a model developed by [Rousset (1997)](http://www.genetics.org/content/145/4/1219.short) to some original data.  What he showed was that, if we consider distance to be one dimension, then in fact,  $\frac{F_{ST}}{1-F_{ST}}$ would be expected to be a linear function of geographic distance.
+
+
+[Pinsky et al (2017)](http://onlinelibrary.wiley.com/doi/10.1111/mec.12226/full) reported a survey of microsatellite variation in clownfish in Kimbe Bay, Papua New Guinea. The locations are shown here:
+
+![Pinsky et al Figure 1](../images/clownfish_map.jpg)
+
+When they plotted Roussett's relationship with distance they found the following relationship:
+
+![Pinsky et al. Figure 2](../images/clownfish_ibd.jpg)
+Based on the slope of this relationship and an estimate of the the effective population size of the whole population, they were able to estimate the dispersal kernel using the following relationship:
+
+$$\sigma = \sqrt{\frac{1}{4D_em}}$$
+Where $D_e$ is the effective density ($N_e$ per unit area) and m is the slope of the IBD relationship.
+
+They found that the dispersal kernel was very close to dispersal kernels estimated from direct dispersal events that were estimated for the species using parentage-based tagging methods!!! (more on this later in the class)
+
+![Pinksy et al. Figure 4](../images/clownfish_kernel.jpg)
+
+#### Determining significance - Mantel's test
+
+Think for a moment about what we have - two matrices, one of genetic differences and one of geographic ones.  If indeed isolation by distance exists, then we would expect the two matrices to be correlated, right?  But a simple correlation coefficient will not suffice, since the elements of the matrix are not independent of one another.  If for example, site one is moved, then its distance to all other n-1 sites is also changed.  Thus, we need another method.  
+
+The Mantel Test is one of those, and involves a randomization process similar to what we have done in other cases.  The process is conceptually simple:
+
+1.  Calculate the correlation between the two matrices
+2.  Randomize the rows and columns of one of the two (usually the genetic distance matrix)
+3.  Calculate the correlation between the fixed and randomized values
+4.  Repeat, and look at the distributions
+
+
+```{r}
+m <-mantel.rtest(as.dist(sparrow.dat$dist.km),as.dist(sparrow.dat$dist.fst),nrepet=1000)
+plot(m)
+m
+```
+
+Here, we see that the probability of obseerving as large or larger a correlation is 0.15.  That this is not significant should not be surprising - after all, we did not see a significant overall correlation between Fst and geographic distance.
+
+#### Using our data
+
+First you need to load in your metadata and use it to calculate a great-circle distance between all sampled points. 
+```{r}
+
+pcoel_metadata<-read.csv("../data/pcoel_metadata_2.csv")
+pcoel_unique<-unique(pcoel_metadata[,c("locality","decimalLatitude","decimalLongitude")]) #pull out just locality and lat/longs, and get unique values
+pcoel_unique<-pcoel_unique[order(pcoel_unique$locality),] #put them in alphabetical order
+
+pcoel_unique
+```
+
+Verify that you have a data frame containing the same number of populations in the same order as what is listed by your gtypes object
+
+```{r}
+gdist<-pointDistance(p1=pcoel_unique[,c(3,2)], lonlat=T,allpairs=T) #measure great circle distance between points in meters
+gdist<-gdist/1000 # convert to km
+gdist<-as.dist(gdist) #convert to distance object
+```
+
+Then pull out the PhiST matrix, linearize it, and perform a Mantel test (monte carlo version of regression) 
+```{r}
+pair_phi<-as.dist(pairwise_phi$pair.mat$PHIst) #convert phi_st to distance object
+pair_phi<-pair_phi/(1-pair_phi) #linearize PhiST
+
+phi_mantel<-mantel.randtest(pair_phi,gdist)
+
+phi_mantel
+
+```
+
+And plot it
+```{r}
+plot(gdist,pair_phi)
+identify(gdist,pair_phi) # use this if you want to identify outliers
+
+phi_plot<-ggplot(as.data.frame(cbind(gdist,pair_phi)),aes(x=gdist,y=pair_phi)) + geom_point() + geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + ylab(expression(Phi["ST"]/1-Phi["ST"]))
+
+phi_plot
+
+dongsha<-as.data.frame(cbind(as.matrix(pair_phi)[,5],as.matrix(gdist)[,5]))
+
+phi_plot_dongsha<-phi_plot+geom_point(data=dongsha,aes(x=V2,y=V1),color="red")
+
+```
