@@ -17,6 +17,7 @@ author: Dr. Eric Crandall
 - [DNA Data: Haplotypes, Site Frequency Spectrum, Diversity](./lessons/intro2dna/Intro2DNA.html)
 - [Evolution in Finite Populations: Genetic Drift](./lessons/finite/FinitePopulations.html)
 - [Measurement and Interpretation of Population Structure](./lessons/structure/PopulationStructure.html)
+- [Measurement and Interpretation of Population Structure in mtDNA data](./lessons/structure/mtDNA_Structure2.Rmd)
 
 This site is authored on [Github Pages](https://pages.github.com)
 

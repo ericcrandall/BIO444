@@ -15,7 +15,7 @@ output:
     toc_depth: 3
 ---
 
-### Read in the data
+#### Read in the data
 
 ![Pomacentrus coelestis](../images/coelestis.jpeg)
 
@@ -55,20 +55,19 @@ Where $x_i$ and $x_j$ are the respective frequencies of the ith and jth sequence
 That is, the distances between haplotype pairs are simply weighted by how common they are, to arrive at an average. If we also define $\pi_s$ as the average nucleotide diversity within subpopulations, then we can derive a familiar expression for an F<sub>st</sub> –like nucleotide measure of subpopulation differentiation:
 $$ \Phi_{ST} = \frac{\pi_T-\pi_S}{\pi_T} = \frac{\pi_B}{\pi_T}$$
 ![PHI_ST Figure from Shane Lavery](../images/phi_st.jpg)
+
 This statistic could also be called $F_{ST}$ , but it was originally described by Nei (1982) as $\gamma_{ST}$ . A related statistic derived by Lynch & Crease (1990) was called $N_{ST}$ , one derived for mtDNA data by Takahata and Palumbi (1985), $G_{ST}$ , and one by Excoffier et al. (1992, see below), $\Phi_{ST}$ (phi-st). Although each of these statistics for nucleotide data is calculated slightly differently, in reality they are all trying to estimate the same parameter - the proportion of nucleotide diversity among subpopulations, relative to the total – and their values are usually quite similar, particularly with larger sample sizes. The same things can be said for all the different ways of calculating $F_{ST}$from allelic data. Given the multitude of different descriptor variables used by different authors, and the fact that within the two classes they are trying to estimate essentially the same parameters, my convention is to refer to the allelic form of the statistic as $F_{ST}$ , and the nucleotide diversity form as $\Phi_{ST}$ , and simply mention somewhere whose formulae or program you used to calculate them.
 
 ### Pairwise Statistics on Our Data
 
 
-For our purposes now, we will first be calculating **pairwise** $\Phi_{ST}$. For pairwise F-statistics, we are taking every pair of populations, and calculating $\pi_B$ and $\pi_T$ and getting $\Phi_ST$ for each pair. In this way, we create a distance matrix of genetic distance between each pair of populations.
+For our purposes now, we will first be calculating **pairwise** $\Phi_{ST}$. For pairwise F-statistics, we are taking every pair of populations, and calculating $\pi_B$ and $\pi_T$ and getting $\Phi_{ST}$ for each pair. In this way, we create a distance matrix of genetic distance between each pair of populations.
 
 ```{r}
 pairwise_phi<-pairwiseTest(pcoel_g,stats="phist",nrep=1000,quietly=T,model="raw")
 
 #pairwise_F<-pairwiseTest(pcoel_g,stats="Fst",nrep=1000,quietly=T)
 
-
-head(pairwise_phi)
 
 # PhiST in lower triangle, p-value in upper triangle
 kable(head(pairwise_phi$pair.mat$PHIst))
@@ -92,6 +91,7 @@ Rather than use the modeling approach we have previously, we will instead apply 
 When they plotted Roussett's relationship with distance they found the following relationship:
 
 ![Pinsky et al. Figure 2](../images/clownfish_ibd.jpg)
+
 Based on the slope of this relationship and an estimate of the the effective population size of the whole population, they were able to estimate the dispersal kernel using the following relationship:
 
 $$\sigma = \sqrt{\frac{1}{4D_em}}$$
