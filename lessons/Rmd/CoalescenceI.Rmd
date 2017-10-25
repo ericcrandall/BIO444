@@ -55,7 +55,7 @@ plot(tree.rat,root.edge=TRUE) # Plot the data, ignoring inferred branch lengths
 
 Don't take this tree too seriously; it is simply a possible gene genealogy, and there are no doubt many more.  Remember - we are dealing with alleles in a population, not genes in different species. The bootstrap values are likely to be fairly low.  So we need to dig further.
 
-What is nice about this tree is it gives us a hypothesis for how the samples are related to one another. Given a forward-time simulator of a Wright-Fisher population, we could simulate over and over until we got a set of relationships that look like this tree. That would be quite difficult! Remember that most lineages go extinct, and thus most population histories did not lead to these particular lineages being extant in the population. We would have to simulate trillions or probably more scenarios to recreate them. Far better would be to start with the sample we have (because we know that, whatever history it was, it lead to these samples existing), and simulate **backwards**. This is the coalescent approach.
+What is nice about this tree is it gives us a hypothesis for how the samples are related to one another. Given a forward-time simulator of a Wright-Fisher population, we could simulate over and over until we got a set of relationships that look like this tree. That would be quite difficult! Remember that most lineages go extinct, and thus most population histories did not lead to these particular lineages being extant in the population. We would have to simulate trillions or probably more scenarios to recreate them. Far better would be to start with the sample we have (because we know that, whatever history it was, it led to these samples existing), and simulate **backwards**. This is the coalescent approach.
 
 ![Coalescence I](../images/bergstrom_dugatkin_coalescence1.jpg)
 
@@ -67,7 +67,7 @@ In a coalescent version of the Wright-Fisher model, each individual gene copy in
 
 ### Generating random trees
 
-We reture to program `ms`.  It is the most widely-used coalescent simulator. Remember that what it does is to simulate sequence evolution under the neutral model - that is, given either a value of &theta; or S (as well as, when appropriate, some other population parameters), it will generate simulated data sets; in addition it can, if the appropriate options are set, generate the data necessary for illustrating each set as a tree.
+We return to program `ms`.  It is the most widely-used coalescent simulator. Remember that what it does is to simulate sequence evolution under the neutral model - that is, given either a value of &theta; or S (as well as, when appropriate, some other population parameters), it will generate simulated data sets; in addition it can, if the appropriate options are set, generate the data necessary for illustrating each set as a tree.
 
 #### Running the simulations
 

@@ -14,21 +14,21 @@ output:
 
 ## The Tajima Statistic (D)
 
-Now that we have our two estimators, we need to compare them and then somehow determine if they differ by more than we would expect by chance.  This brings us to one of the most widely  used statistics in molecular population genetics - Tajima's D.  What we will see is that, while the calculation of the estimator is straightforward, its distribution is another one (like the Ewens estimator) that is best determined by simulation. In addition, it is important to note at the outset is that there is not necessarily a single explanation for an outcome that differs significantly from expectation.   What we will do first, therefore, is to define the measure and then look at some real data.
+Now that we have our two estimators, we need to compare them and then somehow determine if they differ by more than we would expect by chance.  This brings us to one of the most widely  used statistics in molecular population genetics - Tajima's D.  What we will see is that, while the calculation of the estimator is straightforward, its distribution is one that is best determined by simulation. In addition, it is important to note at the outset is that there is not necessarily a single explanation for an outcome that differs significantly from expectation.   What we will do first, therefore, is to define the measure and then look at some real data.
 
 ### The Formula
 
-The easiest way to see what is going on is to look at the formula (9.2 in @nielsen2013introduction):
+The easiest way to see what is going on is to look at the formula (9.2 in Nielsen & Slatkin 2013):
 
 \(\large{D=\frac{\hat{\theta}_T - \hat{\theta}_W}{\sqrt{\hat{V}(\hat{\theta}_T - \hat{\theta}_W)}}}\)
 
 
 
-In this formula, \(\theta_T\) is the notation used for π and  \(\theta_W\) is the Watterson estimator, based as we've seen previously on the number of segregating sites. the denominator is the square root of the variance of the difference between the two estimators; it is thus always positive.  The numerator, on the other hand can be either positive or negative.  It is positive when π is large, which we've already seen occurs when there are many intermediate frequency sites; it is small (and D negative) when there are lots of sites with only a few variants each.
+In this formula, \(\theta_T\) is the notation used for π (T for Tajima) and  \(\theta_W\) is the Watterson estimator, based as we've seen previously on the number of segregating sites. The denominator is the square root of the variance of the difference between the two estimators; it is thus always positive.  The numerator, on the other hand can be either positive or negative.  It is positive when π is large, which we've already seen occurs when there are many intermediate frequency sites; it is small (and D negative) when there are lots of sites with only a few variants each.
 
 ### Some data
 
-But enough of hypotheticals.  What we want to do is to look at actual data and calculate D.  Once we have, we'll then focus on interpreting the result.  For this, we will use popset [345105052](http://www.ncbi.nlm.nih.gov/popset/?term=345105052), from the *Drosophila mauritania* *spaghetti squash* gene, which were imported into Clustal.  A deletion-free segment was then saved to use in this example
+But enough of hypotheticals.  What we want to do is to look at actual data and calculate D.  Once we have, we'll then focus on interpreting the result.  For this, we will use popset [345105052](http://www.ncbi.nlm.nih.gov/popset/?term=345105052), from the *Drosophila mauritania* *spaghetti squash* gene (which functions in cytokinesis), which were imported into Clustal.  A deletion-free segment was then saved to use in this example
 
 ```{r}
 library(TeachingPopGen)
@@ -60,11 +60,11 @@ We note that three values are returned:
 The negative value of D tells us that there are more low frequency sites than we would expect.  What does that suggest about the evolutionary history of the gene and species?  We will explore this further, but for now, we can think of a few possibilities:
 
 
-1.  Most mutations are detrimental, so that they tend to be eliminated by selection, so that their frequencies are low (a negative selection model).
-2.  One mutation has arisen recently and is advantageous, leading to its increase in frequency, and thus decrease in relative frequency of others
+1.  Most mutations are detrimental, so that they tend to be eliminated by selection, so that their frequencies are low (a negative or purifying? selection model).
+2.  One mutation has arisen recently and is advantageous, leading to its increase in frequency, and thus decrease in relative frequency of others (a selective sweep)
 3.  The population has undergone a recent expansion, so that there are many more recent rather than ancient branches.  In that case, there would be many more mutations that would be represented only a few times in the sample, leading to an excess of low frequency sites.
 
-The first two hypotheses invoke natural selection as an explanation, something we will explore in depth in the second part of the course.  The third does not - it suggests that in fact, patterns of sequence diversity may be signatures of past demographic events.  If so, then perhaps the opportunity exists to use data like these to make inferences about those historical processes.
+The first two hypotheses invoke natural selection as an explanation. The third does not - it suggests that in fact, patterns of sequence diversity may be signatures of past demographic events.  If so, then perhaps the opportunity exists to use data like these to make inferences about those historical processes. It's worth noting here that Fu's Fs that we have seen in many papers is another "advanced" version of Tajima's D that is specialized in detecting the third case.
 
 ### Conclusions
 

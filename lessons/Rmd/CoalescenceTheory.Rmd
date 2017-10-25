@@ -13,7 +13,7 @@ output:
 
 ## Part 2.  The Underlying Theory
 
-So keep in mind - our essential questions is the following:  *Given an observed set of allelic DNA sequences, what can we infer about the evolutionary processes that gave rise to them?*  For now, we're going to simplify the question by only asking whether the data can be explained by the processes of mutation and drift occurring in a finite population.  Furthermore, since we are working backwards from extant species, we needn't be concerned about the vast number of new variants that would have been lost by the processes we've already discussed.
+So keep in mind - our essential questions is the following:  *Given an observed set of allelic DNA sequences, what can we infer about the evolutionary processes that gave rise to them?*  For now, we're going to simplify the question by only asking whether the data can be explained by the processes of mutation and drift occurring in a finite population. And recall that since we are working backwards from extant samples, we needn't be concerned about the vast number of new variants that would have been lost by the processes we've already discussed.
 
 The approach, which we already outlined, is to make inferences about the ancestry of alleles.  The classic approach, developed by  Kingman in 1982 is to consider the problem from the standpoint of the whole population.  However, in most cases, the data one works from consists of a sample drawn from that data. **This is an important distinction (in all of science).** We will briefly consider the first approach, but focus most of our attention on the second.
 
@@ -27,7 +27,7 @@ Suppose we go back r generations.  What we want to figure first is the probabili
 
 \(P\{coalescence\,in\,generation\,r\}= (1-\frac{1}{2N})^{r-1}*\frac{1}{2N}\)
 
-Let's look at this a little more closely.  What we are saying is that there is a certain probability, over some time interval t, that an event (coalescence) occurs, which, we've seen is 1/2N.  Now for the next interval t, the same probability exists, only this now a sample size of (1-1/(2N)).  This would continue on out as t -> infinity.  What this is is a geometric distribution: the distribution of the number of bernoulli trials (coin flips) needed to get one success.  We can summarize it as follows:
+Let's look at this a little more closely.  What we are saying is that there is a certain probability, over some time interval t, that an event (coalescence) occurs, which, we've seen is 1/2N.  Now for the next interval t, the same probability exists, only this now a sample size of (1-1/(2N)).  This would continue on out as t -> infinity.  What this is is a geometric distribution: the distribution of the number of bernoulli trials (coin flips) needed to get one success. (Or we could use an exponential distribution if we wanted to treat time as continuous instead of discrete)  We can summarize it as follows:
 
 Suppose there is some event that occurs with probability p during a particular time period.  *What we are examining is the time to the first occurrence of the event.*  In our case, the event is the most recent coalescent event.
 
@@ -40,7 +40,7 @@ mean(geo)
 hist(geo,main="Time to Coalescence, N=100",xlab="Generations")
 ```
 
-And we see (which we could also show analytically) that the mean time to coalescence is, in fact 2N.  For that reason, from here on out, we will scale time in units of 2N, so that we have, for this example, the following:
+And we see (which we could also show analytically) that the mean time to coalescence is, in fact about 2N.  For that reason, **from here on out, we will scale time in units of 2N**, so that we have, for this example, the following:
 
 t | generations
 ---|---
@@ -56,7 +56,7 @@ Our main interest is in looking at an actual set of allelic DNA sequences in a c
 
 #### TMRCA
 
-So, when scaling time by 2N, we see that the expected rate of coalescence for two alleles is 1.  But in a real experiment, we would have some sample of n alleles.  We already saw when talking about nucleotide diversity that there are n(n-1)/2 pairs of sequences in a sample of n, thus we have the same number of pairs of sequences coalescing.  so if the rate of 1 pair of sequences coalescing is 1, the rate for for n sequences is simply n(n-1)/2.  So here is the important point - the time for the first coalescent event to occur is the reciprocal of the rate or
+So, when scaling time by 2N, we see that the expected rate of coalescence for two alleles is 1.  But in a real experiment, we would have some sample of n alleles. Looking at the figure above, notice that the MRCA for the sample is likely to be less than the MRCA for the whole population.  We already saw when talking about nucleotide diversity that there are n(n-1)/2 pairs of sequences in a sample of n, thus we have the same number of pairs of sequences coalescing.  So if the rate of 1 pair of sequences coalescing is 1, the rate for for n sequences is simply n(n-1)/2.  So here is the important point - the time for the first coalescent event to occur is the reciprocal of the rate or
 
 \(\hat{t}_{coalescence\,1}=\frac{1}{\frac{n(n-1)}{2}}\)
 
@@ -85,12 +85,12 @@ Let's use the example of k=4 and figure out the times to the first, second, and 
 ```{r}
 n <-c(4:2) # number of lineages working from the present backwards through the coalescent events
 
-t <-1/(n*(n-1)/2) # calculate the tune to each event
+t <-1/(n*(n-1)/2) # calculate the t to each event
 t
 sum(t) #sum to get E(TMRCA)
 ```
 
-And we see that the expectation is that E(TMRCA)  is `r sum(t)`.  Keep this value in mind; we will return to it shortly.
+And we see that the expectation is that E(TMRCA)  is `r sum(t)`.  *For a population size of 100, how many generations would this be?* Keep this value in mind; we will return to it shortly.
 
 #### Total branch length
 
@@ -144,9 +144,9 @@ par(mfrow=c(1,1))
 
 
 
-The top panel shows the distribution of TMRCA; the bottom one that of total length. In both cases, the red lines indicate the means. Remembering that we arrived at the expected TMRCA to be `r sum(t)` and that of total length to be `r lngth`, we see that our simulated values are quite close to that - `r sim.mean[1]` and `r sim.mean[2]`.
+The top panel shows the distribution of TMRCA; the bottom one that of total length. In both cases, the red lines indicate the means. Remembering that we arrived at the expected TMRCA to be `r sum(t)` and that of total length to be `r lngth`, we see that our simulated values are quite close to that: mean TMRCA=`r sim.mean[1]` and mean length `r sim.mean[2]`.
 
 ### Summary
 
-Remember where we want to be.  We want to be able to find summary statistics that describe the coalescent process, which we can then use to compare observed data to the expected distribution.  Now we have two numbers for coalescence - TMRCA and total tree length - and we can simulate both their expected values and their distributions.  But remember the summary statistics we have for DNA - π (mean pairwise differences) and S (number of segregating sites).  How can we bring these together?  That's where we're headed next.
+Remember where we want to be.  We want to be able to find summary statistics that describe the coalescent process, which we can then use to compare observed data to the expected distribution.  Now we have two numbers for coalescence - TMRCA and total tree length - and we can simulate both their expected values and their distributions.  But remember the summary statistics we have for DNA - π (mean pairwise differences) and S (number of segregating sites) and h (haplotype diversity).  How can we bring these together?  That's where we're headed next.
 

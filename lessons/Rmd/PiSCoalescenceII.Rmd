@@ -15,7 +15,7 @@ library(knitr)
 
 ## Exploring Further
 
-So, combining analysis of DNA sequence variation with coalescence theory, we see that we have two simple estimators of &theta;, one based on the number of segregating sites in the data (S) and the other, which is in fact just the mean pairwise differences, or π.  Since they are estimates of the same paramter (and are both unbiased), we might expect them to yield the same value, right?  Let's explore that further.
+So, combining analysis of DNA sequence variation with coalescence theory, we see that we have two simple estimators of &theta;, one based on the number of segregating sites in the data (S) and the other, which is in fact just the mean pairwise differences, or π.  Since they are estimates of the same parameter (and are both unbiased), we might expect them to yield the same value, right?  Let's explore that further.
 
 
 ### A simple tree
@@ -38,6 +38,7 @@ Now let's  see the actual gametes that gave rise to this tree
 ```{r}
 tr.out <-read.ms.output(txt=tr) #Get data in usable form
 gams <-as.data.frame(tr.out$gametes)
+rownames(gams)<-(c("s1","s2","s3","s4","s5","s6"))
 colnames(gams) <-c("p1","p2","p3")
 kable(gams,align="l")
 ```
@@ -99,15 +100,30 @@ And as you map these mutations, you will see that they all occur in the tip bran
 pi.2 <-picalc(g2)
 pi.2
 ```
+
+And Watterson's estimator should be the same for 3 segregating sites (no matter where they occur)
+```{r}
+th.w <-3/sum(1/c(1:5))
+th.w
+```
+
 And we get a value of `r pi.2`, which can be compared with the value from the original data set of `r pi.sim`.  Not a huge difference, but a difference nevertheless.  And remember - the Watterson estimator is identical for the two scenarios.  So we need to explore the relationship between π and the location of mutations on the tree more closely.
 
 ## π, S, and the Site Frequency Spectrum
 
-Remember that the site frequency spectrum simply consists of the numbers of sites that differ at 1,2, . . .n/2 among the sequences sampled.  It should be very obvious that if we take the sum of all of the classes in the SFS, what we get is S.  For π, the relationship is a bit more complicated, but with a little bit of thought, we can get to the following relationship:
+Remember that the site frequency spectrum?
 
-π = [∑(i)(n-i)&eta;<sub>i</sub>]/((n*(n-1))/2)
+```{r}
+spec.acp <-site.spectrum(acp29)
+plot(spec.acp)
+```
 
-where &eta;<sub>i</sub> is the number of sites in class i of the SFS.
+
+It simply consists of the numbers of sites that differ at 1,2, . . .n/2 among the sequences sampled.  It should be very obvious that if we take the sum of all of the classes in the SFS, what we get is S.  For π, the relationship is a bit more complicated, but with a little bit of thought, we can get to the following relationship:
+
+$$ \pi = \frac{[\sum_i^{n-i}\eta_i]}{\frac{n(n-1)}{2} $$
+
+where $\eta_i$ is the number of sites in class i of the SFS.
 
 Don't worry too much about the math of the above expression; what we want to ask is which of the classes of the SFS makes the most significant contribution to π.  To get at that, we simply have to ask when n(n-i), which is the average pairwise difference for a single site when there are i derived sequences, is maximized.  We can visualize that over the range of i=1:n, where n=10.
 

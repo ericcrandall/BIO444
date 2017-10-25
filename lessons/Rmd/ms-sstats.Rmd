@@ -21,7 +21,7 @@ At this point, we need to address two questions.  First, given some value of Taj
 
 The first question is probably of lesser significance - indeed, as we have seen, the tajima.test function addresses it by comparing the value to either a normal or a beta distribution, and a rule of thumb that works pretty well is that if -1.8 < D <1.8, then its difference from expectation is not significant.  However, addressing the question does give us an opportunity to explore how we can use ms to calculate summary statistics, such as Tajima's D, and analyze their distribution.  
 
-For this unit, we will work with an aligned portion of the spaghetti squash data from *D. mauritiana* NCBI Popset [345105052](http://www.ncbi.nlm.nih.gov/popset/345105052):
+For this unit, we will continue to work with an aligned portion of the spaghetti squash data from *D. mauritiana* NCBI Popset [345105052](http://www.ncbi.nlm.nih.gov/popset/345105052):
 
 ```{r}
 library(TeachingPopGen)
@@ -34,7 +34,7 @@ pi <-nuc.div(dat)*nbase
 nbase;s;pi
 ```
 
-So we see that we have a set of sequences, each of which is `r nbase` bases long, with S= `r s` and π = `r pi`.  Now, we can calculate the Tajima statistic:  
+So we see that we have a set of sequences, each of which is `r nbase` bases long, with S= `r s` and π = `r pi`.  Now, we can calculate the Tajima statistic again:  
 
 ```{r}
 D <-tajima.test(dat)
@@ -65,6 +65,7 @@ colhist(ss.sum$Tajima.D,xlab="D",ylab="Number",main="Distribution of Tajima Stat
 Dmean <-mean(ss.sum$Tajima.D)
 Dmean
 abline(v=Dmean, col="blue")
+abline(V=D$D, col="red")
 
 ```
 So we see that, based on the simulation:
@@ -133,7 +134,7 @@ pquant <-quantile(post,c(.025,.975))
 abline(v=mean(post),col="red")
 pmean; pquant
 ```
-And what we see is that the mean value of that posterior distribution, that is, the mean value of &theta; for all the simulations that resulted in `r n` segregating sites, is `r mean(post)`.  However, note also that the credible interval ranges from `r pquant[1]` to `r pquant[2]`, which covers a lot of territory.
+And what we see is that the mean value of that posterior distribution, that is, the mean value of &theta; for all the simulations that resulted in `r s` segregating sites, is `r mean(post)`.  However, note also that the credible interval ranges from `r pquant[1]` to `r pquant[2]`, which covers a lot of territory.
 
 There are many reasons not to place a lot of faith in this result.  In addition to the size of the credible interval, the shape of the distribution is somewhat irregular.  More importantly from our standpoint, it assumes that &theta; is the only parameter underlying the data.  As we will see, that is not necessarily a reasonable assumption.
 
@@ -141,7 +142,7 @@ There are many reasons not to place a lot of faith in this result.  In addition 
 
 ### Looking at demographic scenarios
 
-Finally, we really want to address what forces - demographic, selection, etc.  - might underlie any departure from expectation.  To do that, we're going to look at only one example as a means of framing the problem we face.  Suppose we use our results so far to set S to 42 (the number observed in the data), and let's compare two demographic models - one with constant population size, and one in which the population has been undergoing exponential growth.
+Finally, we really want to address what forces - demographic, selection, etc.  - might underlie any departure from expectation.  To do that, we're going to look at only one example as a means of framing the problem we face.  Suppose we use our results so far to set S to 92 (the number observed in the data), and let's compare two demographic models - one with constant population size, and one in which the population has been undergoing exponential growth.
 
 #### Tree topology
 
