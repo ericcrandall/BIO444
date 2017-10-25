@@ -1,0 +1,241 @@
+---
+title: <center>Combining Data and Simulation</center>
+author: <center></center>
+date: <center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+## Combining Theory and Data
+
+Having now seen how we can begin to compare observed data to the expectations of the drift/mutation coalescence model, we now want to delve a bit more deeply.  In what follows, we will address three related areas, all of which involve combining data with simulations run in ms.  In essence, the common approach will be to compare observed results (in the form of S, π, and D) to those generated as a result of repeated simulations.  
+
+
+### Assessing the Tajima Statistic
+
+At this point, we need to address two questions.  First, given some value of Tajima's D statistic, how do we determine its significance?  Second, if it is significant, what does it tell us about the evolution of the gene and/or population?
+
+The first question is probably of lesser significance - indeed, as we have seen, the tajima.test function addresses it by comparing the value to either a normal or a beta distribution, and a rule of thumb that works pretty well is that if -1.8 < D <1.8, then its difference from expectation is not significant.  However, addressing the question does give us an opportunity to explore how we can use ms to calculate summary statistics, such as Tajima's D, and analyze their distribution.  
+
+For this unit, we will work with an aligned portion of the spaghetti squash data from *D. mauritiana* NCBI Popset [345105052](http://www.ncbi.nlm.nih.gov/popset/345105052):
+
+```{r}
+library(TeachingPopGen)
+data(spaghetti)
+dat <-spaghetti
+n <-length(dat) # number of sequences
+nbase=length(dat[[1]]) # get the length of one sequence
+s <-length(seg.sites(dat))
+pi <-nuc.div(dat)*nbase
+nbase;s;pi
+```
+
+So we see that we have a set of sequences, each of which is `r nbase` bases long, with S= `r s` and π = `r pi`.  Now, we can calculate the Tajima statistic:  
+
+```{r}
+D <-tajima.test(dat)
+D$D
+```
+
+And, as we saw before, the value of `r D$D` that we obtain suggests that there may in fact be a significant difference from expectation.  To look at that more closely, we can  use ms to generate 1000 simulations, in which S = `r s` and there are `r n` sequences of `r nbase` nucleotides. We will then convert the results into a manageable form as always.
+
+```{r}
+
+ss.ms <-ms(nsam=n,nreps=1000,opts=(paste("-s",s,"-r",0,nbase,sep=" ")))
+
+```
+
+Now we will use the function ms.sumstats  to calculate summary statistics on all 1000 simulations
+
+```{r}
+ss.sum <-ms.sumstats(ss.ms)
+head(ss.sum)
+```
+
+Notice that the Watterson estimator is the same for all simulations.  This is to be expected, since, as we know, it is derived solely from the number of segregating sites, which is fixed in this example.
+
+And what we have is a nicely arranged data frame, containing six statistics.  Two of them, th.H and H, we will ignore for now.  However Tajima.D is the Tajima statistic, so we can look at the distribution of it in the usual way.
+
+```{r}
+colhist(ss.sum$Tajima.D,xlab="D",ylab="Number",main="Distribution of Tajima Statistic")
+Dmean <-mean(ss.sum$Tajima.D)
+Dmean
+abline(v=Dmean, col="blue")
+
+```
+So we see that, based on the simulation:
+
+1.  The expectation, shown by the blue line, is close to zero - not surprising (the reason it is not zero is not important to us)
+2.  Our observed value of D, `r D$D`,  is significantly different from the expectation, in the negative direction.  This suggests, as we've mentioned before, that in these data, there are an excess of singletons, but how we can explain that remains a problem.
+
+### Estimating &theta;
+
+#### Overview
+
+We have seen that both S and π lead directly to estimates of &theta;, and that Tajima's statistic can be used to detemine whether the results are significantly different. And we have a data set for which the latter is the case.   So what should we go with?
+
+One of the things ms will do is, given both the -s (S) and -t (&theta;) parameters  to return the probability of getting S, given the simulated geneology and the specified value of &theta;.  Let's try that with the spaghetti squash data.  We will now do a single ms simulation based on those values, structure the results with read.ms.output, and see what the probability of getting the results would be.  We will use π as our estimator of &theta;.
+
+```{r}
+set.seed(1234)
+ms.out <-ms(nsam=n, nreps=1,opts=(paste("-s",s,"-t", pi, "-r 0", nbase, sep=" "))) #ms call from phyclust; paste function used to create option string
+ms.proc <-read.ms.output(txt=ms.out)
+ms.proc$probs
+```
+As always, the results will vary depending on the simulation run , but what we see here is that the probability of getting the data given use of π as an estimator is very small - `r ms.proc$probs`.  So, perhaps unsurprisingly given the results of the Tajima test, it is highly unlikely that we would see `r s` segregating sites, given that theta is estimated based on π.
+
+
+#### Putting a Bayesian Spin on the Problem
+
+At this point, we are assuming that there is one parameter, &theta;, which describes the data, so what we want to do is to find what value of that has the highest probability.  What if we make a prior assumption about the distribution of that parameter, and apply Bayesian logic to estimate it from the resulting posterior distribution?  Actually, Hudson provides a script to do just that in the distribution of ms; it has been modified below so that it will run with the phyclust function (note that it would run a lot faster using the command line version).
+
+So as a prior, let's draw possible values of &theta; from a uniform distribution between 0 and 20:
+
+```{r}
+th <-runif(10000,1,20)
+head(th)
+```
+Now we will use each of those values to do a single ms simulation for 702 bases
+
+```{r}
+out <-lapply(th,function(x) ms(nsam=25,nreps=1,opts=(paste("-t ",x,"-r",0,nbase,sep=""))))
+```
+Now we need to read the data appropriately, in order that we can identify those simulations that resulted in `r s` segregating sites.  Because of the fact that our simulations were run separately for each value of theta, we need to use the lapply function so that the output from each one is read corrrectly
+
+```{r}
+out.ms <-lapply(out,ms.sumstats)
+#gams <-sapply(out.ms, function(x) x$gametes)
+ms.sum <-do.call(rbind.data.frame,out.ms)
+head(ms.sum)
+```
+
+And we get the typical kind of output.  So let's first look graphically at the distribution of segregating sites:
+```{r}
+hist(ms.sum$S)
+```
+
+
+Now, what we have to do is to plot a distribution of values of &theta; for all of those which have a particular value of segsites.  So we will select those values of theta that gave rise to `r s` segregating sites.
+```{r}
+post <-th[which(ms.sum$S==s)]
+```
+What we have done is to select, from the total of 10000 simulations done, the `r length(post)` that resulted in `r s` segregating sites.  Now we can plot it:
+
+```{r}
+plot(density(post), xlim=c(0,20), xlab="theta",main=paste("Posterior Distribution, S=",s,sep=" "))
+rug(post)
+pmean <-mean(post)
+pquant <-quantile(post,c(.025,.975))
+abline(v=mean(post),col="red")
+pmean; pquant
+```
+And what we see is that the mean value of that posterior distribution, that is, the mean value of &theta; for all the simulations that resulted in `r n` segregating sites, is `r mean(post)`.  However, note also that the credible interval ranges from `r pquant[1]` to `r pquant[2]`, which covers a lot of territory.
+
+There are many reasons not to place a lot of faith in this result.  In addition to the size of the credible interval, the shape of the distribution is somewhat irregular.  More importantly from our standpoint, it assumes that &theta; is the only parameter underlying the data.  As we will see, that is not necessarily a reasonable assumption.
+
+
+
+### Looking at demographic scenarios
+
+Finally, we really want to address what forces - demographic, selection, etc.  - might underlie any departure from expectation.  To do that, we're going to look at only one example as a means of framing the problem we face.  Suppose we use our results so far to set S to 42 (the number observed in the data), and let's compare two demographic models - one with constant population size, and one in which the population has been undergoing exponential growth.
+
+#### Tree topology
+
+To simplify our display, suppose we only have 10 sequences.  First we'll do our standard coalescent simulation, using the -T option to get the Newick tree for the data.
+
+```{r}
+set.seed(4321)
+m.const <- ms(nsam=10, nreps=1, opts=("-s 92 -r 0 702 -T"))
+```
+Now, let's construct a growth scenario.  Suppose our current population is 10^5 , but it is the result of growth at the rate of 2% per year and there are 5 generations per year.  To factor growth into ms, we need to convert the yearly growth rate into the growth rate per 4N generations.  We can do so as follows:
+```{r}
+N <-100000
+r <-.02 #growth rate per year
+gen <-5 #generations per year
+nyears <-(4*N)/5 # 1 coalescent unit in years
+g <-r*nyears # growth rate in coalescence units
+g
+```
+Now, we can put that into ms using the -G parameter and a value:
+
+```{r}
+m.out <-ms(nsam=10, nreps=1, opts=(paste("-s 92 -T -r 0 702 -G",g,sep=" ")))
+
+
+```
+
+And now we plot the two trees
+
+```{r,fig.height=10}
+
+
+tr.const <-read.tree(text=m.const)
+tr.growth <-read.tree(text=m.out)
+par(mfrow=c(2,1))
+plot(tr.const,main="Constant")
+plot(tr.growth,main="Growth")
+par(mfrow=c(1,1))
+```
+
+And what we see is that, in the growth model, we have much longer tip branches than we do on the constant one.  Per our earlier discussion of D and π,  our expectation would be a site frequency spectrum with an excess of singletons, and thus a negative value of D.
+
+#### The site frequency spectra
+
+We can, of course, also visualize these data as site frequency spectra
+
+```{r}
+out.const <-read.ms.output(m.const)
+out.gr <-read.ms.output(m.out)
+par(mfrow=c(1,2))
+sfs(out.const$gametes[[1]])
+sfs(out.gr$gametes[[1]])
+par(mfrow=c(1,1))
+```
+
+Notice that with the growth scenario (on the right) our the spectrum we see is quite similar to that for the original data, in that there appears (at least qualitatively) to be an excess of singletons:
+
+```{r}
+plot(site.spectrum(dat))
+```
+
+#### The impact on D
+
+Let's consider our original data, with 92 segregating sites, and look at the expected distribution of D under this scenario, using the value of theta we got from our Bayesian estimation:
+```{r}
+ms.gr <-ms(nsam=42,nreps=1000,opts=(paste("-s",n, "-r 0 702 -G",g,sep=" ")))
+growth.sum <-ms.sumstats(ms.gr)
+head(growth.sum)
+Dg.mean <-mean(growth.sum$Tajima.D,na.rm=TRUE)
+Dg.mean
+```
+
+And what we see is as expected. The mean value for D is `r Dg.mean`, which is comparable to out observed value.  Just to complete the story, we can do a rough histogram of the simulated values
+
+```{r}
+par(mfrow=c(1,1))
+d.gr <-growth.sum$Tajima.D[!is.na(growth.sum$Tajima.D)]
+colhist(d.gr,xlab-"D", ylab="Number",main="Distribution of D, Growth Model")
+Dg.mean <-mean(growth.sum$Tajima.D,na.rm=TRUE)
+abline (v=Dg.mean, col="red")
+abline(v=D$D,col="darkgreen")
+Dg.mean
+```
+
+
+And we see that the mean value of D is `r Dg.mean`, which is negative as expected.  Remembering that the value of D we calculated from our original data was `r D$D`, we might be tempted to conclude that the growth scenario better fits the data than does the original constant population size neutral model (although we see that the observed value of D, shown by the green line, does differ significantly from expectation).  But of course, there are no doubt many other scenarios that could fit as well.
+
+
+
+### Conclusion
+
+What we have done is to briefly introduce some of the kinds of analyses we can do, comparing observed nucleotide sequence data to coalescent simulations.  The major points we've focused on are
+
+1.  We can generate an expected distribution of the Tajima statistic and compare an observed value to it, providing the best test for determining whether a significant difference between observed data and the coalescent  expectation exists.
+2. If we assume that population size has been constant, and that only it and mutation rate have been factors in generating the observed data, then we can use Bayesian logic to come up with at least a preliminary estimate of theta.
+3.  Demographic history can be a critical factor in the coalescent process.
+
+These last two points lead to a very interesting (and practical) question.  Suppose we wanted to use a Bayesian approach, where we wished to work from prior distributions of **both** &theta; and growth rate.  In that case, we would need a way to sample across a large number of possible combinations of the two.  And we might also want to incorporate a prior distribution of µ as well, even further complicating the story.  This is where Monte Carlo methods come in, in which random sampling of the possible parameter combinations is used to go from a multidimensional prior distribution space to a posterior distribution that can provide estimates of the parameters that make up that space.  We will explore that approach in the future.

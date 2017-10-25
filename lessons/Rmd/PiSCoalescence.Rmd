@@ -1,0 +1,109 @@
+---
+title: "<center>π, S, and &Theta;</center>"
+<center>`r format(Sys.Date(),format="%B %d %Y")`</center>
+bibliography: TPG.bib
+output:
+  html_document:
+    css: Chapter.css
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
+---
+
+```{r,echo=FALSE,warning=FALSE}
+library(knitr)
+```
+
+
+## Applying Coalescence to Data
+
+So at this point, we have the following:
+
+### DNA variation
+
+We have seen how, with aligned allelic sequences, we can quantitate the amount of variation in a population in terms of the number of segregatinv sites (S) and the average pairwise difference between sequences (π).  We have also seen, that akin to the distribution of allele frequencies, we can visualize the distribution of variation in the population in terms of the site frequency spectrum.  However, thus far, it is not obvious how we can compare what we have observed to what is expected under a mutation-drift model.
+
+### Coalescence
+
+Using some fairly basic logic, we have seen that we can start with the simple idea that if there are 2N gametes, in generation t, the probability of a single coalescent event occurring in generation t-1 is 1/2N and extend that to calculate two expectations for n alleles:
+
+1.  \(E(TMRCA) = ∑_{k=2}^{n}\frac{2}{k(k-1)}\), and
+2. \(E[tree\,length]=2∑_{k=1}^{n-1}\frac{1}{k}\)
+
+So what we need to do is to bring these together, that is to use coalescent theory to generate expectations for our measures of sequence variation
+
+### The infinite sites model
+
+Up to this point, we have been using the infinite allele model, which says in essence that every mutation happens only once, so any homozgote carries two alleles that are identical by descent.  The infinite sites model is a variant on this theme.  It assumes that mutations can occur at an infinite number of sites, so again every mutation is unique, **and** no more than one mutation will ever occur at a particular site.  This actually turns out to be a fairly good approximation of the mutational process for the time scale with which we are dealing.
+
+###  π and coalescence.
+
+This turns out to be a fairly simple relationship.  Since every mutation can occur only once, the number of differences between to sequences is simply the number of mutations that has occurred.  Now  consider a single coalescent event - two lineages converging into 1.  From what has gone before, we would expect that to occur in 2N generations.  Now, suppose mutations are occurring on both branches at a rate of µ per site per generation.  It is simple to see, that in 2N generations, we would expect 2Nµ mutations to occur.  But that's for only one lineage leading to the coalescence; the same is occurring on the other lineage as well.  Thus, the total number of mutations separating the two lineages, or d<sub>ij</sub>, is simply 4Nµ, or our old friend &theta;.
+
+
+
+But of course, in real data, we have n sequences and n(n-1)/2 comparisons that we average to get π.  We can now combine the above result with that to get the following:
+
+$$Nielsen_Slatkin3.7$$
+
+We can see, by some very simple rearrangement, that **the expectation for π, based on coalescent theory, is simply &theta;**! Therefore,  the observed value of π can be used as an estimator of &theta; - it is often referred to as Tajima's estimator.  This is a simple but remarkable result.  Remember that we first encountered &theta; in the context of classical drift/mutation theory.  Now we see that it recurs in the context of DNA sequence coalescence, and in fact we have obtained a very simple estimator of it. However, in this case, in contrast to what we saw previously, *we can obtain an estimator of &theta; from readily available data*. 
+
+#### An aside
+
+Before going on, there is a point that bears emphasis.  Remember that &pi; as we have been using it is the average number of differences *per sequence of length n*.  &mu;, on the other hand, is usually expressed as mutations/*per base*/unit time.  We need to keep that in mind if we use our relationship
+
+E(&theta;) = E(4Ne&mu;) = &pi;
+
+to do a simple calculation and estimate Ne.  In this case we need to express &pi; *per base* to make the units consistent.  Let's do so with the acp data:
+
+```{r}
+data(acp29)
+pi <-nuc.div(acp29)
+pi
+```
+
+So what is &mu;?  There are lots of estimates out there, but we can use one estimated by @Haag2007 based on actual quantitation of mutations that occurred in a controlled laboratory system.  That estimate is 8.4*10^-9^/generation, so we calculate as follows:
+
+```{r}
+mu <-8.4e-9
+Ne <-pi/(4*mu)
+signif(Ne,3)
+```
+
+So if this were all there was to it, we could conclude that the effective population size of *D. melanogaster* is on the order of 125,000.  Given the number of flies that are attracted to the average banana, this should seem low.  This is something we will return to, but before doing so, we need to return to our main narrative.
+
+
+### S and coalescence
+
+We now turn to S, the number of segregating sites.  Under the infinite sites model, it also has a simple interpretation - it is the total number of mutations that has occurred in the time between the MRCA and the sequences being analyzed (remember, one site mutates only once, so sites with identical bases are, by definition, ibd).  So what we now have to ask is, given a sample of n sequences, how many mutations would we expect to occur?  
+
+We start by remembering our formula for total tree length, given above.  We also remember that, in our discussion of the expectation for π, we saw that the expected number of mutations in time t is t&theta;/2 (half the number that separate two coalescing lineages).  So given those relationships, we can easily derive the following 
+
+$$Nielsen_Slatkin3.14$$
+
+$$Nielsen_Slatkin3.15$$
+
+$$Nielsen_Slatkin3.16$$
+
+
+And we see that now we have a second estimator of &theta;, also known as the Watterson estimator, or &theta;<sub>w</sub>, which is based on S and n, the number of sequences in the sample.
+
+And, as we did with the Tajima estimator above, we can calculate Ne with the Watterson one as well.  Note again, that we have to express S on a *per site* basis:
+
+```{r}
+S <-length(seg.sites(acp29))/702 #Calculate S per site
+k <-length(acp29) # determine the number of sequences
+x <- c(1:(k-1))  # determine denminator of the estimator
+denom <-sum(1/x) 
+th.w <-S/denom # calculate the90ta
+Ne.w <-th.w/(4*mu) #And estimate.
+signif(Ne.w,3)
+```
+
+We now have two estimates of Ne, which are similar but not identical.  As we shall see, the difference between these two estimators leads us to Tajima's D statistic, one of the most widely used statistics in molecular population genetics.
+
+### Conclusion
+
+So now it appears we may have something useful from an empirical standard.  We can sample a number of alleles, easily calculate π and S, and with some further simple manipulation based on coalescence, obtain two estimators of &theta;.  Of course, as noted earlier, it is still challenging to interpret what this parameter means, given that it is based on the product of two numbers, one large and one small, that are inherently difficult to estimate.  But nevertheless, we now have a framework in which we can start asking questions about the evolutionary histories of genes, and by extension, the populations from whence they were drawn.  But before we can jump headlong into analyzing the data, we need to explore the relationship between our two estimators of &theta; more closely.  Then we will need to see how we can use simulation to determine whether actual values, determined from real data, are consistent with the model of mutation and drift that has been inherent in our considerations so far.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
