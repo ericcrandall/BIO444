@@ -1,5 +1,5 @@
 ---
-title: <h1>Coalscence - Looking Bakwards</h1>
+title: <h1>Coalscence - Looking Backwards</h1>
 author: <h2></h2>
 date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
 csl: ../genetics.csl.txt 
