@@ -19,6 +19,8 @@ author: Dr. Eric Crandall
 - [Measurement and Interpretation of Population Structure](./lessons/structure/PopulationStructure.html)
 - [DNA Data: Measurement and Interpretation of Population Structure](./lessons/structure/mtDNA_Structure2.html)
 - [Introduction to coalescent theory](./lessons/coalescence/CoalescenceChapter.html)
+
+
 This site is authored on [Github Pages](https://pages.github.com)
 
 
