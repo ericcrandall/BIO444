@@ -2,7 +2,6 @@
 title: <h1>Inferring Population History</h1>
 author: <h2></h2>
 date: <h2>`r format(Sys.Date(),format="%B %d %Y")`</h2>
-bibliography: ../TPG.bib
 csl: ../genetics.csl.txt 
 output: 
     html_document:
@@ -11,6 +10,7 @@ output:
        toc_depth: 5
        code_folding: show
 ---
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 
 ```{r, child="../Rmd/SkylinePlots.Rmd"}
 
@@ -20,4 +20,4 @@ output:
 
 ```
 
-## References
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

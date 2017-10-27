@@ -14,6 +14,7 @@ output:
 
 ```{r,echo=FALSE}
 options(warn = -1)
+library(TeachingPopGen)
 
 ```
 
@@ -24,7 +25,7 @@ We have all seen examples in which sequence variation has been used to make infe
 
 ## Skyline plots
 
-For now, we are going to consider mutation to be a constant.  Thus, over the time course of a particular coalescent lineage, the only parameter that can vary is N. Further more, at any given time T, there will be a certain number of lineages, and those lineages will persist for some interval of time.  The theory involved here is complex, but in essence @Pybus2000 and @Strimmer2001 showed that, given estimates of those over the time course of a robust phylogeny, one could estimate N for each interval.  These can then be plotted against time (measured, at least initially, in substitution rate), to generate what is known as a skyline plot.  We will look at some simple examples below.
+For now, we are going to consider mutation to be a constant.  Thus, over the time course of a particular coalescent lineage, the only parameter that can vary is N. Further more, at any given time T, there will be a certain number of lineages, and those lineages will persist for some interval of time.  The theory involved here is complex, but in essence  Pybus (2000) and Strimmer (2001) showed that, given estimates of those over the time course of a robust phylogeny, one could estimate N for each interval.  These can then be plotted against time (measured, at least initially, in substitution rate), to generate what is known as a skyline plot.  We will look at some simple examples below.
 
 ### The simple case - N is constant
 
@@ -48,7 +49,7 @@ par(mfrow=c(1,1))
 
 Note that in all of these plots, the Y axis is in actuality Ne multiplied by the substitution rate (something that we would have to provide).  
 
-But remember that we are assuming that periods of rapid coalescence are associated with  population size changes, but we are basing this on the mutational process being linearly related to time. Since mutation is a stochasitic process, some of the inferred fluctuation in population size is in fact due to that randomness.   We thus need to estimate some minimum interval for which proportionality holds (i. e. correct for error) and collapse the shorter branches.  There is a function in ape that uses a liklihood procedure to estimate the best value of that minimum (&epsilon;).  First, let's look at the length of the coalescent intervals (in units of subsitutions) calculated from the data:
+But remember that we are assuming that periods of rapid coalescence are associated with  population size changes, but we are basing this on the mutational process being linearly related to time. Since mutation is a stochastic process, some of the inferred fluctuation in population size is in fact due to that randomness.   We thus need to estimate some minimum interval for which proportionality holds (i. e. correct for error) and collapse the shorter branches.  There is a function in ape that uses a liklihood procedure to estimate the best value of that minimum (&epsilon;).  First, let's look at the length of the coalescent intervals (in units of subsitutions) calculated from the data:
 
 ```{r}
 tr.ci <-coalescent.intervals(tr)
@@ -133,7 +134,7 @@ And we see a pretty good indicator of a bottleneck followed by growth.  This ill
 
 ### Some real data
 
-Up to now, aside from the fact that these are simulated data, there is another issue.  That is, everything is scaled in terms of units of substitutions.  What we really want, of course, is time, but for that we need to have some empirical estimate of the rate of substitutions that has occurred per year.  In fact, the ape package provides some sample data for 193 human deficiency virus sequences, in which that rate could be determined by direct measurement.  We can look at these data as follows:
+Up to now, aside from the fact that these are simulated data, there is another issue.  That is, everything is scaled in terms of units of substitutions.  What we really want, of course, is time, but for that we need to have some empirical estimate of the rate of substitutions that has occurred per year.  In fact, the ape package provides some sample data for 193 HIV sequences, in which that rate could be determined by direct measurement.  We can look at these data as follows:
 
 ```{r,fig.show='hold'}
 data("hivtree.newick") # load sample data
@@ -145,18 +146,33 @@ plot(skyline(tr.hiv),show.years=TRUE, subst.rate=.0023,present.year=1997)
 plot(skyline(ci.hiv,eps.hiv),show.years=TRUE, subst.rate=.0023,present.year=1997)
 ```
 
-Notice that his is a much larger data set than what we've been modeling.  We have also incorporated an empirically determined substitution rate (substitutions per year) so we can scale the X axis in years before proesent.  The Y axis remains scaled by Neµ, but not that is is a logarithmic scale
+Notice that his is a much larger data set than what we've been modeling.  We have also incorporated an empirically determined substitution rate (substitutions per year) so we can scale the X axis in years before proesent.  The Y axis remains scaled by Neµ, but note that is is a logarithmic scale
 
 ### MCMC estimation
 
-The stepwise model we have been using so far, one that assumes population changes are associated with coalescence events, is clearly not biologically realistic.  This method, implemented in APE, derives a smooth population size function based on the given geneologies.  The paper describing the work is quite straightforward (at least as theoretical papers go) and is worthy of at least brief perusal  @Drummond2005 developed methodology for "smoothing" these curves - in essence it takes an MCMC approach to find a set of parameters that results in a smooth population growth function based on one or more gene geneologies.
+The stepwise model we have been using so far, one that assumes population changes are associated with coalescence events, is clearly not biologically realistic.  This method, implemented in APE, derives a smooth population size function based on the given geneologies.  The paper describing the work is a classic and is quite straightforward (at least as theoretical papers go) and is worthy of at least brief perusal. Drummond (2005) developed methodology for "smoothing" these curves - in essence it takes an MCMC approach to find a set of parameters that results in a smooth population growth function based on one or more gene geneologies.
+
+### Doing MCMC on the growth model
+
+
+So we can use the mcmc.popsize function to determine the prior distribution of Ne's; note that we have a burnin cycle of 1000 followed by an MCMC cycle of 10000
+
+So from our earlier model, we created tree.gr, a simulation of a 2% growth model.  We can do the mcmc bit on it.
+```{r}
+gr.mc <-mcmc.popsize(tree.gr,10000,burn.in=1000,progress.bar=FALSE)
+gr.pop <-extract.popsize(gr.mc)
+plot(skyline(tree.gr,eps.gr))
+lines(gr.pop,col="red")
+```
+And we see a much nicer fit than we got with the previous models.  
 
 #### The Bottleneck model
 
-So we can use the mcmc.popsize function to determine the prior distribution of N's; note that we have a burnin cycle of 1000 followed by an MCMC cycle of 10000
+
 ```{r}
-tr.bot.mc <-mcmc.popsize(tr.bot,10000,,burn.in=1000,progress.bar=FALSE)
+tr.bot.mc <-mcmc.popsize(tr.bot,10000,burn.in=1000,progress.bar=FALSE)
 ```
+
 Now we can plot this and compare it to our original skyline plot
 ```{r}
 par(mfrow=c(1,1))
@@ -184,13 +200,7 @@ And we see more or less what we would expect to see - constant growth from the 1
 
 ### Arctic Fur Seals
 
-@Hoffman2011 have reported mitochondrial DNA for fur seals from the North Atlantic.  We will look more closely at their data when we introduce BEAST;   however, we can do a little bit of rough analysis with what we've done so far
-
-We should also say a little about animal mitochondrial DNA and why it is so widely used for reconstruction of recent population structure and demographics.  It main features can be summarized as follows:
-
-1.  It does not recombine
-2.  It has relatively short coalescence times
-3.  It contains regions that are both sufficiently conserved to be used in species identification ("DNA barcoding") but also ones that are highly variable within species (notably the D loop, or origin of replication).
+Hoffman 2011 have reported mitochondrial DNA for fur seals from the North Atlantic.  We will look more closely at their data when we introduce BEAST;   however, we can do a little bit of rough analysis with what we've done so far
 
 So to proceed, we need to do two things:
 
@@ -244,6 +254,8 @@ And this can be plotted as before
 plot(skyline(tr.fur.u,eps.fur),ylim=c(.002,1.5))
 lines(fur.pop,col="red")
 ```
+
+
 ```{r}
 rn <-rev(range(fur.pop[,1]))
 plot(fur.pop[,1],fur.pop[,3], xlim=rn,type="l",xlab="time (# Substitutions)",ylab="Ne X Subst. Rate")
@@ -256,7 +268,7 @@ What we see is that there is clear evidence for an historically stable populatio
 
 #### Putting a time frame on this
 
-Hoffman et al draw on other sources to estimate per site substitution rates; below we have converted them to the number expected for the 263 base pair fragmnet under investigation, to get Mu, an estimate of the rate of substitutions per sequence
+Hoffman et al draw on other sources to estimate per site substitution rates; below we have converted them to the number expected for the 263 base pair fragment under investigation, to get $\mu$, an estimate of the rate of substitutions per sequence
 
 ```{r}
 gtime <-9.89
@@ -281,25 +293,14 @@ Note that the dates are obviously quite sensitive to the mutation rate; the one 
 ### Conclusion
 
 
-In fact, as we shall see, in order to do real analyses such as this, we really need to turn to BEAST, which allows us to build much more detailed (and hopefully realistic) models, in which we set priors for all of the parameters involved in tree estimation.  Remember that what we have based our analysis on hear is the simplest possible algorithm (UPGMA), one that is rarely if ever used in modern analysis.
+In fact, as we shall see, in order to do real analyses such as this, we really need to turn to BEAST, which allows us to build much more detailed (and hopefully realistic) models, in which we set priors for all of the parameters involved in tree estimation.  Remember that what we have based our analysis on here is the simplest possible algorithm (UPGMA), one that is rarely if ever used in modern analysis.
 So at this point you should have a grasp on the basics - Skyline plots associate the length of branches and the occurrence of coalescent events with demographic events, thus allowing some inference about past population processes.  But what we've looked at so far is two fairly simple models.  In the first case, we proceed from the assumption that substitutions occur linearly with time, and that coalescent events reflect changes in population size only.  We have subsequently changed that to average over small branches, thus reducing noise in the system, and we see that the situation becomes more simplified.  Finally, by what is basically a Bayesian curve-fitting algorithm, we can go from a stepwise model to a more realistic continuous one.  But remember - *the original data for skyline plot analysis is the inferred genealogy, and as we know, a particular set of sequences could be the result of a myriad of different ones.*  Hence, **you should treat everything we have done to this point as a demonstration only, NOT as an rigorous analytical approach to data analysis**  You may want to use it for preliminary data examination, however, for a rigorous analysis,  we need to step back and consider how this analysis might be refined by treating the geneaolgies as a random variable - that is, to explore tree-space, find the distribution of geneolgies that best fit the data, and then go from there. In some cases, we may also be able to empirically estimate substitution rates.   This is where BEAST comes in.
 
 
-### Bonus 1. Doing MCMC on the growth model
 
-Note that what follows is very rough code - treat it as such!!
 
-So from our earlier model, we created tree.gr, a simulation of a 2% growth model.  We can do the mcmc bit on it.
-```{r}
-gr.mc <-mcmc.popsize(tree.gr,10000,burn.in=1000,progress.bar=FALSE)
-gr.pop <-extract.popsize(gr.mc)
-plot(skyline(tree.gr,eps.gr))
-lines(gr.pop,col="red")
-```
-And we see a much nicer fit than we got with the previous models.  
-
-###
-Bonus 2.  What about spaghetti squash as a substitute for fur?
+### Bonus 
+ What about spaghetti squash gene as a substitute for fur?
 ```{r}
 data(spaghetti)
 spaghetti

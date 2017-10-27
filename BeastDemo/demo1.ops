@@ -1,0 +1,13 @@
+
+Operator analysis
+Operator                                          Tuning   Count      Time     Time/Op  Pr(accept) 
+scale(kappa)                                      0.115   108574     1313     0.01     0.2332      
+subtreeSlide(treeModel)                           0.002   1632274    8198     0.01     0.2342      
+Narrow Exchange(treeModel)                                1630269    7259     0.0      0.3115      
+Wide Exchange(treeModel)                                  326858     1111     0.0      0.0329      
+wilsonBalding(treeModel)                                  326842     1815     0.01     0.0199      
+scale(treeModel.rootHeight)                       0.283   326457     1563     0.0      0.2341      
+uniform(nodeHeights(treeModel))                           3262762    20023    0.01     0.4298      
+scale(skyline.popSize)                            0.216   1633396    4847     0.0      0.234       
+skyline.groupSize                                         652568     1094     0.0      0.3374      
+
