@@ -107,11 +107,11 @@ th.w <-3/sum(1/c(1:5))
 th.w
 ```
 
-And we get a value of `r pi.2`, which can be compared with the value from the original data set of `r pi.sim`.  Not a huge difference, but a difference nevertheless.  And remember - the Watterson estimator is identical for the two scenarios.  So we need to explore the relationship between π and the location of mutations on the tree more closely.
+And we get a value for $\pi$ of `r pi.2`, which can be compared with the $\pi$ value from the original data set of `r pi.sim`.  Not a huge difference, but a difference nevertheless.  And remember - the Watterson estimator is identical for the two scenarios.  So we need to explore the relationship between π and the location of mutations on the tree more closely.
 
 ## π, S, and the Site Frequency Spectrum
 
-Remember that the site frequency spectrum?
+Remember the site frequency spectrum?
 
 ```{r}
 spec.acp <-site.spectrum(acp29)
@@ -121,7 +121,7 @@ plot(spec.acp)
 
 It simply consists of the numbers of sites that differ at 1,2, . . .n/2 among the sequences sampled.  It should be very obvious that if we take the sum of all of the classes in the SFS, what we get is S.  For π, the relationship is a bit more complicated, but with a little bit of thought, we can get to the following relationship:
 
-$$ \pi = \frac{[\sum_i^{n-i}\eta_i]}{\frac{n(n-1)}{2} $$
+π = [∑(i)(n-i)&eta;<sub>i</sub>]/((n*(n-1))/2)
 
 where $\eta_i$ is the number of sites in class i of the SFS.
 

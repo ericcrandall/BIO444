@@ -79,7 +79,7 @@ So we see that, based on the simulation:
 
 We have seen that both S and π lead directly to estimates of &theta;, and that Tajima's statistic can be used to detemine whether the results are significantly different. And we have a data set for which the latter is the case.   So what should we go with?
 
-One of the things ms will do is, given both the -s (S) and -t (&theta;) parameters  to return the probability of getting S, given the simulated geneology and the specified value of &theta;.  Let's try that with the spaghetti squash data.  We will now do a single ms simulation based on those values, structure the results with read.ms.output, and see what the probability of getting the results would be.  We will use π as our estimator of &theta;.
+One of the things ms will do is, given both the -s (S) and -t (&theta;) parameters, is to return the probability of getting S, given the simulated geneology and the specified value of &theta;.  Let's try that with the spaghetti squash data.  We will now do a single ms simulation based on those values, structure the results with read.ms.output, and see what the probability of getting the results would be.  We will use π as our estimator of &theta;.
 
 ```{r}
 set.seed(1234)
@@ -157,7 +157,7 @@ Now, let's construct a growth scenario.  Suppose our current population is 10^5 
 N <-100000
 r <-.02 #growth rate per year
 gen <-5 #generations per year
-nyears <-(4*N)/5 # 1 coalescent unit in years
+nyears <-(4*N)/gen # 1 coalescent unit in years
 g <-r*nyears # growth rate in coalescence units
 g
 ```

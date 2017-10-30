@@ -89,7 +89,7 @@ S <-length(seg.sites(acp29))/702 #Calculate S per site
 k <-length(acp29) # determine the number of sequences
 x <- c(1:(k-1))  # determine denminator of the estimator
 denom <-sum(1/x) 
-th.w <-S/denom # calculate the90ta
+th.w <-S/denom # calculate theta
 Ne.w <-th.w/(4*mu) #And estimate.
 signif(Ne.w,3)
 ```

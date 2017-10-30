@@ -30,7 +30,7 @@ In this formula, \(\theta_T\) is the notation used for π (T for Tajima) and  \(
 
 But enough of hypotheticals.  What we want to do is to look at actual data and calculate D.  Once we have, we'll then focus on interpreting the result.  For this, we will use popset [345105052](http://www.ncbi.nlm.nih.gov/popset/?term=345105052), from the *Drosophila mauritania* *spaghetti squash* gene (which functions in cytokinesis), which were imported into Clustal.  A deletion-free segment was then saved to use in this example
 
-```{r}
+```{r, message=F,warning=F}
 library(TeachingPopGen)
 data(spaghetti)
 dat <-spaghetti
