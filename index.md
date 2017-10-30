@@ -6,7 +6,7 @@ description: Dr. Eric Crandall
 author: Dr. Eric Crandall
 ---
 
-- [Introduction to Bayesian Statistics](./lessons/unix/bayesintro/BayesIntro.html)
+- [Introduction to Bayesian Statistics](./lessons/bayesintro/BayesIntro.html)
 - [Introduction to Unix](./lessons/unix/introduction_to_unix.html)
 - [Introduction to R: Data types and Data Manipulation ](./lessons/R/R_objects_data_manipulation.html)
 - [Introduction to R: Files, Strings, and Programming ](./lessons/R/R_files_strings_programming.html)
