@@ -12,7 +12,7 @@ output:
     toc_depth: 5
 ---
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, warning=F, message=F}
 options(warn = -1)
 library(TeachingPopGen)
 
@@ -21,7 +21,7 @@ library(TeachingPopGen)
 
 ## Background
 
-We have all seen examples in which sequence variation has been used to make inferences about past population history.  But how is that done?  In fact, what is involved is no more than a (very) sophisticated application of coalescent theory.  At its core, of course, the key to any coalescent model is an estimate of &theta;, which in turn needs to be parsed into its two components, Ne and &mu;.  Other factors - migration, recombination, subdivision, etc. are also important, but for now we will focus on those two.  First, we will see what we can learn from simple simulations, in which the gene genealogy is known.   Then we will turn to some Bayesian methods for working with real data.  
+By now in our readings we have seen examples in which sequence variation has been used to make inferences about past population history.  But how is that done?  In fact, what is involved is no more than a (very) sophisticated application of coalescent theory.  At its core, of course, the key to any coalescent model is an estimate of &theta;, which in turn needs to be parsed into its two components, Ne and &mu;.  Other factors - migration, recombination, subdivision, etc. are also important, but for now we will focus on those two.  First, we will see what we can learn from simple simulations, in which the gene genealogy is known.   Then we will turn to some Bayesian methods for working with real data.  
 
 ## Skyline plots
 
@@ -123,6 +123,7 @@ par(mfrow=c(1,1))
 plot(tr.bot)
 plot(skyline(tr.bot))
 ```
+
 Note that with the simple skyline plot, there is no obvious evidence of a bottleneck.  But what about if we figure epsilon as before?
 
 ```{r}
@@ -130,6 +131,7 @@ ci.bot <-coalescent.intervals(tr.bot)
 eps.bot <-find.skyline.epsilon(ci.bot)
 plot(skyline(tr.bot,eps.bot))
 ```
+
 And we see a pretty good indicator of a bottleneck followed by growth.  This illustrates an important point:  **One should never attempt to draw conclusions from an uncorrected skyline plot.  Calculation of the minimum coalescence interval (&epsilon;) is essential.** 
 
 ### Some real data
@@ -164,6 +166,7 @@ gr.pop <-extract.popsize(gr.mc)
 plot(skyline(tree.gr,eps.gr))
 lines(gr.pop,col="red")
 ```
+
 And we see a much nicer fit than we got with the previous models.  
 
 #### The Bottleneck model
@@ -224,7 +227,7 @@ fur.dist <-dist.dna(fur.dat)
 
 Now use the simplest possible tree building algorithm - UPGMA - to specify the inferred geneology, after which we will caclulate skyline plots, both with and without correction for mutational stochasticity
 
-```{r,fig.show='hold'}
+```{r,fig.show='hold', warning=F,message=F}
 library(phangorn)
 #tr.fur.u <-NJ(fur.dist)
 tr.fur.u <-upgma(fur.dist)
