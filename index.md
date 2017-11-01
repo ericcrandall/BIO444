@@ -20,6 +20,7 @@ author: Dr. Eric Crandall
 - [DNA Data: Measurement and Interpretation of Population Structure](./lessons/structure/mtDNA_Structure2.html)
 - [Introduction to coalescent theory](./lessons/coalescence/CoalescenceChapter.html)
 - [DNA Data: Inferring Population History](./lessons/coalescence/PopulationHistory.html)
+- [Migration](./lessons/migration/MigrationChapter.html)
 
 
 This site is authored on [Github Pages](https://pages.github.com)
