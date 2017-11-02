@@ -1,0 +1,101 @@
+---
+title: "Introduction to Migrate-n"
+output: html_notebook
+---
+
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space using coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}/{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
+
+![Migrate-figure](../images/migrate-figure.jpg)
+Migrate is controlled by a "parameter file" that controls all of the myriad settings that one can use for one's data. We will walk through the example below:
+
+```{bash, eval=F}
+################################################################################
+# Parmfile for Migrate 3.6.4 [do not remove these first TWO lines]
+menu=NO
+nmlength=10
+datatype=SequenceData
+ttratio= 10.135
+freqs-from-data=NO:0.2408,0.3129,0.1704,0.2759
+seqerror-rate=0.0
+categories=1
+rates=4:0.324 1.724 4.459 9.212
+prob-rates=4:0.598 0.362 0.04 0.001
+autocorrelation=NO
+weights=NO
+interleaved=NO
+fast-likelihood=NO
+inheritance-scalars={1}
+population-relabel={1 2 3 4}
+usertree=RANDOMTREE
+infile=../abuabd_CB_coleman_newH.mig
+random-seed=AUTO
+title=abuabd_CB_coleman_newH
+progress=YES
+logfile=NO
+print-data=NO
+outfile=abuabd_CB_coleman_newH_outfile.txt
+pdf-outfile=abuabd_CB_coleman_newH_outfile.pdf
+use-M=YES
+plot=NO
+mathfile=mathfile
+profile=ALL:QUICK
+print-tree=NONE
+write-summary=NO
+aic-modeltest=NO
+mig-histogram=NO
+skyline=NO
+theta=own:{0.01}
+migration=own:{100000}
+mutation=CONSTANT
+fst-type=THETA
+custom-migration={
+*000
+**00
+0**0
+*00*
+}
+geo=NO
+bayes-update=YES
+bayes-updatefreq=0.500000
+bayes-posteriorbins=500 500
+bayes-posteriormaxtype=ALL
+bayes-file=YES:bayesfile
+bayes-allfile=YES:1:bayesallfile
+bayes-proposals= THETA METROPOLIS Sampler
+bayes-proposals= MIG SLICE Sampler
+bayes-priors= THETA WEXPPRIOR: 0.000010 0.010000 10.000000 1.00000 
+bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000.000000 100000.000000 
+long-chains=1
+long-inc=500
+long-sample=50000
+burn-in=0
+heating=YES:1:{1,1.5,3,100000}
+heated-swap=YES
+moving-steps=NO
+long-chain-epsilon=INFINITY
+gelman-convergence=No
+replicate=YES:3
+resistance=0.000100
+end
+```
+
+At the top are parameters having to do with the model of molecular evolution that we are using. Migrate can use microsatellites, Sanger DNA, and SNP data. The inheritance scalar is set to 1, rather than 4 (as in 4Nem) because we are using mitochondrial DNA. mtDNA has 1/4 of as many copies as nuclear DNA because it is 1) haploid and 2) passed only through females (so male copies don't really count).
+
+Towards the end are parameters that have to do with the MCMC search, including the number of samples of the posterior to take and the increment at which to take each sample. If you multiply these two items together, you get the total length of the MCMC "chain" that you will be running. Also, importantly, there are the priors for $\theta = N_e\mu$ and $M = \frac{m}/{\mu}$.
+
+Of particular interest is the matrix of 0 and \*: this is what lets us specify a hypothesis about gene flow in our metapopulation. We can use migrate-n to calculate the likelihood of several alternative hypotheses, thus allowing us to use strong inference to understand migration in our species. The columns denote the departure population and the rows denote the arrival population. The diagonals contain the theta parameter for each population.  \* means we are inserting this parameter into the model to be estimated. 0 means no estimated parameter. We could also conceivably use S for symmetric migration, or m for mean migration (all m's have the same mean)
+
+|   | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| 1 | \* | 0 | 0 | 0 |
+| 2 | \* | \* | 0 | 0 |
+| 3 | 0 | \* | \* | 0 |
+| 4 | \* | 0 | 0 | \* |
+
+This matrix denotes the following metapopulation model, where population 1 is a source and 3 and 4 are sinks.
+
+![Migrate figure 2](../images/migrate-figure2.jpg)
+
+
+
+
