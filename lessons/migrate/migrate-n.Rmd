@@ -15,7 +15,7 @@ menu=NO
 nmlength=10
 datatype=SequenceData
 ttratio= 4.18
-freqs-from-data=NO:0.2408,0.3129,0.1704,0.2759
+freqs-from-data=YES
 seqerror-rate=0.0
 categories=1
 rates=4:1.611612e-06 1.884553e-03 1.181330e-01 3.879981e+00
@@ -74,7 +74,7 @@ heated-swap=YES
 moving-steps=NO
 long-chain-epsilon=INFINITY
 gelman-convergence=No
-replicate=YES:3
+replicate=NO
 resistance=0.000100
 end
 ```
@@ -152,15 +152,17 @@ Now to figure out the Transition to Transversion ratio
 TiTvRatio(pcoel)
 ```
 
-Enter this value (for your data) in the ttratio line of the parmfile.
+Enter this value (for your data) in the ttratio line of the parmfile. 
 
-5. Now write your data into nexus format, so that you can easily create a datafile that is formatted appropriately for migrate-n.
+5. Change all the filenames in the parmfile to reflect the species and gene that you sequenced. Save the parmfile in a directory that will be devoted to migrate-n analysis.
+
+6. Now write your data into nexus format, so that you can easily create a datafile that is formatted appropriately for migrate-n.
 
 ```{r, eval=F}
 write.nexus.data(pcoel,"./lessons/data/pcoelestis_migrate.nex", interleaved=F,missing="N")
 ```
 
-In a text editor, edit your files so that they look like this:
+7. In a text editor, edit your files so that they look like this:
 
 ```{bash, eval=F}
 4 1 Control Region Data from Pomacentrus coelestis
@@ -187,6 +189,8 @@ Dongsha_12ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgta
 
 ```
 
+You'll likely need to remove spaces before and after the sample names. 
+
 The first number on the first line is the number of populations. The second number is the number of loci (1). Then you can add any sort of descriptor for the data on that line.
 
 The second line has the number of basepairs in the dataset.
@@ -194,3 +198,23 @@ The second line has the number of basepairs in the dataset.
 The third line describes the first population, giving the number of sequences from that population and a population name.
 
 The fourth line is the first data line. The first ten characters are reserved for the name of the sequence. All following characters are the sequence.
+
+8. Now make several directories with names (no spaces!) that reflect your hypotheses. You'll probably have at least "panmixia", "n-island", "dongsha_source","dongsha_sink". Copy the parmfile into each of these directories. Then edit these duplicated parmfiles to reflect the hypothesis. You may want to use Excel to sketch out your migration models.
+
+9. Place your formatted data file into the directory above these hypotheses, making sure that each parmfile is pointing to the directory above it (infile=../abuabd_CB_coleman_newH.mig).
+
+10. Copy the whole folder up to Treebeard (from your location on your computer)
+```{bash}
+$ scp -r ./migrate_directory OTTERID@Treebeard:./migrate_directory
+```
+
+11. SSH to Treebeard, and set up a virtual terminal window
+```{bash}
+$ ssh ./migrate_directory OTTERID@Treebeard
+password:
+
+$ screen
+```
+
+
+
