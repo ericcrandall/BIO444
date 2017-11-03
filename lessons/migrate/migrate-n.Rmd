@@ -3,7 +3,7 @@ title: "Introduction to Migrate-n"
 output: html_notebook
 ---
 
-[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space using coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}/{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space using coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
 
 ![Migrate-figure](../images/migrate-figure.jpg)
 Migrate is controlled by a "parameter file" that controls all of the myriad settings that one can use for one's data. We will walk through the example below:
@@ -14,11 +14,11 @@ Migrate is controlled by a "parameter file" that controls all of the myriad sett
 menu=NO
 nmlength=10
 datatype=SequenceData
-ttratio= 10.135
+ttratio= 4.18
 freqs-from-data=NO:0.2408,0.3129,0.1704,0.2759
 seqerror-rate=0.0
 categories=1
-rates=4:0.324 1.724 4.459 9.212
+rates=4:1.611612e-06 1.884553e-03 1.181330e-01 3.879981e+00
 prob-rates=4:0.598 0.362 0.04 0.001
 autocorrelation=NO
 weights=NO
@@ -68,7 +68,7 @@ bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000.000000 100000.000000
 long-chains=1
 long-inc=500
 long-sample=50000
-burn-in=0
+burn-in=10000
 heating=YES:1:{1,1.5,3,100000}
 heated-swap=YES
 moving-steps=NO
@@ -81,7 +81,7 @@ end
 
 At the top are parameters having to do with the model of molecular evolution that we are using. Migrate can use microsatellites, Sanger DNA, and SNP data. The inheritance scalar is set to 1, rather than 4 (as in 4Nem) because we are using mitochondrial DNA. mtDNA has 1/4 of as many copies as nuclear DNA because it is 1) haploid and 2) passed only through females (so male copies don't really count).
 
-Towards the end are parameters that have to do with the MCMC search, including the number of samples of the posterior to take and the increment at which to take each sample. If you multiply these two items together, you get the total length of the MCMC "chain" that you will be running. Also, importantly, there are the priors for $\theta = N_e\mu$ and $M = \frac{m}/{\mu}$.
+Towards the end are parameters that have to do with the MCMC search, including the number of samples of the posterior to take and the increment at which to take each sample. If you multiply these two items together, you get the total length of the MCMC "chain" that you will be running. There is the burnin which is the number of samples to discard because they are before the chain reaches an equilibrium. Also, importantly, there are the priors for $\theta = N_e\mu$ and $M = \frac{m}/{\mu}$.
 
 Of particular interest is the matrix of 0 and \*: this is what lets us specify a hypothesis about gene flow in our metapopulation. We can use migrate-n to calculate the likelihood of several alternative hypotheses, thus allowing us to use strong inference to understand migration in our species. The columns denote the departure population and the rows denote the arrival population. The diagonals contain the theta parameter for each population.  \* means we are inserting this parameter into the model to be estimated. 0 means no estimated parameter. We could also conceivably use S for symmetric migration, or m for mean migration (all m's have the same mean)
 
@@ -96,6 +96,101 @@ This matrix denotes the following metapopulation model, where population 1 is a 
 
 ![Migrate figure 2](../images/migrate-figure2.jpg)
 
+So now we will go about setting up for a migrate run.
+
+1. First, find the closest 3-4 populations to Dongsha and create a new FASTA file containing only these sequences. For *P. coelestis* I have chosen populations in Okinawa, Hainan and Taiwan.
+2. Stop and think about some hypotheses that you'd like to test with these populations.
+3. Make a copy of the parmfile that I posted above. Open it in a text editor.
+
+4. Determine the optimal model of molecular evolution for your dataset. We will use `modeltest` in the phangorn package. We need to determine the gamma shape parameter that governs the rates at which bases change in the model.
+
+```{r}
+library(TeachingPopGen)
+library(phyclust)
+library(phangorn)
+library(strataG)
+
+pcoel<-read.FASTA(file="../data/pcoelestis_migrate.fasta")
+
+pcoel<-as.matrix(pcoel)
+pcoel_phy<-phyDat(pcoel)
+pcoel_modeltest<-modelTest(pcoel_phy,G=T, I=F, FREQS=T)
+
+pcoel_modeltest<-pcoel_modeltest[order(pcoel_modeltest$BIC),]
+
+head(pcoel_modeltest)
+```
+
+For P. coelestis, HKY+G is the best model of molecular evolution
+
+```{r}
+# some funky code to get the gamma shape parameter
+env<-attr(pcoel_modeltest, "env")
+HKY<-get("HKY+G", env)
+eval(HKY, env=env)
+
+# 
 
 
+```
+the shape parameter for P.coelestis  is 0.10879
 
+So our gamma distribution looks like this:
+```{r}
+plot(density(rgamma(1000,shape=0.10879)), xlim=c(0,1))
+```
+
+And now to discretize it into 4 rate categories.
+```{r}
+phangorn:::discrete.gamma(0.10879,4)
+```
+
+Enter these values in the rates line of your parmfile, after the "4:".
+
+Now to figure out the Transition to Transversion ratio
+```{r}
+TiTvRatio(pcoel)
+```
+
+Enter this value (for your data) in the ttratio line of the parmfile.
+
+5. Now write your data into nexus format, so that you can easily create a datafile that is formatted appropriately for migrate-n.
+
+```{r, eval=F}
+write.nexus.data(pcoel,"./lessons/data/pcoelestis_migrate.nex", interleaved=F,missing="N")
+```
+
+In a text editor, edit your files so that they look like this:
+
+```{bash, eval=F}
+4 1 Control Region Data from Pomacentrus coelestis
+337
+10 Hainan
+Luhuito   ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattccc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_10ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaacttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaataggactggcgaaatttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_11ccacattaaatttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_12ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcatgataagaccttt-gtac-aaaattgaaatggggctggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_13ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_2 ccacattaaacttatattaaccaaatcaggggctattaagactatgtatggttattcaacattacttgtatttacactattttgtttaattacttatttcagtttaattacattaagcataataagagcttt-gtacaaaaattgaaatgggactggcgaaatttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_3 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggtcattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataacaagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagcacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_4 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_5 ccacattaaatttatattaaccaaatcaagggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataacaagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagcacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_6 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_7 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaagaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_8 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagacctct-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Luhuito_9 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcacacaactgaattattcctgg
+21 Dongsha
+Dongsha   ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcaatttaattacattaagcataataagaccttt-gtacaaaaattgaaataggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Dongsha_10ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Dongsha_11ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+Dongsha_12ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
+
+```
+
+The first number on the first line is the number of populations. The second number is the number of loci (1). Then you can add any sort of descriptor for the data on that line.
+
+The second line has the number of basepairs in the dataset.
+
+The third line describes the first population, giving the number of sequences from that population and a population name.
+
+The fourth line is the first data line. The first ten characters are reserved for the name of the sequence. All following characters are the sequence.
