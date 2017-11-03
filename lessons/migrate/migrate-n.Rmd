@@ -3,6 +3,8 @@ title: "Introduction to Migrate-n"
 output: html_notebook
 ---
 
+## Migrate Introduction
+
 [Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space using coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
 
 ![Migrate-figure](../images/migrate-figure.jpg)
@@ -30,7 +32,7 @@ usertree=RANDOMTREE
 infile=../abuabd_CB_coleman_newH.mig
 random-seed=AUTO
 title=abuabd_CB_coleman_newH
-progress=YES
+progress=VERBOSE
 logfile=NO
 print-data=NO
 outfile=abuabd_CB_coleman_newH_outfile.txt
@@ -74,7 +76,7 @@ heated-swap=YES
 moving-steps=NO
 long-chain-epsilon=INFINITY
 gelman-convergence=No
-replicate=NO
+replicate=YES:3
 resistance=0.000100
 end
 ```
@@ -96,6 +98,7 @@ This matrix denotes the following metapopulation model, where population 1 is a 
 
 ![Migrate figure 2](../images/migrate-figure2.jpg)
 
+## Setting up Migrate-n
 So now we will go about setting up for a migrate run.
 
 1. First, find the closest 3-4 populations to Dongsha and create a new FASTA file containing only these sequences. For *P. coelestis* I have chosen populations in Okinawa, Hainan and Taiwan.
@@ -208,12 +211,38 @@ The fourth line is the first data line. The first ten characters are reserved fo
 $ scp -r ./migrate_directory OTTERID@Treebeard:./migrate_directory
 ```
 
-11. SSH to Treebeard, and set up a virtual terminal window
+11. SSH to Treebeard
 ```{bash}
 $ ssh ./migrate_directory OTTERID@Treebeard
 password:
+```
 
-$ screen
+12. Set up a virtual terminal window (so that closing the terminal won't kill migrate) and start migrate.
+
+```{bash, eval=F}
+$ cd migrate_directory/yourmodel
+
+$ screen -S yourname_yourmodel
+$ migrate-n
+
+Reading parmfile "parmfile"....
+  =============================================
+  MIGRATION RATE AND POPULATION SIZE ESTIMATION
+  using Markov Chain Monte Carlo simulation
+  =============================================
+  PDF output enabled [Letter-size]
+  Version 3.6.11   [June-18-15]
+  Program started at   Fri Nov  3 09:33:48 2017
+
+.
+.
+.
+
+
+$ Type Control-a and then Control-d to detach yourself from this screen
+```
+13. Repeat this process for all of your models. Keep track of what you named each terminal window (the entry after -S). You can re-attach to any screen by typing `screen -r yourname_yourmodel` to check on progress.
+
 ```
 
 
