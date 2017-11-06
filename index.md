@@ -21,6 +21,7 @@ author: Dr. Eric Crandall
 - [Introduction to coalescent theory](./lessons/coalescence/CoalescenceChapter.html)
 - [DNA Data: Inferring Population History](./lessons/coalescence/PopulationHistory.html)
 - [Migration](./lessons/migration/MigrationChapter.html)
+- [DNA Data: Inferring metapopulation models](./lessons/migrate/migrate-n.html)
 
 
 This site is authored on [Github Pages](https://pages.github.com)
