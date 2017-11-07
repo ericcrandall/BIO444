@@ -189,6 +189,7 @@ h <- sort(h, what = "label")
 
 net <- pegas::haploNet(h)
 i<-stack(setNames(attr(h, "index"), rownames(h)))
+i<-i[order(i$values),]
 ind.hap<-table(hap=i$ind, pop=pop)
 
 #play with scale.ratio to get appropriate branch lengths
