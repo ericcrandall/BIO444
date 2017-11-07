@@ -72,7 +72,7 @@ bayes-priors= THETA WEXPPRIOR: 0.000010 0.010000 10.000000 1.00000
 bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000.000000 100000.000000 
 long-chains=1
 long-inc=500
-long-sample=50000
+long-sample=100000
 burn-in=10000
 heating=YES:1:{1,1.5,3,100000}
 heated-swap=YES
@@ -376,9 +376,13 @@ And create some plots
 ```{r, eval=F}
 data.list.plot<-lapply(data.list.2,subset,select=c(which(grepl("Theta_",names(data.list.2[[1]])) | grepl("M_",names(data.list.2[[1]])) | grepl("Nm_",names(data.list.2[[1]])) |grepl("lnPost",names(data.list.2[[1]])))))
   #log transform them, since they come from an exponential prior
-  data.list.plot<-lapply(data.list.plot,log)
+  #data.list.plot<-lapply(data.list.plot,log)
   data.list.plot<-mcmc.list(lapply(data.list.plot,mcmc))
 
-  data.list.gg<-ggs(data.list.plot,burnin=F,description=paste(f,model,sep="_"))
-  ggmcmc(data.list.gg,plot=c("ggs_traceplot","ggs_density","ggs_Rhat"),simplify_traceplot=0.25,file=paste("/Users/eric/Datasets/ToBo_Project/final_ggMCMC/",paste(speciesname2,model,sep="_"),".pdf",sep=""))
+  data.list.gg<-ggs(data.list.plot,burnin=F,description="P. coelestis Dongsha Sink Model")
+  ggmcmc(data.list.gg,plot=c("ggs_traceplot","ggs_density","ggs_Rhat"),simplify_traceplot=0.25,file="~/Desktop/pcoelestis_migrate/pcoelestis_ggmcmc.pdf")
 ```
+
+Here's what those plots look like:
+
+![GGMCMC Plots for P. coelestis](../images/pcoelestis_ggmcmc.pdf)
