@@ -1,6 +1,8 @@
 ---
 title: "Parentage Analysis and Assignment Tests"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 # Parentage Analysis
@@ -208,11 +210,16 @@ freqs
 
 Next, the three possible genotypes are created on which we will estimate the assignment probabilities.
 
-```{r}
+```{r, eval=F}
 
 loci <- c( locus(c("A","A")), locus(c("A","B")), locus(c("B","B")) )
 individuals <- data.frame( ID=1:3, Locus1=loci)
 individuals
+
+##   ID Locus1
+## 1  1    A:A
+## 2  2    A:B
+## 3  3    B:B
 ```
 
 
@@ -225,8 +232,41 @@ $$ \lambda_i = \frac{P_i}{\sum_{j=1}^K P_j} $$
 
 Where $P_j$ is the multi-locus probability of assigning to each population. As such, our CC genotype would have $\lambda_i$ = 0 for populations 1-99 but $lambda_{100}$ = 1.0 for the last population. This is the best-case scenario—the assignment process has eliminated all populations except for one.In R, multi locus probabilities and posterior assignments are made using the `multilocus_assignment()` function from gstudio. It needs to have an individual that has at least one locus objects in it, typically as a row from a data.frame holding all your data, and a frequency matrix as outline above. Here are examples for the three potential genotypes and the three example populations.
 
-```{r}
+```{r, eval=F}
 
 multilocus_assignment(individuals[1,], freqs)
 ```
 
+```{r, eval=F}
+multilocus_assignment(individuals[1,],freqs)
+##        Stratum Probability  Posterior
+## 3 Population C        0.49 0.74242424
+## 2 Population B        0.16 0.24242424
+## 1 Population A        0.01 0.01515152
+```
+
+The  AA genotype has a probability of  p2=0.72=0.49 of being from population  C (as expected under Hardy-Equilibrium). However, in comparison to all populations, the posterior likelihood of the assignment is  λC=0.74
+ 
+ Biologically, this helps to provide confidence in the assignment by comparing this result to the likelihood of being assigned to  A or  B
+ 
+ The heterozygote genotype is more likely to be from the stratum with intermediate allele frequencies, B, but is not too terribly more likely than being in the  C population as well.
+ 
+ ```{r, eval=F}
+ multilocus_assignment(individuals[2,],freqs)
+##        Stratum Probability Posterior
+## 2 Population B        0.48 0.4444444
+## 3 Population C        0.42 0.3888889
+## 1 Population A        0.18 0.1666667
+```
+
+Here is the other homozygote for completeness, having the greatest (by over double) likelihood of being from  A than B.
+
+```{r, eval=F}
+multilocus_assignment(individuals[3,],freqs)
+##        Stratum Probability  Posterior
+## 1 Population A        0.81 0.64285714
+## 2 Population B        0.36 0.28571429
+## 3 Population C        0.09 0.07142857
+```
+
+Increasing the likelihood of assignment can be achieved by adding more loci to the analysis, using loci with more alleles, and/or using loci whose allele frequencies are closer to each other.
