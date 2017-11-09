@@ -224,7 +224,33 @@ for( i in 1:length(p))
 <div id="paternity-probability" class="section level3">
 <h3>Paternity Probability</h3>
 <p>Paternal probability can be computed as the posterior odds of paternity versus non-paternity. This is the likelihood ratio of hypothesis 1 (H1 = the male is the father) and hypothesis 2 (H2 = the male is not the father).</p>
-<p>Nomenclature: | Individual | Identifier | Genotype | |———————-|————|———-| | Female Parent | FP | <span class="math inline">\(\alpha\)</span> | | Putative Male Parent | MP | <span class="math inline">\(\beta\)</span> | | Offspring | O | <span class="math inline">\(\gamma\)</span> |</p>
+<p>Nomenclature:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Individual</th>
+<th>Identifier</th>
+<th>Genotype</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Female Parent</td>
+<td>FP</td>
+<td><span class="math inline">\(\alpha\)</span></td>
+</tr>
+<tr class="even">
+<td>Putative Male Parent</td>
+<td>MP</td>
+<td><span class="math inline">\(\beta\)</span></td>
+</tr>
+<tr class="odd">
+<td>Offspring</td>
+<td>O</td>
+<td><span class="math inline">\(\gamma\)</span></td>
+</tr>
+</tbody>
+</table>
 <p><span class="math display">\[ L(H_1, H_2 | \alpha, \beta, \gamma) = \frac{P(D| \alpha, \beta, \gamma)}{P(D|\alpha,\gamma)} \]</span></p>
 <p>Consider a maternal individual whose genotypes are</p>
 <p>FP = {AA, Bb, CC, Dd}</p>

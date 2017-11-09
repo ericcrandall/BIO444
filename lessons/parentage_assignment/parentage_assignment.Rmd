@@ -131,6 +131,7 @@ So with 20 biallelic SNP loci we get into the realm of acceptable power to exclu
 Paternal probability can be computed as the posterior odds of paternity versus non-paternity. This is the likelihood ratio of hypothesis 1 (H1 = the male is the father) and hypothesis 2 (H2 = the male is not the father).
 
 Nomenclature:
+
 | Individual           | Identifier | Genotype |
 |----------------------|------------|----------|
 | Female Parent        | FP         | $\alpha$ |
