@@ -157,7 +157,7 @@ Now consider two putative male parents
 
 | Individual | Locus 1 | Locus 2 | Locus 3 | Locus 4 |
 |------------|---------|---------|---------|---------|
-| MP1        | Aa      | Bb      | CC      | Dd      |
+| MP1        | Aa      | BB      | cc      | Dd      |
 | MP2        | AA      | BB      | Cc      | dd      |
 
 Which one of the potential fathers is the most likely parent?
@@ -167,7 +167,7 @@ Which one of the potential fathers is the most likely parent?
 | FP          | AA      | Bb      | CC      | Dd      |
 | MP1         | Aa      | BB      | cc      | Dd      |
 | O           | AA      | BB      | Cc      | dd      |
-| P(O|FP,MP1) | 0.5     | 0.5     | 1       | 0.25    |
+| P(OgivenFP,MP1) | 0.5     | 0.5     | 1       | 0.25    |
 
 $P(O|\alpha,\beta) =$ 0.5*0.5*1*0.25 = 0.0625
 
@@ -176,7 +176,7 @@ $P(O|\alpha,\beta) =$ 0.5*0.5*1*0.25 = 0.0625
 | FP          | AA      | Bb      | CC      | Dd      |
 | MP2         | AA      | BB      | Cc      | dd      |
 | O           | AA      | BB      | Cc      | dd      |
-| P(O|FP,MP2) | 1     | 0.5     | 0.5      | 0.5    |
+| P(OgivenFP,MP2) | 1     | 0.5     | 0.5      | 0.5    |
 
 $P(O|\alpha,\beta) =$ 1*1*0.5*0.5 = 0.125
 
@@ -201,7 +201,7 @@ Across loci, the probability of a multi-locus genotype (X) is multiplicative acr
 $$ P(X|F) = \prod_{i=1}^L P_{x_i}$$
 As a simple example, consider the following code, where we make three populations differing in allele frequencies at a single locus.
 ```{r}
-library(gstudio)
+
 
 freqs <- data.frame( Stratum=rep(c("Population A","Population B","Population C"),each=2), Locus="Locus1")
 freqs$Allele <- rep( c("A","B"), times=3)
