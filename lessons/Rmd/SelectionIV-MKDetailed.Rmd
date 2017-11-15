@@ -1,0 +1,214 @@
+---
+title: <center>Using Genomic Data to Detect Selection</center>
+author: <center>Bruce Cochrane</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output: 
+  html_document:
+    css: Chapter.css
+    toc: yes
+    toc_depth: 5
+---
+```{r,echo=FALSE}
+library(TeachingPopGen)
+```
+
+### MK At the genomic level.
+
+The McDonald Kreitman test was first proposed in 1991; since then it has been one of the most widely used and discussed tests for evidence of selection.  No doubt one reason for its popularity is its simplicity - as we've seen, the statistical analysis is straightforward.  But of course we now have much more in the way of data than the 30 sequences and `r 2+7+42+17` sites analyzed in the original paper. We can best appreciate that by looking at data reported by [Shapiro et al (2007)](http://www.pnas.org/content/104/7/2271.full.pdf), in which 419 genes were examined in 24 lines of *Drosophila melanogaster* and compared to numbers of fixed differences between *D. melanogaster* and the sibling species *D. sechellia*.  
+
+### Aggregating the data
+
+The simplest place to start is to simply look at numbers of polymorphisms and fixed differences in the genomes as a whole, applying the MK function to the data as a whole:
+
+```{r}
+MK(c(2307,465),c(6286,2411))
+```
+So we see what looks like an overall pattern of departure from neutral expectation, suggesting that in general, the N:S ratio is higher for polymorphism than for divergence.  Positive selection??  Not so fast.
+
+###  The Problem of Pooling
+
+#### A Hypothetical Example
+
+But is pooling acrpss loci appropriate?  [Shapiro et al 2007](http://www.pnas.org/content/104/7/2271.full.pdf) - explains this rather well - if all genes have same genealogy and do not recombine, then pooling makes sense.  If not, however, problems arise.  For example, consider the hypothetical case they give in their Figure 2:
+
+![Shapiro2](https://dl.dropboxusercontent.com/u/9752688/QPopgen/figs/Shapiro2.png)
+
+We can do an MK test on the combined numbers as follows:
+
+```{r}
+MK(c(130,60),c(250,180))
+```
+
+And we get a significant result, with FI>1, implying (as in the case of the Adh example) that there may have been positive selection giving rise to substitutions.  We know, however, that this is actually an artifact, due to the fact that the second locus is more constrained with respect to both polymorphism and divergence (both have dNds ratios of 0.2.  Thus, there is a negative correlation between A/S and P/D. So what we need to do is the following:
+
+1.  Generate an expected distribution of FI, based on the overall observed numbers
+2.  Calculate FI on a gene by gene basis for the actual data set and determine the mean
+3.  Compare the observed average with that which is expected.
+
+#### The Expected Distribution of the Pooled FI
+
+First, let's create a matrix of the overall observations
+```{r}
+N <-c(465,2307) #nonsynonymous polymorphism, divergence
+S <-(c(2411,6286)) # synonymous polymorphism divergence
+Obs <-rbind(N,S) # make a matrix of them
+NS <-rowSums(Obs)
+Obs <-cbind(Obs,NS)
+PD <-colSums(Obs)
+Obs <-rbind(Obs,PD)
+rownames(Obs) <-c("Nonsynonymous","Synonymous","Total")
+colnames(Obs) <- c("Polymorphism","Divergence","Total")
+Obs
+```
+Now what we'll do is to generate 1000 simulated data sets, in which we hold the P/D and dN/dS ratios to what was in the observed data.  First, we need to load a couple of functions
+```{r}
+#calculate the FI for a given set of data
+FI <-function(x){
+  (x[1,2]/x[2,2])/(x[1,1]/x[2,1])
+}
+```
+```{r}
+#Generate 1000 random data sets with row and column totals equal to observed data
+boot <- function (Obs,n=1000) r2dtable(n,rowSums(Obs),colSums(Obs))
+```
+Now we will generate our random data sets
+
+```{r}
+all.boot <-boot(Obs[1:2,1:2])
+head(all.boot)
+```
+and  look at the expected distribution of FI values in these simulated data
+```{r}
+FI.boot <-sapply(all.boot, FI)
+hist(FI.boot)
+mean(FI.boot)
+```
+### Analysis of Locus Data
+
+#### Constraint and divergence
+
+So is there heterogeneity in the data? Consider the following factors that will affect the quantities we've been talking about.
+
+1.  Constraint - limit (due to selection) on permissible substitutions - if high, the ratio of nonsynonymous to synonymous differences (totalling polymorphism and divergence) should be low.
+2.  Genealogy - do all genes have same historical topology?  In other words, do all genes have the same TMRCA?  This would be the case in the absence of recombination, but of course nuclear genes do recombine.   And most importantly, *alleles with recent common ancestors should have lower levels of polymorphism than those with older ones*.
+
+Thus, we can think of the ratio of nonsysnymous to synonymous substitutions as a measure of constraint, and the number of polymorphic sites (total) relative to divergent ones as a reflection of gene geneaology.   Now are question is, are these ratios independent of one another in the data?
+
+
+
+So the question becomes, is there indeed a relationship of P/D vs A/S?  To do so, we'll look at the complete data set from Shapiro et al - 419 loci from D melanogaster and D. simulans
+
+
+
+```{r}
+data(Shapiro) # Loads a slightly revised version of Shapiro et al. supplemental table 4
+
+attach(shap.dat)
+ratio.PD <-(Ps+Pn)/(Ds+Dn)
+ratio.NS <-(Dn+Pn)/(Ds+Ps)
+plot(ratio.NS, ratio.PD,ylim =c(0,5),xlab="Selective Constraint (N/S)",ylab="Polymorphism/Divergence")
+```
+How significant is the relation?  Following a little cleanup (code not shown) we can quantify
+```{r echo=FALSE}
+ratio.PD <-ratio.PD[-c(147,218)]
+ratio.NS <-ratio.NS[-c(147,218)]
+
+ratio.PD <-ratio.PD[3:417]
+ratio.NS <-ratio.NS[3:417]
+
+cor(ratio.PD,ratio.NS)
+```
+
+And with that, we can fit a regression to the data
+```{r}
+reg <-lm(ratio.PD~ratio.NS)
+summary(reg)
+plot(ratio.NS, ratio.PD,ylim =c(0,5),xlab="Selective Constraint (N/S)",ylab="Polymorphism/Divergence")
+abline(reg,col="red")
+#abline(a=reg$coefficients[1],b=reg$coefficients[2],col="darkred")
+```
+What we see is that indeed the more constrained loci (with low values of N/S) do indeed tend to be more polymorphic, relative to their total divergence.   
+
+#### Analyzing a random gene
+
+Thus, what we need to do is to take a gene-by-gene approach to calculate expectations for FI; we can then compare the mean of the observed values to that of the expectations.  As an example, we'll repeat out FI and bootstrapping procedures for one random locus (number 8 in the original data set)
+```{r}
+dat.vec <-shap.dat[8,]
+dat.vec
+Obs <-rbind(c(dat.vec$Pn+1,dat.vec$Dn),c(dat.vec$Ps,dat.vec$Ds+1))
+Obs
+FI(Obs)
+```
+Note that we added one to Pn and Ds to avoid division by zero errors.  The FI for this locus is obviously exceedingly high, but what should we be comparing it against?  We can repeat the bootstrap procedure with these data
+
+```{r}
+boot.8 <-boot(Obs)
+```
+and apply FI to the results
+```{r}
+FI.8 <-sapply (boot.8,FI)
+hist(FI.8)
+mean(FI.8)
+```
+So in this particular case, while the expected value for the locus does differ from 1, the observed value is much, much higher.  However, when we average over all loci, we get a mean observed FI of 1.18 and a mean expected value of 1.25.    Thus what appears initially to be a higher than expected value turns out to be lower.
+
+### Further refinements
+
+Shapiro et al make three additional points that are  are worth summarizing:
+
+Because we are dealing with multiple species, it is possible, in most cases of polymorphisms within *D. melanogaster*, to infer ancestral and derived alleles.  We can then ask how FI is related to the frequency of the derived allele, with the goal of asking whether there is evidence of positive selection acting on derived alleles or negative selection acting to prevent divergence.
+
+#### Negative Selection
+
+Here, the logic is that a derived allele with low frequency is likely to be the target of negative selection, keeping its frequency low.  To address this, they divided the data into frequency classes of the derived allele and looked at the distribution of Pn/Ps (A/S in their notation) among those classes:
+
+![Shapiro4](http://www.pnas.org/content/104/7/2271/F4.large.jpg)
+
+Note that the first three columns (derived alleles with 1, 2, and 3 copies in the sample) have P~n~/P~s~ ratios, reflective of the expectation that there are numerous nonsynonymous (but detrimental) polymorphisms in these classes, more than are seen in the more frequent, neutral classes.  Based on this, we can first calculate the total ratios for these two classes:
+```{r}
+as.tot <-1462/4695
+as.high <-450/2413
+```
+We can then use the normalized differences between the two to estimate the fraction of all nonsynonymous sites with deleterious nonsynonymous alleles as follows.
+```{r}
+f.del <-(as.tot-as.high)/as.tot
+f.del
+```
+#### Positive Selection
+
+So about 40% of polymorphism are deleterious.  What about positive selection?  How many of the substitutions that have occurred are adaptive?  Here, we can focus on the high frequency sites and compare levels of polymorphism with levels of divergence.  We've already done the above calculation (as.low above, with a value of `r as.low`)  From the data, we also know, for the same sites, the dNdS ratio:
+
+```{r}
+p.high =465/2411
+d.high <-  2307/6286
+p.high;d.high
+```
+So what we need to do is to determine how much higher, on average, FI is in the data compared with the expectation.  To do so, we can bootstrap the high frequency data to get an expectation, and then compare it with the value we calculated, just as we did above for the total data set.  When the authors did so, they obtained the following:
+
+```{r}
+FI.obs <-1.97
+FI.exp <-1.40 
+ns.pos <-(FI.obs-FI.exp)/FI.obs
+ns.pos
+```
+#### Selection and Recombination Rates
+
+Finally, Shapiro et al. considered how these patterns are affected by recombination rates.  The logic for doing so is as follows (and we will develop this more fully in the future).  Consider how selection on one locus could affect variation at a linked neutral one:
+
+1.  If selection is positive, then it would tend to increase the frequency of whatever neutral variants are linked to the selected allele, leading to what we call a "selective sweep"
+2.  If it is negative, then elimination of the detrimental allele would also remove variation at neighboring sites.  This is referred to as "Background selection".
+
+Discriminating between these two possibilities is difficult.  However, Shapiro et al divided their data into those genes that occur in regions with normal levels of recombination and those in recombinationally constrained regions, and doing a quick test of the aggregated data (using only the high frequency polymorphic sites, thus ignoring those likely to be ones with weakly detrimental alleles):
+
+
+```{r}
+high.r <-MK(c(1315,297),c(3442,1883)) #MK for high recomb rate; high frequency sites
+low.r <-MK(c(  992,152),c(2844,528))
+high.r$FI; low.r$FI
+```
+We see that the signal of positive selection is much greater in the case of the high recombination regions than in the low.  
+
+### Conclusions
+
+It is well worth taking some time to read this paper and understand the logic that underlies it.  It constitutes a very nice demonstration about how logic developed based on single-gene analysis can be applied at the genomic level.  We shall see that, in more recent years, as genomic data have become increasingly available, more sophisticated analytical approaches have been developed and applied.  Nevertheless, the MacDonald-Krietman test remains a staple of population genetics, and the analysis we have just walked through remains a paradigm.
+

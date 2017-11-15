@@ -23,6 +23,7 @@ author: Dr. Eric Crandall
 - [Migration](./lessons/migration/MigrationChapter.html)
 - [DNA Data: Inferring metapopulation models](./lessons/migrate/migrate-n.html)
 - [Individual-based data: Parentage analysis and population assignment](./lessons/parentage_assignment/parentage_assignment.html)
+- [Natural Selection and Tests for Natural Selection](./lessons/selection/SelectionI.html)
 
 
 This site is authored on [Github Pages](https://pages.github.com)

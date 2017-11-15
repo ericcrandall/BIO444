@@ -1,0 +1,25 @@
+---
+title:  Selection - The Basics
+csl: ../genetics.csl.txt 
+date: <i>`r format(Sys.Date(),format="%B %d %Y")`</i>
+output: 
+    html_document:
+       theme: paper
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+
+Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
+
+```{r child="../Rmd/SelectionI.Rmd"}
+
+```
+
+```{r child="../Rmd/SelectionII.Rmd"}
+
+```
+
+```{r child="../Rmd/SelectionIII.Rmd"}
+
+```

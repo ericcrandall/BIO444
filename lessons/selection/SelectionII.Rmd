@@ -1,0 +1,21 @@
+---
+title:  Testing for selection
+bibliography: ../TPG.bib
+csl: ../genetics.csl.txt 
+date: <i>`r format(Sys.Date(),format="%B %d %Y")`</i>
+output: 
+    html_document:
+       theme: paper
+       toc: yes
+       toc_depth: 5
+       code_folding: show
+---
+
+```{r child= "../Rmd/SelectionIII.Rmd"}
+
+```
+
+```{r child= "../Rmd/SelectionIV-MKDetailed.Rmd"}
+
+```
+

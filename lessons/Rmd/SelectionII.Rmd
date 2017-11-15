@@ -1,0 +1,156 @@
+00---
+title: <center>More Aspects of Selection Theory</center>
+date: <center>`r format(Sys.time(), '%d %B, %Y')`</center></br>
+output: 
+    html_document:
+       css: Chapter.css
+       toc: yes
+       toc_depth: 5
+---
+
+
+### Calculation of fitness from real data
+
+To quickly summarize, we have been focusing on one component of fitness (viability) and modeling the impact of various models on allele frequency dynamics.  In so doing, we have defined relative fitness, mean fitness, and selection coefficients and shown that, by itself, only heterozygote advantage leads to a stable polymorphism (at a cost in mean fitness).  However, other than the hypothetical example we started our discussion with, we have not addressed how we might estimate fitness parameters from real data.  In fact, this is something that is often difficult to do, especially when selection coefficients are small.  However,  it is not impossible.
+
+This example involves sickle cell anemia and goes from observed genotypes in a large sample of adults to an estimate of relative fitnesses of the three genomes.  The approach is based on observed departure from Hardy Weinberg in those adults **and the assumption that that deviation is the result of viability differences among the three genotypes**.
+
+
+#### Hardy-Weinberg Calculations
+
+To start with, we can calculate the allele frequencies from the observed adult population and use them to determine the **expected** genotype distribution:
+
+```{r}
+genos.n <-c(25374,5482,67)
+genos.f <-round(genos.n/sum(genos.n),3)
+p <-genos.f[1]+.5*genos.f[2]
+genos.exp <-round(c(p^2,2*p*(1-p),(1-p)^2),3)
+genos <-rbind(genos.f,genos.exp)
+rownames(genos) <- c("Observed","Expected")
+round(genos,30)
+```
+
+We can then ask if the differences between observed and expected are significant:
+
+```{r}
+hw(genos.n)
+```
+
+And we see that in fact the chi-squared value is astronomical.  So let's proceed
+
+#### Make some assumptions
+
+In what follows, we make two assumptions:
+
+1.  Mating is random, so **at the time of zygote formation, HWE exists.**
+2.  Any observed departure from Hardy-Weinberg ratios in adults is due to egg-to-adult viability differences among genotypes 
+
+#### Calculate relative fitnesses
+
+Given those assumptions there are two ways to proceed.  First, we could assume that there was a pool embryos of some arbitrary size (larger than the number surveyed) in HW equilibrium, calculate the numbers of the genotypes in that pool and then calculate the ratio of observed individuals to those numbers to get the absolute fitness:
+
+```{r}
+embryos.n <-genos.exp*40000
+embryos.n
+w <-round(genos.n/embryos.n,3)
+w
+```
+And in keeping with our norm, we can calculate the values relative to the most fit genotype (which happens to be the heterozygote)
+
+```{r}
+w <- round(w/max(w),3)
+w
+```
+
+But there is actually an easier way to get the same answer.  We have observed frequencies, we also have expected ones, so let's just take the ratio of those two:
+```{r}
+
+w2 <-genos.f/genos.exp
+w2 <-w2/max(w2)
+round(w2,3)
+```
+And we get essentially the same answer.
+
+#### Summary
+
+This is a classic textbook type of calculation.  However, in addition to the assumptions we've already described, notice the magintude of the selecton coefficients:
+
+```{r}
+s <- 1-w[1]
+t <-1-w[3]
+s;t
+```
+*Both of these are very large*.  And remember, the calculation is based on observed departure from HW.  In cases where selection coefficients are smaller (as is typical in most cases of polymorphisms), the departure from HW in a reasonable sample size is likely to be insignificant, rendering this sort of calculation suspect at best.
+
+
+
+
+### Mutation-Selection Equilibrium
+
+In our discussion thus far, we have used selection as the only factor affecting allele frequencies.  Of course, in an ideal population, we also have to consider mutation.  First, let's consider a recessive detrimental allele.  The loss due to selection will be q^2^ * w(AA), or q^2^ * (1-s).  Since q^2^ &asymp; 0, we can approximate this as -sq^2^.  If the gain due to mutation is &mu; , then equilibrium will be reached when
+
+&mu; = sq^2^
+
+or  
+
+q <- &radic; (&mu;/s)
+
+As an example, we can look at some reasonable numbers - µ=10^-7^, s=.01
+```{r}
+u <-10^-7
+s <-.01
+q1 <-sqrt(u/s)
+q1
+```
+So at equilibrium, we would expect an allele frequency of `r sqrt(u/s)`, which is small but not insignificant.  We can also look at a range of values of s:
+
+```{r}
+par(mfrow=c(1,1))
+s <-seq(.002,.1,.001)
+q <-sqrt(u/s)
+plot(s,q,typ="l")
+```
+
+But now let's assume that selection also acts against the heterozygote. We can proceed as follows:
+
+1.  If q is small, then we can treat the number of aa homozgyotes as zero
+2.  And in that case, p is nearly 1, so we can approximate the frequency of heterozygotes as 2q.
+
+Thus, the reduction in the number of heterozygotes, using our previously established notation, will be 2qsh; with respect to little a alleles (half of those in the heterozygotes) it will be qsh.  And, of course, once again, the gain due to mutation will be &mu; thus at equilibrium
+
+
+µ = hsq  
+
+and
+
+q = µ/hs
+
+
+So let's see what we get, keeping s at .01 but now adding in a weak effect (h=.1) on the heterozygote:
+
+```{r}
+h=.1
+s <-.01
+q2 <-(u/(h*s))
+q2
+```
+And comparing that with what we got above for the purely recessive case:
+```{r}
+q2/q1
+```
+So with an effect on heterozygote, equilibrium frequency of p much much lower (ca. two orders of magnitude).  And we can look at that ratio (holding h and µ constant) over a range of values of s, yielding the following
+
+```{r}
+s <-seq(.002,.1,.001)
+q1 <-sqrt(u/s)
+q2 <-u/(h*s)
+plot(s,q2/q1,type="l",xlab="s",ylab="ratio")
+```
+
+And this makes a biologically important point. The equilibrium frequency of a detrimental allele is much lower when selection acts even weakly on the heterozygote as well as the homozygote.
+
+
+
+
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
