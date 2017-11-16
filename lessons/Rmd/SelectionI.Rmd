@@ -105,7 +105,7 @@ So from here on out, we will work with relative fitnesses, defined as follows.  
 
 ### A more general approach
 
-We could repeat the algebra we did for lethal selection for other scenarios; for example  where the fitness of the recessive homozygote is 1-s, where s<1.  Instead of doing so, we can easily derive a more general equation, given the model of
+We can easily create a general model of selection thusly:
 
 w(AA) = 1  
 w(Aa) = 1-hs  
@@ -121,7 +121,7 @@ Where mean fitness can be calculated as
 
 $$\bar w = p^2w_{AA} + 2pqw_{Aa} + q^2w_{aa}$$
 
-or
+or we can also calculate &Delta;p like so:
 
 $$ \Delta p = \frac{pq[p(w_{AA}-w_{Aa})-q(w_{aa}-w_{Aa})]}{\bar w}$$
 
@@ -163,12 +163,12 @@ We can start with the case of h=0 and s=1, the lethal situation we described abo
 ```{r}
 out <- deltap(pinit=.1,h=0,s=1)
 plot(1-out,type="l",xlab="Generation",ylab="q",lwd=2,cex=1.5)
-#lines(1-deltap(.1,0,.2,plot=FALSE), col="blue",lwd=2,cex=1.5)
-#lines(1-deltap(.1,.5,.2),col="purple",lwd=2,cex=1.5)
+lines(1-deltap(.1,0,.2,plot=FALSE), col="blue",lwd=2,cex=1.5)
+lines(1-deltap(.1,.5,.2),col="purple",lwd=2,cex=1.5)
 ```
-Now, what is we had weaker recessive selection, say with s=.1?
+Now, what if we had weaker recessive selection, say with s=.1?
 ```{r,eval=FALSE}
-lines(1-deltap(pinit=.1,h=0,s=.1,plot=FALSE), col="blue")
+plot(1-deltap(pinit=.1,h=0,s=.1,plot=FALSE), col="blue")
 ```
 And we see that, as expected, while q declines, is does so much more slowly.  But now let's add in selection against the heterozygote as well, setting h to .5 (meaning that the fitness of the heterozygote is intermediate to that of the homozygote.
 
