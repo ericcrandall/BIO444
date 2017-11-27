@@ -7,7 +7,7 @@ output:
 
 ## Migrate Introduction
 
-[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space using coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
 
 ![Migrate-figure](../images/migrate-figure.jpg)
 
@@ -115,6 +115,7 @@ library(TeachingPopGen)
 library(phyclust)
 library(phangorn)
 library(strataG)
+library(knitr)
 
 pcoel<-read.FASTA(file="../data/pcoelestis_migrate.fasta")
 
@@ -274,7 +275,7 @@ setwd("~/Desktop/pcoelestis_migrate")
 16. This script will rip through all of the output files, and harvest the marginal likelihood scores
 ```{r}
 setwd("~/Desktop/pcoelestis_migrate")
-marglike<-data.frame(model=character(0),thermodynamic=numeric(0),bezier.corrected=numeric(0),harmonic.mean=numeric(0),stringsAsFactors=F) #initialize a data frame to take the values
+marglike<-data.frame(model=character(0),thermodynamic=numeric(0),bezier.corrected=numeric(0),harmonic=numeric(0),stringsAsFactors=F) #initialize a data frame to take the values
     l=1 #initialize l
     for(i in list.files()){ #i<-"stepping_stone"
       wd3<-file.path("~/Desktop/pcoelestis_migrate",i)
@@ -313,12 +314,14 @@ bfcalcs<-function(df,ml="bezier.corrected"){
 }	
 
 # and this function should give us our "answer" as to which model is best supported by the data
-bfcalcs(marglike)
+bftable<-bfcalcs(marglike)
+kable(bftable)
+write.csv(bftable,"model_selection_table.csv")
 ```
 
 17. Supposing that the best model is not "panmixia", you can figure out the highest posterior densities for the parameters in your model.
 
-```{r}
+```{r, warning=F,message=F}
 library(coda)
 library(ggplot2)
 library(ggmcmc)
@@ -347,7 +350,8 @@ migrants.per.gen<-function(x){
     data.list.1<-split(data,data$Replicate)
     
     # Subset the parameters of interest, either by rows or by columns to remove burnin and uninteresting columns
-    data.list.1<-lapply(data.list.1,subset,subset=Steps>(0.4*max(data.list.1[[1]]$Steps)))# by rows. Removing burnin. First 40% First 20,000 samples out of 50,000 or 10 million steps out of 25 million
+    burnin<-0
+    data.list.1<-lapply(data.list.1,subset,subset=Steps>(burnin*max(data.list.1[[1]]$Steps)))# by rows. Removing burnin if it wasn't removed in the run. e.g. First 40% First 20,000 samples out of 50,000 or 10 million steps out of 25 million
     #data.list.1<-lapply(data.list.1,subset,select=c(4:(length(data.list.1[[1]])-6))) #by columns.
     
     # calculate Nm for each row
