@@ -177,8 +177,8 @@ $(document).ready(function () {
 <h1>1 Unix Loops</h1>
 <p>In order to run our migrate-n analyses we had to construct directories, each containing a parameter settings file, and then enter each directory to run migrate. Imagine that instead of 1 species, you had to analyze 40 species with migrate-n.</p>
 <p>Write a ‘for-loop’ in unix that would allow you to start in a directory containing directories with all five hypotheses, move into each directory, start migrate-n, and then move to the next directory until migrate models are running in each directory.</p>
-<p>Ignore the need to create virtual terminal windows (screen) for this problem: imagine that migrate-n starts in the background and then lets you issue more commands.</p>
-<p>You may use the directory linked <a href>here</a> to experiment with. Give the code in the box below.</p>
+<p>Ignore the need to create virtual terminal windows (screen) for this problem: imagine that migrate-n starts in the background and then lets you issue more commands. To over come this when testing your program, use “echo migrate-n parmfile” as the command to run migrate-n.</p>
+<p>You may use the directory linked <a href="http://ericcrandall.github.io/lessons/exam/5_hypothesis.zip">here</a> to experiment with. Give the code in the box below.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuZm9yIGRpciBpbiAqLipcbiAgZG9cbiAgZWNobyBkaXJcbiAgY2QgZGlyXG4gIGVjaG8gbWlncmF0ZS1uIHBhcm1maWxlXG4gIGNkIC4uXG5kb25lXG5cbmBgYCJ9 -->
@@ -196,12 +196,59 @@ done
 </div>
 <div id="bat-r-throw-l" class="section level1">
 <h1>2 Bat R Throw L</h1>
-<p>The following three questions will be based on this dataset that describes statistics for Major League Baseball in 2008. Please paste in your one line of code, and the resulting R output into the response box.</p>
+<p>The following three questions will be based on this comma-delimited dataset that describes statistics for Major League Baseball in 2008. Please paste in your one line of code, and the resulting R output into the response box.</p>
 <p>How many National League baseball players batted right and threw with their left in 2008?</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoYmF0JGJhdHMsYmF0JHRocm93cyxiYXQkbGdJRClcblxuYGBgIn0= -->
+<pre class="r"><code>table(bat$bats,bat$throws,bat$lgID)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiLCAsICA9IEFMXG5cbiAgIFxuICAgICAgTCAgIFJcbiAgQiAgIDMgIDQwXG4gIEwgIDg0ICA2MFxuICBSICAgNyAzMjVcblxuLCAsICA9IE5MXG5cbiAgIFxuICAgICAgTCAgIFJcbiAgQiAgIDYgIDUzXG4gIEwgMTAwICA2NVxuICBSICAgOCAzNThcbiJ9 -->
+<pre><code>, ,  = AL
+
+   
+      L   R
+  B   3  40
+  L  84  60
+  R   7 325
+
+, ,  = NL
+
+   
+      L   R
+  B   6  53
+  L 100  65
+  R   8 358</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="names" class="section level1">
+<h1>3 Names</h1>
+<p>What are their names? How many runs-batted-in (RBI) did they hit?</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQlJUTDwtYmF0W3doaWNoKGJhdCRiYXRzPT1cIlJcIiAmIGJhdCR0aHJvd3M9PVwiTFwiICYgYmF0JGxnSUQ9PVwiTkxcIiksYyhcIm5hbWVGaXJzdFwiLFwibmFtZUxhc3RcIixcIlJCSVwiKV1cbmBgYCJ9 -->
+<pre class="r"><code>BRTL&lt;-bat[which(bat$bats==&quot;R&quot; &amp; bat$throws==&quot;L&quot; &amp; bat$lgID==&quot;NL&quot;),c(&quot;nameFirst&quot;,&quot;nameLast&quot;,&quot;RBI&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="rbi-table" class="section level1">
+<h1>4 RBI Table</h1>
+<p>Create a table that is sorted alphabetically by the number of RBIs these players hit in 2008.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQlJUTFtvcmRlcihCUlRMWywzXSxkZWNyZWFzaW5nPVQpLF1cbmBgYCJ9 -->
+<pre class="r"><code>BRTL[order(BRTL[,3],decreasing=T),]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQklPIDQ0NCBUZXN0IFF1ZXN0aW9ucyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyAxIFVuaXggTG9vcHMKSW4gb3JkZXIgdG8gcnVuIG91ciBtaWdyYXRlLW4gYW5hbHlzZXMgd2UgaGFkIHRvIGNvbnN0cnVjdCBkaXJlY3RvcmllcywgZWFjaCBjb250YWluaW5nIGEgcGFyYW1ldGVyIHNldHRpbmdzIGZpbGUsIGFuZCB0aGVuIGVudGVyIGVhY2ggZGlyZWN0b3J5IHRvIHJ1biBtaWdyYXRlLiBJbWFnaW5lIHRoYXQgaW5zdGVhZCBvZiAxIHNwZWNpZXMsIHlvdSBoYWQgdG8gYW5hbHl6ZSA0MCBzcGVjaWVzIHdpdGggbWlncmF0ZS1uLgoKV3JpdGUgYSAnZm9yLWxvb3AnIGluIHVuaXggdGhhdCB3b3VsZCBhbGxvdyB5b3UgdG8gc3RhcnQgaW4gYSBkaXJlY3RvcnkgY29udGFpbmluZyBkaXJlY3RvcmllcyB3aXRoIGFsbCBmaXZlIGh5cG90aGVzZXMsIG1vdmUgaW50byBlYWNoIGRpcmVjdG9yeSwgc3RhcnQgbWlncmF0ZS1uLCBhbmQgdGhlbiBtb3ZlIHRvIHRoZSBuZXh0IGRpcmVjdG9yeSB1bnRpbCBtaWdyYXRlIG1vZGVscyBhcmUgcnVubmluZyBpbiBlYWNoIGRpcmVjdG9yeS4KCklnbm9yZSB0aGUgbmVlZCB0byBjcmVhdGUgdmlydHVhbCB0ZXJtaW5hbCB3aW5kb3dzIChzY3JlZW4pIGZvciB0aGlzIHByb2JsZW06IGltYWdpbmUgdGhhdCBtaWdyYXRlLW4gc3RhcnRzIGluIHRoZSBiYWNrZ3JvdW5kIGFuZCB0aGVuIGxldHMgeW91IGlzc3VlIG1vcmUgY29tbWFuZHMuCgpZb3UgbWF5IHVzZSB0aGUgZGlyZWN0b3J5IGxpbmtlZCBbaGVyZV0oKSB0byBleHBlcmltZW50IHdpdGguIEdpdmUgdGhlIGNvZGUgaW4gdGhlIGJveCBiZWxvdy4KCmBgYHtiYXNofQpmb3IgZGlyIGluICouKgogIGRvCiAgZWNobyBkaXIKICBjZCBkaXIKICBlY2hvIG1pZ3JhdGUtbiBwYXJtZmlsZQogIGNkIC4uCmRvbmUKCmBgYAoKIyAyIEJhdCBSIFRocm93IEwKVGhlIGZvbGxvd2luZyB0aHJlZSBxdWVzdGlvbnMgd2lsbCBiZSBiYXNlZCBvbiB0aGlzIGRhdGFzZXQgdGhhdCBkZXNjcmliZXMgc3RhdGlzdGljcyBmb3IgTWFqb3IgTGVhZ3VlIEJhc2ViYWxsIGluIDIwMDguIFBsZWFzZSBwYXN0ZSBpbiB5b3VyIG9uZSBsaW5lIG9mIGNvZGUsIGFuZCB0aGUgcmVzdWx0aW5nIFIgb3V0cHV0IGludG8gdGhlIHJlc3BvbnNlIGJveC4KCkhvdyBtYW55IE5hdGlvbmFsIExlYWd1ZSBiYXNlYmFsbCBwbGF5ZXJzIGJhdHRlZCByaWdodCBhbmQgdGhyZXcgd2l0aCB0aGVpciBsZWZ0IGluIDIwMDg/</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQklPIDQ0NCBUZXN0IFF1ZXN0aW9ucyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyAxIFVuaXggTG9vcHMKSW4gb3JkZXIgdG8gcnVuIG91ciBtaWdyYXRlLW4gYW5hbHlzZXMgd2UgaGFkIHRvIGNvbnN0cnVjdCBkaXJlY3RvcmllcywgZWFjaCBjb250YWluaW5nIGEgcGFyYW1ldGVyIHNldHRpbmdzIGZpbGUsIGFuZCB0aGVuIGVudGVyIGVhY2ggZGlyZWN0b3J5IHRvIHJ1biBtaWdyYXRlLiBJbWFnaW5lIHRoYXQgaW5zdGVhZCBvZiAxIHNwZWNpZXMsIHlvdSBoYWQgdG8gYW5hbHl6ZSA0MCBzcGVjaWVzIHdpdGggbWlncmF0ZS1uLgoKV3JpdGUgYSAnZm9yLWxvb3AnIGluIHVuaXggdGhhdCB3b3VsZCBhbGxvdyB5b3UgdG8gc3RhcnQgaW4gYSBkaXJlY3RvcnkgY29udGFpbmluZyBkaXJlY3RvcmllcyB3aXRoIGFsbCBmaXZlIGh5cG90aGVzZXMsIG1vdmUgaW50byBlYWNoIGRpcmVjdG9yeSwgc3RhcnQgbWlncmF0ZS1uLCBhbmQgdGhlbiBtb3ZlIHRvIHRoZSBuZXh0IGRpcmVjdG9yeSB1bnRpbCBtaWdyYXRlIG1vZGVscyBhcmUgcnVubmluZyBpbiBlYWNoIGRpcmVjdG9yeS4KCklnbm9yZSB0aGUgbmVlZCB0byBjcmVhdGUgdmlydHVhbCB0ZXJtaW5hbCB3aW5kb3dzIChzY3JlZW4pIGZvciB0aGlzIHByb2JsZW06IGltYWdpbmUgdGhhdCBtaWdyYXRlLW4gc3RhcnRzIGluIHRoZSBiYWNrZ3JvdW5kIGFuZCB0aGVuIGxldHMgeW91IGlzc3VlIG1vcmUgY29tbWFuZHMuIFRvIG92ZXIgY29tZSB0aGlzIHdoZW4gdGVzdGluZyB5b3VyIHByb2dyYW0sIHVzZSAiZWNobyBtaWdyYXRlLW4gcGFybWZpbGUiIGFzIHRoZSBjb21tYW5kIHRvIHJ1biBtaWdyYXRlLW4uCgpZb3UgbWF5IHVzZSB0aGUgZGlyZWN0b3J5IGxpbmtlZCBbaGVyZV0oaHR0cDovL2VyaWNjcmFuZGFsbC5naXRodWIuaW8vbGVzc29ucy9leGFtLzVfaHlwb3RoZXNpcy56aXApIHRvIGV4cGVyaW1lbnQgd2l0aC4gR2l2ZSB0aGUgY29kZSBpbiB0aGUgYm94IGJlbG93LgoKYGBge2Jhc2h9CmZvciBkaXIgaW4gKi4qCiAgZG8KICBlY2hvIGRpcgogIGNkIGRpcgogIGVjaG8gbWlncmF0ZS1uIHBhcm1maWxlCiAgY2QgLi4KZG9uZQoKYGBgCgojIDIgQmF0IFIgVGhyb3cgTApUaGUgZm9sbG93aW5nIHRocmVlIHF1ZXN0aW9ucyB3aWxsIGJlIGJhc2VkIG9uIHRoaXMgY29tbWEtZGVsaW1pdGVkIGRhdGFzZXQgdGhhdCBkZXNjcmliZXMgc3RhdGlzdGljcyBmb3IgTWFqb3IgTGVhZ3VlIEJhc2ViYWxsIGluIDIwMDguIFBsZWFzZSBwYXN0ZSBpbiB5b3VyIG9uZSBsaW5lIG9mIGNvZGUsIGFuZCB0aGUgcmVzdWx0aW5nIFIgb3V0cHV0IGludG8gdGhlIHJlc3BvbnNlIGJveC4KCkhvdyBtYW55IE5hdGlvbmFsIExlYWd1ZSBiYXNlYmFsbCBwbGF5ZXJzIGJhdHRlZCByaWdodCBhbmQgdGhyZXcgd2l0aCB0aGVpciBsZWZ0IGluIDIwMDg/CgpgYGB7cn0KYmF0PC1yZWFkLnRhYmxlKCJodHRwczovL2VyaWNjcmFuZGFsbC5naXRodWIuaW8vQklPNDQ0L2xlc3NvbnMvZXhhbS9iYXR0aW5nX3BsYXllcnMwOC50eHQiLCBoZWFkZXI9VCwgc2VwPSIsIikKCnRhYmxlKGJhdCRiYXRzLGJhdCR0aHJvd3MsYmF0JGxnSUQpCmBgYAojIDMgTmFtZXMKV2hhdCBhcmUgdGhlaXIgbmFtZXM/IEhvdyBtYW55IHJ1bnMtYmF0dGVkLWluIChSQkkpIGRpZCB0aGV5IGhpdD8KCmBgYHtyfQpCUlRMPC1iYXRbd2hpY2goYmF0JGJhdHM9PSJSIiAmIGJhdCR0aHJvd3M9PSJMIiAmIGJhdCRsZ0lEPT0iTkwiKSxjKCJuYW1lRmlyc3QiLCJuYW1lTGFzdCIsIlJCSSIpXQpgYGAKCiMgNCBSQkkgVGFibGUKQ3JlYXRlIGEgdGFibGUgdGhhdCBpcyBzb3J0ZWQgYWxwaGFiZXRpY2FsbHkgYnkgdGhlIG51bWJlciBvZiBSQklzIHRoZXNlIHBsYXllcnMgaGl0IGluIDIwMDguCmBgYHtyfQpCUlRMW29yZGVyKEJSVExbLDNdLGRlY3JlYXNpbmc9VCksXQpgYGAKCg==</div>
 
 
 

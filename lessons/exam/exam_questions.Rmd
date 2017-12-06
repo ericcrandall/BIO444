@@ -8,9 +8,9 @@ In order to run our migrate-n analyses we had to construct directories, each con
 
 Write a 'for-loop' in unix that would allow you to start in a directory containing directories with all five hypotheses, move into each directory, start migrate-n, and then move to the next directory until migrate models are running in each directory.
 
-Ignore the need to create virtual terminal windows (screen) for this problem: imagine that migrate-n starts in the background and then lets you issue more commands.
+Ignore the need to create virtual terminal windows (screen) for this problem: imagine that migrate-n starts in the background and then lets you issue more commands. To over come this when testing your program, use "echo migrate-n parmfile" as the command to run migrate-n.
 
-You may use the directory linked [here]() to experiment with. Give the code in the box below.
+You may use the directory linked [here](http://ericcrandall.github.io/lessons/exam/5_hypothesis.zip) to experiment with. Give the code in the box below.
 
 ```{bash}
 for dir in *.*
@@ -24,6 +24,25 @@ done
 ```
 
 # 2 Bat R Throw L
-The following three questions will be based on this dataset that describes statistics for Major League Baseball in 2008. Please paste in your one line of code, and the resulting R output into the response box.
+The following three questions will be based on this comma-delimited dataset that describes statistics for Major League Baseball in 2008. Please paste in your one line of code, and the resulting R output into the response box.
 
 How many National League baseball players batted right and threw with their left in 2008?
+
+```{r}
+bat<-read.table("https://ericcrandall.github.io/BIO444/lessons/exam/batting_players08.txt", header=T, sep=",")
+
+table(bat$bats,bat$throws,bat$lgID)
+```
+# 3 Names
+What are their names? How many runs-batted-in (RBI) did they hit?
+
+```{r}
+BRTL<-bat[which(bat$bats=="R" & bat$throws=="L" & bat$lgID=="NL"),c("nameFirst","nameLast","RBI")]
+```
+
+# 4 RBI Table
+Create a table that is sorted alphabetically by the number of RBIs these players hit in 2008.
+```{r}
+BRTL[order(BRTL[,3],decreasing=T),]
+```
+
