@@ -46,3 +46,73 @@ Create a table that is sorted alphabetically by the number of RBIs these players
 BRTL[order(BRTL[,3],decreasing=T),]
 ```
 
+# 5 HW Equilibrium
+You measure the frequency of a SNP in a population of corals. You find the following genotypes:
+GG: 85
+GT: 90
+TT: 10
+
+Write code to calculate p, q, the expected genotypic *frequencies* as well as the expected numbers of each genotype if the population were under Hardy-Weinberg, and a $\chi^2$ test (give the $\chi$ statistic as well as the p value) to determine if the population significantly departs from HWE. Provide code as well as results for all of the values requested. Do not use the functions from TeachingPopGen package.
+
+```{r}
+obs<-c(85,90,10)
+N<-sum(obs)
+p <-(2*obs[1]+obs[2])/(2*N)
+q <- 1-p
+p; q
+
+expF <-c(p^2,2*p*q,q^2)
+expN <-N * expF
+expN
+
+chi<-sum((obs-expN)^2/expN)
+chi
+
+pr<-1-pchisq(chi,1)
+pr
+
+```
+
+#6 The General F-statistic
+
+What is going on with the data above? Calculate the generalized F statistic, and from its value, derive a possible explanation. Provide code, your calculated F statistic and a written interpretation.
+
+```{r}
+expH<-0.41782323
+obsH<-90/N
+
+F<-1-(obsH/expH)
+
+```
+
+#7 The fate of a new mutation
+
+A certain recent mutation in a haploid population confers a 1% increase in reproductive output (s=0.01) to any individual that has it, relative to the ancestral gene, which is neutral. Assuming that an individual with a neutral allele has 1 offspring on average, what is the probability that this brand-new mutation will survive for 200 generations. How does this compare (how much more probable) to a new mutation that did not confer any reproductive advantage?
+
+```{r}
+fate <-function(c){
+x <-rep(0,200) # create a vector of zeros, which will hold the results of the recursion calculation
+for(i in 1:199){
+  x[i+1] <-exp((c)*(x[i]-1))
+}
+return(x)
+}
+
+a<-fate(1.01)
+b<-fate(1)
+
+pA<-1-a[200]
+pB<-1-b[200]
+
+ans<-pA/pB
+
+
+```
+There is a `r pA` chance that this new advantageous mutation will survive. That is `r ans` times more probable than the neutral allele.
+
+# 8 Mutation Models
+Which mutational model best describes [this](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) dataset based on the Bayesian Information Criterion?
+
+```{r}
+
+```

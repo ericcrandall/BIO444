@@ -77,11 +77,11 @@ And we see that the data in fact fall within the range expected we observed as a
 We can also calculate the probability of this particular &chi;^2^ value as follows:
 
 ```{r}
-pr <-qchisq(chi,.95)
+pr <-1-pchisq(chi,1)
 pr
 ```
 
-And we see that the probability of observing this much or more deviation from Hardy-Weinberg expectations is 22%, far higher than our normal standard of 5% for rejecting the null hypothesis.  So we can conclude in this case that the hypothesis cannot be rejected.
+And we see that the probability of observing this much or more deviation from Hardy-Weinberg expectations is 53%, far higher than our normal standard of 5% for rejecting the null hypothesis.  So we can conclude in this case that the hypothesis cannot be rejected.
 
 #### The more conventional approach
 
