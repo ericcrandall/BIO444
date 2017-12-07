@@ -1,5 +1,18 @@
-# <center>The Hardy Weinberg Equilibrium</center>
-`r Sys.Date()`  
+---
+title: <center>The Hardy Weinberg Equilibrium</center>
+date: '2017-12-07'
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+  md_document:
+    toc: yes
+    variant: markdown_github
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
 Lesson based on materials from [Bruce Cochrane](http://www.teachingpopgen.org)
 
 
@@ -317,15 +330,15 @@ We can also calculate the probability of this particular &chi;^2^ value as follo
 
 
 ```r
-pr <-qchisq(chi,.95)
+pr <-1-pchisq(chi,1)
 pr
 ```
 
 ```
-## [1] 0.2277098
+## [1] 0.5333612
 ```
 
-And we see that the probability of observing this much or more deviation from Hardy-Weinberg expectations is 22%, far higher than our normal standard of 5% for rejecting the null hypothesis.  So we can conclude in this case that the hypothesis cannot be rejected.
+And we see that the probability of observing this much or more deviation from Hardy-Weinberg expectations is 53%, far higher than our normal standard of 5% for rejecting the null hypothesis.  So we can conclude in this case that the hypothesis cannot be rejected.
 
 #### The more conventional approach
 

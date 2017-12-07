@@ -111,8 +111,14 @@ ans<-pA/pB
 There is a `r pA` chance that this new advantageous mutation will survive. That is `r ans` times more probable than the neutral allele.
 
 # 8 Mutation Models
-Which mutational model best describes [this](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) dataset based on the Bayesian Information Criterion?
+Which mutational model best describes [this](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) dataset based on the Bayesian Information Criterion? You will need the `phyClust` library (You should be able to read.FASTA directly from the url). What are the important aspects of this model (i.e. what parameters of molecular evolution does it consider?) Show your code and any output from the code, and answer the question.
 
 ```{r}
+library(phyclust)
+library(phangorn)
+data<-read.FASTA("https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt")
+data.phy<-phyDat(data)
+data.mt<-modelTest(data.phy,G=T,I=T)
 
+data.mt[order(data.mt$BIC),]
 ```
