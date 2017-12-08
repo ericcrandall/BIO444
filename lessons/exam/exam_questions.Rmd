@@ -125,16 +125,25 @@ data.mt<-modelTest(data.phy,G=T,I=T)
 data.mt[order(data.mt$BIC),]
 ```
 # 9
-Calculate nucleotide diversity and Tajima's D for [this same dataset](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt using functions in the `pegas` package. Provide nucleotide diversity values both for `per base` and `per sequence`. Provide a written interpretation of each of these results.
+Calculate nucleotide diversity, the number of segregating sites and Tajima's D for [this same dataset](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt using functions in the `pegas` and `ape` packages. Provide nucleotide diversity values both for `per base` and `per sequence`. Provide a written interpretation of each of these results.
+
+Then evaluate the significance of your tajima's D statistic using coalescent simulations (not the p-values that are provided by the function). You will need the `phyclust` and `teachingPopGen` libraries. Provide code to show the distribution of D under neutral evolution (you don't need to provide the figure itself)
 
 ```{r}
 library(pegas)
 nuc.div(data)
 337*nuc.div(data)
-tajima.test(data)
+D<-tajima.test(data)
+
+ss.ms <-ms(nsam=21,nreps=1000,opts=(paste("-s",18,"-r",0,337,sep=" ")))
+ss.sum <-ms.sumstats(ss.ms)
+
+colhist(ss.sum$Tajima.D,xlab="D",ylab="Number",main="Distribution of Tajima Statistic")
+Dmean <-mean(ss.sum$Tajima.D)
+Dmean
 
 
-
+#abline(V=D$D, col="red")
 ```
 
 # 10 What is genetic drift?
@@ -171,11 +180,41 @@ You obtain SNP data from
 ```{r, echo=F}
 library(HardyWeinberg)
 dat <-(sapply(c(1:5),function(x) (HWData(nm=1,n=100,f=runif(1,.05,.2),p=runif(1,.1,.9)))))
-
+rownames(dat) <-c("AA","AG","GG")
 
 
 ```
 
-You have 
+You genotype a five populations of ocean sunfish (Mola mola) for a biallelic SNP, producing [this](https://ericcrandall.github.io/BIO444/lessons/exam/fst.csv) dataset. Calculate the overall $F_{ST}$ value for this dataset without using any functions from population genetic packages. Use row.names=1 in your read.csv() command. How do you interpret the value you calculated for Fst?
+
+
+```{r}
+dat<-read.csv("https://ericcrandall.github.io/BIO444/lessons/exam/fst.csv", row.names=1)
+
+#transform to frequencies and calculate p
+dat <-apply(dat,2,function(x) x/sum(x)) #create a matrix of frequencies of each genotype
+dat
+p <-apply(dat,2,function(x) x[1]+.5*x[2]) #calculate p for each population
+dat.2 <-rbind(p,1-p,dat[2,])
+rownames(dat.2) <-c("p","q","Hobs")
+dat.2
+
+#calculate Hi and Hs and Ht
+Hi <-mean(dat.2[3,])
+Hs <-mean(2*dat.2[1,]*dat.2[2,])
+Hi; Hs
+Ht <- 2*mean(dat.2[1,])*mean(dat.2[2,])
+
+Fst <-(Ht-Hs)/Ht
+Fst
+```
+
+
+#14 BSP
+The Bayesian Skyline Plot model in BEAST relies on a basic observation that we can make about coalescent trees under different demographic models. How do we expect coalescent trees to change (relative to a constant sized population) under a population growth scenario? What about under a bottleneck scenario?
+
+
+
+
 
 ```{r}
