@@ -111,10 +111,12 @@ ans<-pA/pB
 There is a `r pA` chance that this new advantageous mutation will survive. That is `r ans` times more probable than the neutral allele.
 
 # 8 Mutation Models
-Which mutational model best describes [this](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) dataset based on the Bayesian Information Criterion? You will need the `phyClust` library (You should be able to read.FASTA directly from the url). What are the important aspects of this model (i.e. what parameters of molecular evolution does it consider?) Show your code and any output from the code, and answer the question.
+Which mutational model best describes [this](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) dataset based on the Bayesian Information Criterion? You will need the `phangorn` library (You should be able to read.FASTA directly from the url). What are the important aspects of this model (i.e. what parameters of molecular evolution does it consider?) Show your code and any output from the code, and answer the question. 
+
+Bonus question worth 0 points. What fictional place does `phangorn` refer to?
 
 ```{r}
-library(phyclust)
+
 library(phangorn)
 data<-read.FASTA("https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt")
 data.phy<-phyDat(data)
@@ -122,3 +124,58 @@ data.mt<-modelTest(data.phy,G=T,I=T)
 
 data.mt[order(data.mt$BIC),]
 ```
+# 9
+Calculate nucleotide diversity and Tajima's D for [this same dataset](https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt) https://ericcrandall.github.io/BIO444/lessons/exam/testdata.txt using functions in the `pegas` package. Provide nucleotide diversity values both for `per base` and `per sequence`. Provide a written interpretation of each of these results.
+
+```{r}
+library(pegas)
+nuc.div(data)
+337*nuc.div(data)
+tajima.test(data)
+
+
+
+```
+
+# 10 What is genetic drift?
+What, exactly, is genetic drift? How does it affect genetic diversity within a population? How does it affect genetic diversity between populations?
+
+Sampling error. Decreases within. Increases between.
+
+# 11 Effective Population Size
+
+Define effective population size. How does it differ from census population size?
+
+#12 
+
+The parameter $\Theta$ is very important in population genetics. How is it defined? How can we interpret $\Theta$ parameters in our migrate models?
+
+Calculate $\Theta$ for a locus from the following allele frequencies:
+Allele A: 0.345
+Allele B: 0.162
+Allele C: 0.080
+Allele D: 0.080
+Allele E: 0.110
+Allele F: 0.223
+
+```{r}
+freqs<-c(0.345,0.162,0.08,0.08,0.11,0.223)
+f.adk<-sum(freqs^2)
+th.adk <-(1/f.adk-1)
+th.adk
+```
+
+#13
+You obtain SNP data from 
+
+```{r, echo=F}
+library(HardyWeinberg)
+dat <-(sapply(c(1:5),function(x) (HWData(nm=1,n=100,f=runif(1,.05,.2),p=runif(1,.1,.9)))))
+
+
+
+```
+
+You have 
+
+```{r}
